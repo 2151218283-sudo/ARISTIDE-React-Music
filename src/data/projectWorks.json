@@ -1,0 +1,1850 @@
+[
+  {
+    "slug": "house-of-gucci",
+    "title": "houseof GuccI",
+    "titleRows": [
+      "houseof",
+      "GuccI"
+    ],
+    "background": "rgb(240,240,240)",
+    "foreground": "rgb(204,153,51)",
+    "visitUrl": "https://houseofgucci.aristidebenoist.com",
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/house-of-gucci/l/0.webp",
+        "thumbnail": "/assets/work/house-of-gucci/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/house-of-gucci/l/1.webp",
+        "thumbnail": "/assets/work/house-of-gucci/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/house-of-gucci/l/2.webp",
+        "thumbnail": "/assets/work/house-of-gucci/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/house-of-gucci/l/3.webp",
+        "thumbnail": "/assets/work/house-of-gucci/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/house-of-gucci/l/4.webp",
+        "thumbnail": "/assets/work/house-of-gucci/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/house-of-gucci/l/5.webp",
+        "thumbnail": "/assets/work/house-of-gucci/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/house-of-gucci/l/6.webp",
+        "thumbnail": "/assets/work/house-of-gucci/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "paul-et-henriette",
+    "title": "p&h",
+    "titleRows": [
+      "p&h"
+    ],
+    "background": "rgb(168,168,168)",
+    "foreground": "rgb(30,30,30)",
+    "visitUrl": "https://paulethenriette.aristidebenoist.com",
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/paul-et-henriette/l/0.webp",
+        "thumbnail": "/assets/work/paul-et-henriette/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/paul-et-henriette/l/1.webp",
+        "thumbnail": "/assets/work/paul-et-henriette/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/paul-et-henriette/l/2.webp",
+        "thumbnail": "/assets/work/paul-et-henriette/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/paul-et-henriette/l/3.webp",
+        "thumbnail": "/assets/work/paul-et-henriette/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/paul-et-henriette/l/4.webp",
+        "thumbnail": "/assets/work/paul-et-henriette/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/paul-et-henriette/l/5.webp",
+        "thumbnail": "/assets/work/paul-et-henriette/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/paul-et-henriette/l/6.webp",
+        "thumbnail": "/assets/work/paul-et-henriette/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/paul-et-henriette/l/7.webp",
+        "thumbnail": "/assets/work/paul-et-henriette/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "canals",
+    "title": "CanaLS",
+    "titleRows": [
+      "CanaLS"
+    ],
+    "background": "rgb(203,69,57)",
+    "foreground": "rgb(255,241,206)",
+    "visitUrl": "https://canals-amsterdam.com",
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/canals/l/0.webp",
+        "thumbnail": "/assets/work/canals/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/canals/l/1.webp",
+        "thumbnail": "/assets/work/canals/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/canals/l/2.webp",
+        "thumbnail": "/assets/work/canals/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/canals/l/3.webp",
+        "thumbnail": "/assets/work/canals/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/canals/l/4.webp",
+        "thumbnail": "/assets/work/canals/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/canals/l/5.webp",
+        "thumbnail": "/assets/work/canals/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/canals/l/6.webp",
+        "thumbnail": "/assets/work/canals/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "jacques-marie-mage",
+    "title": "Jmm",
+    "titleRows": [
+      "Jmm"
+    ],
+    "background": "rgb(214,213,210)",
+    "foreground": "rgb(30,30,30)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/jacques-marie-mage/l/0.webp",
+        "thumbnail": "/assets/work/jacques-marie-mage/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/jacques-marie-mage/l/1.webp",
+        "thumbnail": "/assets/work/jacques-marie-mage/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/jacques-marie-mage/l/2.webp",
+        "thumbnail": "/assets/work/jacques-marie-mage/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/jacques-marie-mage/l/3.webp",
+        "thumbnail": "/assets/work/jacques-marie-mage/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/jacques-marie-mage/l/4.webp",
+        "thumbnail": "/assets/work/jacques-marie-mage/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/jacques-marie-mage/l/5.webp",
+        "thumbnail": "/assets/work/jacques-marie-mage/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/jacques-marie-mage/l/6.webp",
+        "thumbnail": "/assets/work/jacques-marie-mage/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "mank",
+    "title": "ManK",
+    "titleRows": [
+      "ManK"
+    ],
+    "background": "rgb(23,23,23)",
+    "foreground": "rgb(217,217,217)",
+    "visitUrl": "https://mank.aristidebenoist.com",
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/mank/l/0.webp",
+        "thumbnail": "/assets/work/mank/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/mank/l/1.webp",
+        "thumbnail": "/assets/work/mank/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/mank/l/2.webp",
+        "thumbnail": "/assets/work/mank/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/mank/l/3.webp",
+        "thumbnail": "/assets/work/mank/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/mank/l/4.webp",
+        "thumbnail": "/assets/work/mank/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/mank/l/5.webp",
+        "thumbnail": "/assets/work/mank/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/mank/l/6.webp",
+        "thumbnail": "/assets/work/mank/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/mank/l/7.webp",
+        "thumbnail": "/assets/work/mank/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "waka-waka-1",
+    "title": "WaKa WaKa",
+    "titleRows": [
+      "WaKa",
+      "WaKa"
+    ],
+    "background": "rgb(189,189,189)",
+    "foreground": "rgb(42,42,42)",
+    "visitUrl": "https://wakawaka.aristidebenoist.com",
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/waka-waka-1/l/0.webp",
+        "thumbnail": "/assets/work/waka-waka-1/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/waka-waka-1/l/1.webp",
+        "thumbnail": "/assets/work/waka-waka-1/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/waka-waka-1/l/2.webp",
+        "thumbnail": "/assets/work/waka-waka-1/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/waka-waka-1/l/3.webp",
+        "thumbnail": "/assets/work/waka-waka-1/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/waka-waka-1/l/4.webp",
+        "thumbnail": "/assets/work/waka-waka-1/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/waka-waka-1/l/5.webp",
+        "thumbnail": "/assets/work/waka-waka-1/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/waka-waka-1/l/6.webp",
+        "thumbnail": "/assets/work/waka-waka-1/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/waka-waka-1/l/7.webp",
+        "thumbnail": "/assets/work/waka-waka-1/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "capsulin",
+    "title": "CapsulIn",
+    "titleRows": [
+      "CapsulIn"
+    ],
+    "background": "rgb(1,1,3)",
+    "foreground": "rgb(240,240,240)",
+    "visitUrl": "https://capsulin.aristidebenoist.com",
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/capsulin/l/0.webp",
+        "thumbnail": "/assets/work/capsulin/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/capsulin/l/1.webp",
+        "thumbnail": "/assets/work/capsulin/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/capsulin/l/2.webp",
+        "thumbnail": "/assets/work/capsulin/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/capsulin/l/3.webp",
+        "thumbnail": "/assets/work/capsulin/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/capsulin/l/4.webp",
+        "thumbnail": "/assets/work/capsulin/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/capsulin/l/5.webp",
+        "thumbnail": "/assets/work/capsulin/s/5.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "design-embraced",
+    "title": "desIGn eMbRaced",
+    "titleRows": [
+      "desIGn",
+      "eMbRaced"
+    ],
+    "background": "rgb(76,81,86)",
+    "foreground": "rgb(217,146,153)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 1,
+        "large": "/assets/work/design-embraced/l/0.webp",
+        "thumbnail": "/assets/work/design-embraced/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/design-embraced/l/1.webp",
+        "thumbnail": "/assets/work/design-embraced/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/design-embraced/l/2.webp",
+        "thumbnail": "/assets/work/design-embraced/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/design-embraced/l/3.webp",
+        "thumbnail": "/assets/work/design-embraced/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/design-embraced/l/4.webp",
+        "thumbnail": "/assets/work/design-embraced/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/design-embraced/l/5.webp",
+        "thumbnail": "/assets/work/design-embraced/s/5.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "new-company",
+    "title": "nEW COMPanY",
+    "titleRows": [
+      "nEW",
+      "COMPanY"
+    ],
+    "background": "rgb(119,113,97)",
+    "foreground": "rgb(224,200,164)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/new-company/l/0.webp",
+        "thumbnail": "/assets/work/new-company/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/new-company/l/1.webp",
+        "thumbnail": "/assets/work/new-company/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/new-company/l/2.webp",
+        "thumbnail": "/assets/work/new-company/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/new-company/l/3.webp",
+        "thumbnail": "/assets/work/new-company/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/new-company/l/4.webp",
+        "thumbnail": "/assets/work/new-company/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/new-company/l/5.webp",
+        "thumbnail": "/assets/work/new-company/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/new-company/l/6.webp",
+        "thumbnail": "/assets/work/new-company/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "tm",
+    "title": "TM",
+    "titleRows": [
+      "TM"
+    ],
+    "background": "rgb(15,11,8)",
+    "foreground": "rgb(218,69,47)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 1,
+        "large": "/assets/work/tm/l/0.webp",
+        "thumbnail": "/assets/work/tm/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/tm/l/1.webp",
+        "thumbnail": "/assets/work/tm/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/tm/l/2.webp",
+        "thumbnail": "/assets/work/tm/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/tm/l/3.webp",
+        "thumbnail": "/assets/work/tm/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/tm/l/4.webp",
+        "thumbnail": "/assets/work/tm/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/tm/l/5.webp",
+        "thumbnail": "/assets/work/tm/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/tm/l/6.webp",
+        "thumbnail": "/assets/work/tm/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "waka-waka-2",
+    "title": "WaKa WaKa",
+    "titleRows": [
+      "WaKa",
+      "WaKa"
+    ],
+    "background": "rgb(116,112,108)",
+    "foreground": "rgb(246,240,226)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/waka-waka-2/l/0.webp",
+        "thumbnail": "/assets/work/waka-waka-2/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/waka-waka-2/l/1.webp",
+        "thumbnail": "/assets/work/waka-waka-2/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/waka-waka-2/l/2.webp",
+        "thumbnail": "/assets/work/waka-waka-2/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/waka-waka-2/l/3.webp",
+        "thumbnail": "/assets/work/waka-waka-2/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/waka-waka-2/l/4.webp",
+        "thumbnail": "/assets/work/waka-waka-2/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/waka-waka-2/l/5.webp",
+        "thumbnail": "/assets/work/waka-waka-2/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/waka-waka-2/l/6.webp",
+        "thumbnail": "/assets/work/waka-waka-2/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "stuuudio",
+    "title": "stuuudIo",
+    "titleRows": [
+      "stuuudIo"
+    ],
+    "background": "rgb(251,240,236)",
+    "foreground": "rgb(189,153,143)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/stuuudio/l/0.webp",
+        "thumbnail": "/assets/work/stuuudio/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/stuuudio/l/1.webp",
+        "thumbnail": "/assets/work/stuuudio/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/stuuudio/l/2.webp",
+        "thumbnail": "/assets/work/stuuudio/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/stuuudio/l/3.webp",
+        "thumbnail": "/assets/work/stuuudio/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/stuuudio/l/4.webp",
+        "thumbnail": "/assets/work/stuuudio/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/stuuudio/l/5.webp",
+        "thumbnail": "/assets/work/stuuudio/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/stuuudio/l/6.webp",
+        "thumbnail": "/assets/work/stuuudio/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/stuuudio/l/7.webp",
+        "thumbnail": "/assets/work/stuuudio/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "dribbble",
+    "title": "DRIBBBLE",
+    "titleRows": [
+      "DRIBBBLE"
+    ],
+    "background": "rgb(19,18,24)",
+    "foreground": "rgb(254,168,177)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/dribbble/l/0.webp",
+        "thumbnail": "/assets/work/dribbble/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/dribbble/l/1.webp",
+        "thumbnail": "/assets/work/dribbble/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/dribbble/l/2.webp",
+        "thumbnail": "/assets/work/dribbble/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/dribbble/l/3.webp",
+        "thumbnail": "/assets/work/dribbble/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/dribbble/l/4.webp",
+        "thumbnail": "/assets/work/dribbble/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/dribbble/l/5.webp",
+        "thumbnail": "/assets/work/dribbble/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/dribbble/l/6.webp",
+        "thumbnail": "/assets/work/dribbble/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "folio-v4",
+    "title": "folIo v4",
+    "titleRows": [
+      "folIo",
+      "v4"
+    ],
+    "background": "rgb(227,220,204)",
+    "foreground": "rgb(7,7,7)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/folio-v4/l/0.webp",
+        "thumbnail": "/assets/work/folio-v4/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/folio-v4/l/1.webp",
+        "thumbnail": "/assets/work/folio-v4/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/folio-v4/l/2.webp",
+        "thumbnail": "/assets/work/folio-v4/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/folio-v4/l/3.webp",
+        "thumbnail": "/assets/work/folio-v4/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/folio-v4/l/4.webp",
+        "thumbnail": "/assets/work/folio-v4/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/folio-v4/l/5.webp",
+        "thumbnail": "/assets/work/folio-v4/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/folio-v4/l/6.webp",
+        "thumbnail": "/assets/work/folio-v4/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "crsa",
+    "title": "CRsa",
+    "titleRows": [
+      "CRsa"
+    ],
+    "background": "rgb(208,218,228)",
+    "foreground": "rgb(28,33,52)",
+    "visitUrl": "https://crsa.aristidebenoist.com",
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/crsa/l/0.webp",
+        "thumbnail": "/assets/work/crsa/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/crsa/l/1.webp",
+        "thumbnail": "/assets/work/crsa/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/crsa/l/2.webp",
+        "thumbnail": "/assets/work/crsa/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/crsa/l/3.webp",
+        "thumbnail": "/assets/work/crsa/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/crsa/l/4.webp",
+        "thumbnail": "/assets/work/crsa/s/4.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "marry-monday",
+    "title": "maRRy mondAy",
+    "titleRows": [
+      "maRRy",
+      "mondAy"
+    ],
+    "background": "rgb(222,217,207)",
+    "foreground": "rgb(85,114,156)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/marry-monday/l/0.webp",
+        "thumbnail": "/assets/work/marry-monday/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/marry-monday/l/1.webp",
+        "thumbnail": "/assets/work/marry-monday/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/marry-monday/l/2.webp",
+        "thumbnail": "/assets/work/marry-monday/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/marry-monday/l/3.webp",
+        "thumbnail": "/assets/work/marry-monday/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/marry-monday/l/4.webp",
+        "thumbnail": "/assets/work/marry-monday/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/marry-monday/l/5.webp",
+        "thumbnail": "/assets/work/marry-monday/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/marry-monday/l/6.webp",
+        "thumbnail": "/assets/work/marry-monday/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/marry-monday/l/7.webp",
+        "thumbnail": "/assets/work/marry-monday/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "rappi-pay",
+    "title": "RappI pay",
+    "titleRows": [
+      "RappI",
+      "pay"
+    ],
+    "background": "rgb(21,21,21)",
+    "foreground": "rgb(233,120,106)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 1,
+        "large": "/assets/work/rappi-pay/l/0.webp",
+        "thumbnail": "/assets/work/rappi-pay/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/rappi-pay/l/1.webp",
+        "thumbnail": "/assets/work/rappi-pay/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/rappi-pay/l/2.webp",
+        "thumbnail": "/assets/work/rappi-pay/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/rappi-pay/l/3.webp",
+        "thumbnail": "/assets/work/rappi-pay/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/rappi-pay/l/4.webp",
+        "thumbnail": "/assets/work/rappi-pay/s/4.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "monfrini",
+    "title": "monfRInI",
+    "titleRows": [
+      "monfRInI"
+    ],
+    "background": "rgb(203,215,211)",
+    "foreground": "rgb(0,168,169)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/monfrini/l/0.webp",
+        "thumbnail": "/assets/work/monfrini/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/monfrini/l/1.webp",
+        "thumbnail": "/assets/work/monfrini/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/monfrini/l/2.webp",
+        "thumbnail": "/assets/work/monfrini/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/monfrini/l/3.webp",
+        "thumbnail": "/assets/work/monfrini/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/monfrini/l/4.webp",
+        "thumbnail": "/assets/work/monfrini/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/monfrini/l/5.webp",
+        "thumbnail": "/assets/work/monfrini/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/monfrini/l/6.webp",
+        "thumbnail": "/assets/work/monfrini/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "shallou",
+    "title": "aLLYOUR Days",
+    "titleRows": [
+      "aLLYOUR",
+      "Days"
+    ],
+    "background": "rgb(196,193,184)",
+    "foreground": "rgb(83,187,137)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/shallou/l/0.webp",
+        "thumbnail": "/assets/work/shallou/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/shallou/l/1.webp",
+        "thumbnail": "/assets/work/shallou/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/shallou/l/2.webp",
+        "thumbnail": "/assets/work/shallou/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/shallou/l/3.webp",
+        "thumbnail": "/assets/work/shallou/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/shallou/l/4.webp",
+        "thumbnail": "/assets/work/shallou/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/shallou/l/5.webp",
+        "thumbnail": "/assets/work/shallou/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/shallou/l/6.webp",
+        "thumbnail": "/assets/work/shallou/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/shallou/l/7.webp",
+        "thumbnail": "/assets/work/shallou/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "benjamin-guedj",
+    "title": "BEnJamIn Guedj",
+    "titleRows": [
+      "BEnJamIn",
+      "Guedj"
+    ],
+    "background": "rgb(159,132,123)",
+    "foreground": "rgb(30,31,40)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/benjamin-guedj/l/0.webp",
+        "thumbnail": "/assets/work/benjamin-guedj/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/benjamin-guedj/l/1.webp",
+        "thumbnail": "/assets/work/benjamin-guedj/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/benjamin-guedj/l/2.webp",
+        "thumbnail": "/assets/work/benjamin-guedj/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/benjamin-guedj/l/3.webp",
+        "thumbnail": "/assets/work/benjamin-guedj/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/benjamin-guedj/l/4.webp",
+        "thumbnail": "/assets/work/benjamin-guedj/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/benjamin-guedj/l/5.webp",
+        "thumbnail": "/assets/work/benjamin-guedj/s/5.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "everest",
+    "title": "eveRest",
+    "titleRows": [
+      "eveRest"
+    ],
+    "background": "rgb(208,215,223)",
+    "foreground": "rgb(174,117,230)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/everest/l/0.webp",
+        "thumbnail": "/assets/work/everest/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/everest/l/1.webp",
+        "thumbnail": "/assets/work/everest/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/everest/l/2.webp",
+        "thumbnail": "/assets/work/everest/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/everest/l/3.webp",
+        "thumbnail": "/assets/work/everest/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/everest/l/4.webp",
+        "thumbnail": "/assets/work/everest/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/everest/l/5.webp",
+        "thumbnail": "/assets/work/everest/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/everest/l/6.webp",
+        "thumbnail": "/assets/work/everest/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "make-reign",
+    "title": "maKe ReIGn",
+    "titleRows": [
+      "maKe",
+      "ReIGn"
+    ],
+    "background": "rgb(55,55,55)",
+    "foreground": "rgb(240,67,51)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/make-reign/l/0.webp",
+        "thumbnail": "/assets/work/make-reign/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/make-reign/l/1.webp",
+        "thumbnail": "/assets/work/make-reign/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/make-reign/l/2.webp",
+        "thumbnail": "/assets/work/make-reign/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/make-reign/l/3.webp",
+        "thumbnail": "/assets/work/make-reign/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/make-reign/l/4.webp",
+        "thumbnail": "/assets/work/make-reign/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/make-reign/l/5.webp",
+        "thumbnail": "/assets/work/make-reign/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/make-reign/l/6.webp",
+        "thumbnail": "/assets/work/make-reign/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "guillaume-belveze",
+    "title": "GuIllauMe",
+    "titleRows": [
+      "GuIllauMe"
+    ],
+    "background": "rgb(103,113,105)",
+    "foreground": "rgb(227,203,181)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/guillaume-belveze/l/0.webp",
+        "thumbnail": "/assets/work/guillaume-belveze/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/guillaume-belveze/l/1.webp",
+        "thumbnail": "/assets/work/guillaume-belveze/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/guillaume-belveze/l/2.webp",
+        "thumbnail": "/assets/work/guillaume-belveze/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/guillaume-belveze/l/3.webp",
+        "thumbnail": "/assets/work/guillaume-belveze/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/guillaume-belveze/l/4.webp",
+        "thumbnail": "/assets/work/guillaume-belveze/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/guillaume-belveze/l/5.webp",
+        "thumbnail": "/assets/work/guillaume-belveze/s/5.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "epicurrence-8",
+    "title": "epIcuRRence nØ8",
+    "titleRows": [
+      "epIcuRRence",
+      "nØ8"
+    ],
+    "background": "rgb(221,205,218)",
+    "foreground": "rgb(50,29,68)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/epicurrence-8/l/0.webp",
+        "thumbnail": "/assets/work/epicurrence-8/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/epicurrence-8/l/1.webp",
+        "thumbnail": "/assets/work/epicurrence-8/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/epicurrence-8/l/2.webp",
+        "thumbnail": "/assets/work/epicurrence-8/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/epicurrence-8/l/3.webp",
+        "thumbnail": "/assets/work/epicurrence-8/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/epicurrence-8/l/4.webp",
+        "thumbnail": "/assets/work/epicurrence-8/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/epicurrence-8/l/5.webp",
+        "thumbnail": "/assets/work/epicurrence-8/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/epicurrence-8/l/6.webp",
+        "thumbnail": "/assets/work/epicurrence-8/s/6.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "folio-v1",
+    "title": "folIo v1",
+    "titleRows": [
+      "folIo",
+      "v1"
+    ],
+    "background": "rgb(208,209,215)",
+    "foreground": "rgb(199,131,108)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/folio-v1/l/0.webp",
+        "thumbnail": "/assets/work/folio-v1/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/folio-v1/l/1.webp",
+        "thumbnail": "/assets/work/folio-v1/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/folio-v1/l/2.webp",
+        "thumbnail": "/assets/work/folio-v1/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/folio-v1/l/3.webp",
+        "thumbnail": "/assets/work/folio-v1/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/folio-v1/l/4.webp",
+        "thumbnail": "/assets/work/folio-v1/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/folio-v1/l/5.webp",
+        "thumbnail": "/assets/work/folio-v1/s/5.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "ben-mingo",
+    "title": "Ben mInGo",
+    "titleRows": [
+      "Ben",
+      "mInGo"
+    ],
+    "background": "rgb(127,149,153)",
+    "foreground": "rgb(232,231,200)",
+    "visitUrl": "http://www.benmingo.com",
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/ben-mingo/l/0.webp",
+        "thumbnail": "/assets/work/ben-mingo/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/ben-mingo/l/1.webp",
+        "thumbnail": "/assets/work/ben-mingo/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/ben-mingo/l/2.webp",
+        "thumbnail": "/assets/work/ben-mingo/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/ben-mingo/l/3.webp",
+        "thumbnail": "/assets/work/ben-mingo/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/ben-mingo/l/4.webp",
+        "thumbnail": "/assets/work/ben-mingo/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/ben-mingo/l/5.webp",
+        "thumbnail": "/assets/work/ben-mingo/s/5.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "digital-asset",
+    "title": "dIGItal asset",
+    "titleRows": [
+      "dIGItal",
+      "asset"
+    ],
+    "background": "rgb(41,56,106)",
+    "foreground": "rgb(210,220,242)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/digital-asset/l/0.webp",
+        "thumbnail": "/assets/work/digital-asset/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/digital-asset/l/1.webp",
+        "thumbnail": "/assets/work/digital-asset/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/digital-asset/l/2.webp",
+        "thumbnail": "/assets/work/digital-asset/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/digital-asset/l/3.webp",
+        "thumbnail": "/assets/work/digital-asset/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/digital-asset/l/4.webp",
+        "thumbnail": "/assets/work/digital-asset/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/digital-asset/l/5.webp",
+        "thumbnail": "/assets/work/digital-asset/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/digital-asset/l/6.webp",
+        "thumbnail": "/assets/work/digital-asset/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/digital-asset/l/7.webp",
+        "thumbnail": "/assets/work/digital-asset/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "jenny-johannesson",
+    "title": "jenny johannesson",
+    "titleRows": [
+      "jenny",
+      "johannesson"
+    ],
+    "background": "rgb(215,224,227)",
+    "foreground": "rgb(255,113,203)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/jenny-johannesson/l/0.webp",
+        "thumbnail": "/assets/work/jenny-johannesson/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 1,
+        "large": "/assets/work/jenny-johannesson/l/1.webp",
+        "thumbnail": "/assets/work/jenny-johannesson/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/jenny-johannesson/l/2.webp",
+        "thumbnail": "/assets/work/jenny-johannesson/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/jenny-johannesson/l/3.webp",
+        "thumbnail": "/assets/work/jenny-johannesson/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 5,
+        "large": "/assets/work/jenny-johannesson/l/4.webp",
+        "thumbnail": "/assets/work/jenny-johannesson/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/jenny-johannesson/l/5.webp",
+        "thumbnail": "/assets/work/jenny-johannesson/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/jenny-johannesson/l/6.webp",
+        "thumbnail": "/assets/work/jenny-johannesson/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/jenny-johannesson/l/7.webp",
+        "thumbnail": "/assets/work/jenny-johannesson/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "bear-grylls",
+    "title": "BEaR GRylls",
+    "titleRows": [
+      "BEaR",
+      "GRylls"
+    ],
+    "background": "rgb(70,73,58)",
+    "foreground": "rgb(212,195,165)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/bear-grylls/l/0.webp",
+        "thumbnail": "/assets/work/bear-grylls/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/bear-grylls/l/1.webp",
+        "thumbnail": "/assets/work/bear-grylls/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/bear-grylls/l/2.webp",
+        "thumbnail": "/assets/work/bear-grylls/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/bear-grylls/l/3.webp",
+        "thumbnail": "/assets/work/bear-grylls/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/bear-grylls/l/4.webp",
+        "thumbnail": "/assets/work/bear-grylls/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/bear-grylls/l/5.webp",
+        "thumbnail": "/assets/work/bear-grylls/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/bear-grylls/l/6.webp",
+        "thumbnail": "/assets/work/bear-grylls/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/bear-grylls/l/7.webp",
+        "thumbnail": "/assets/work/bear-grylls/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "epicurrence-6",
+    "title": "epIcuRRence nØ6",
+    "titleRows": [
+      "epIcuRRence",
+      "nØ6"
+    ],
+    "background": "rgb(155,155,153)",
+    "foreground": "rgb(115,65,48)",
+    "visitUrl": null,
+    "media": [
+      {
+        "slot": 0,
+        "large": "/assets/work/epicurrence-6/l/0.webp",
+        "thumbnail": "/assets/work/epicurrence-6/s/0.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 2,
+        "large": "/assets/work/epicurrence-6/l/1.webp",
+        "thumbnail": "/assets/work/epicurrence-6/s/1.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 3,
+        "large": "/assets/work/epicurrence-6/l/2.webp",
+        "thumbnail": "/assets/work/epicurrence-6/s/2.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 4,
+        "large": "/assets/work/epicurrence-6/l/3.webp",
+        "thumbnail": "/assets/work/epicurrence-6/s/3.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 6,
+        "large": "/assets/work/epicurrence-6/l/4.webp",
+        "thumbnail": "/assets/work/epicurrence-6/s/4.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 7,
+        "large": "/assets/work/epicurrence-6/l/5.webp",
+        "thumbnail": "/assets/work/epicurrence-6/s/5.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 8,
+        "large": "/assets/work/epicurrence-6/l/6.webp",
+        "thumbnail": "/assets/work/epicurrence-6/s/6.webp",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "slot": 9,
+        "large": "/assets/work/epicurrence-6/l/7.webp",
+        "thumbnail": "/assets/work/epicurrence-6/s/7.webp",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  }
+]

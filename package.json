@@ -1,0 +1,36 @@
+{
+  "name": "aristidebenoist-clone",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "assets:download": "node scripts/download-assets.mjs",
+    "assets:work": "node scripts/sync-work-assets.mjs",
+    "assets:verify": "node scripts/verify-assets.mjs",
+    "check": "npm run lint && npm run typecheck && npm run build"
+  },
+  "dependencies": {
+    "next": "16.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^24.12.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/three": "0.185.1",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "16.2.1",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

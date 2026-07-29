@@ -1,0 +1,2918 @@
+[
+  {
+    "id": "ec7deb923081cf24",
+    "kind": "stylesheet",
+    "sourceUrl": "https://aristidebenoist.com/static/css/d.css?2",
+    "localPath": "docs/research/raw/original.css"
+  },
+  {
+    "id": "6b692eb4ce5e0bad",
+    "kind": "font",
+    "sourceUrl": "https://aristidebenoist.com/static/font/jw.woff2",
+    "localPath": "public/assets/fonts/jw.woff2"
+  },
+  {
+    "id": "82b17039a5b64350",
+    "kind": "font",
+    "sourceUrl": "https://aristidebenoist.com/static/font/t.woff2",
+    "localPath": "public/assets/fonts/t.woff2"
+  },
+  {
+    "id": "b1dbc758e6124a18",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/fav/fav.svg?2",
+    "localPath": "public/assets/favicons/fav.svg"
+  },
+  {
+    "id": "0d55f7cf9b3db577",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/fav/fav.ico?2",
+    "localPath": "public/assets/favicons/fav.ico"
+  },
+  {
+    "id": "9f548088b32c77ff",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/h/0.webp?2",
+    "localPath": "public/assets/projects/house-of-gucci.webp"
+  },
+  {
+    "id": "5dd63e76272d5616",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/h/0.webp?2",
+    "localPath": "public/assets/projects/ph.webp"
+  },
+  {
+    "id": "a75e83cfc07aa098",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/h/0.webp?2",
+    "localPath": "public/assets/projects/jmm.webp"
+  },
+  {
+    "id": "332c219d8ea5185e",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/h/0.webp?2",
+    "localPath": "public/assets/projects/mank.webp"
+  },
+  {
+    "id": "e90040ab987b68a7",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/h/0.webp?2",
+    "localPath": "public/assets/projects/waka-1.webp"
+  },
+  {
+    "id": "122780ff9d7ba463",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/h/0.webp?2",
+    "localPath": "public/assets/projects/canals.webp"
+  },
+  {
+    "id": "7069254015467689",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/h/0.webp?2",
+    "localPath": "public/assets/projects/capsulin.webp"
+  },
+  {
+    "id": "ae89e68d08c3d18c",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/h/0.webp?2",
+    "localPath": "public/assets/projects/new-company.webp"
+  },
+  {
+    "id": "bdf26f9b3b1844ff",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/h/0.webp?2",
+    "localPath": "public/assets/projects/tm.webp"
+  },
+  {
+    "id": "2ec3a555b492bd7e",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/h/0.webp?2",
+    "localPath": "public/assets/projects/waka-2.webp"
+  },
+  {
+    "id": "b13d004ffb1ed56f",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/h/0.webp?2",
+    "localPath": "public/assets/projects/design-embraced.webp"
+  },
+  {
+    "id": "98c2f33b2d5bc208",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/h/0.webp?2",
+    "localPath": "public/assets/projects/stuuudio.webp"
+  },
+  {
+    "id": "c651067e7659a5df",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/h/0.webp?2",
+    "localPath": "public/assets/projects/dribbble.webp"
+  },
+  {
+    "id": "8b2104d1a787dc78",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/h/0.webp?2",
+    "localPath": "public/assets/projects/folio-v4.webp"
+  },
+  {
+    "id": "9c763abe054acb6b",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/h/0.webp?2",
+    "localPath": "public/assets/projects/crsa.webp"
+  },
+  {
+    "id": "004dd29a125d00a5",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/h/0.webp?2",
+    "localPath": "public/assets/projects/marry-monday.webp"
+  },
+  {
+    "id": "ef39c179df6d7efb",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/h/0.webp?2",
+    "localPath": "public/assets/projects/rappi-pay.webp"
+  },
+  {
+    "id": "d5f668d9c56dcdb2",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/h/0.webp?2",
+    "localPath": "public/assets/projects/monfrini.webp"
+  },
+  {
+    "id": "c22000e1ee8b8d96",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/h/0.webp?2",
+    "localPath": "public/assets/projects/all-your-days.webp"
+  },
+  {
+    "id": "16eb2a58de87d46e",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/h/0.webp?2",
+    "localPath": "public/assets/projects/everest.webp"
+  },
+  {
+    "id": "9474059a48dc4bd8",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/h/0.webp?2",
+    "localPath": "public/assets/projects/benjamin-guedj.webp"
+  },
+  {
+    "id": "a06796d08061490a",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/h/0.webp?2",
+    "localPath": "public/assets/projects/make-reign.webp"
+  },
+  {
+    "id": "d1c518129c5bba48",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/h/0.webp?2",
+    "localPath": "public/assets/projects/guillaume.webp"
+  },
+  {
+    "id": "17ffb9c08e667ce4",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/h/0.webp?2",
+    "localPath": "public/assets/projects/epicurrence-8.webp"
+  },
+  {
+    "id": "4d2a2f27aa34e64e",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/h/0.webp?2",
+    "localPath": "public/assets/projects/folio-v1.webp"
+  },
+  {
+    "id": "25e6d0066345a717",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/h/0.webp?2",
+    "localPath": "public/assets/projects/ben-mingo.webp"
+  },
+  {
+    "id": "3b2d8d3335b9647e",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/h/0.webp?2",
+    "localPath": "public/assets/projects/digital-asset.webp"
+  },
+  {
+    "id": "d3e1dda65142c2bc",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/h/0.webp?2",
+    "localPath": "public/assets/projects/jenny.webp"
+  },
+  {
+    "id": "536c4f95ef7ab1b6",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/h/0.webp?2",
+    "localPath": "public/assets/projects/bear-grylls.webp"
+  },
+  {
+    "id": "dde72373e1c21fe5",
+    "kind": "image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/h/0.webp?2",
+    "localPath": "public/assets/projects/epicurrence-6.webp"
+  },
+  {
+    "id": "5116e3e6de808de2",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:5116e3e6de808de2",
+    "localPath": "public/assets/svg/inline-01.svg"
+  },
+  {
+    "id": "21c496821c7d7b74",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:21c496821c7d7b74",
+    "localPath": "public/assets/svg/inline-02.svg"
+  },
+  {
+    "id": "e7be10dccb82d514",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:e7be10dccb82d514",
+    "localPath": "public/assets/svg/inline-03.svg"
+  },
+  {
+    "id": "aa6b3aa1090ec5e8",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:aa6b3aa1090ec5e8",
+    "localPath": "public/assets/svg/inline-04.svg"
+  },
+  {
+    "id": "f6e8a78ae9913664",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:f6e8a78ae9913664",
+    "localPath": "public/assets/svg/inline-05.svg"
+  },
+  {
+    "id": "2d89553c9d196fcd",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:2d89553c9d196fcd",
+    "localPath": "public/assets/svg/inline-06.svg"
+  },
+  {
+    "id": "cde74d94acec6007",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:cde74d94acec6007",
+    "localPath": "public/assets/svg/inline-07.svg"
+  },
+  {
+    "id": "0454052fd22fc411",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:0454052fd22fc411",
+    "localPath": "public/assets/svg/inline-08.svg"
+  },
+  {
+    "id": "14e2a5e4e59a6e1d",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:14e2a5e4e59a6e1d",
+    "localPath": "public/assets/svg/inline-09.svg"
+  },
+  {
+    "id": "c1beb961e2930e81",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:c1beb961e2930e81",
+    "localPath": "public/assets/svg/inline-10.svg"
+  },
+  {
+    "id": "4d5d24873c60d509",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:4d5d24873c60d509",
+    "localPath": "public/assets/svg/inline-11.svg"
+  },
+  {
+    "id": "c0f6e2a28bfc8e28",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:c0f6e2a28bfc8e28",
+    "localPath": "public/assets/svg/inline-12.svg"
+  },
+  {
+    "id": "7dfaa1f6d9efb8a3",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:7dfaa1f6d9efb8a3",
+    "localPath": "public/assets/svg/inline-13.svg"
+  },
+  {
+    "id": "da0e9a89619caf9f",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:da0e9a89619caf9f",
+    "localPath": "public/assets/svg/inline-14.svg"
+  },
+  {
+    "id": "ee5375f8fabdad71",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:ee5375f8fabdad71",
+    "localPath": "public/assets/svg/inline-15.svg"
+  },
+  {
+    "id": "79f51e1ad62de938",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:79f51e1ad62de938",
+    "localPath": "public/assets/svg/inline-16.svg"
+  },
+  {
+    "id": "b2d904b7009a2ee2",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:b2d904b7009a2ee2",
+    "localPath": "public/assets/svg/inline-17.svg"
+  },
+  {
+    "id": "d172cdb4610b049e",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:d172cdb4610b049e",
+    "localPath": "public/assets/svg/inline-18.svg"
+  },
+  {
+    "id": "fe570325c507cefc",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:fe570325c507cefc",
+    "localPath": "public/assets/svg/inline-19.svg"
+  },
+  {
+    "id": "bef5eb8d041a4d72",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:bef5eb8d041a4d72",
+    "localPath": "public/assets/svg/inline-20.svg"
+  },
+  {
+    "id": "3b98c544e3bf3dea",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:3b98c544e3bf3dea",
+    "localPath": "public/assets/svg/inline-21.svg"
+  },
+  {
+    "id": "b50e63413d51a422",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:b50e63413d51a422",
+    "localPath": "public/assets/svg/inline-22.svg"
+  },
+  {
+    "id": "1cc38af184fd738b",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:1cc38af184fd738b",
+    "localPath": "public/assets/svg/inline-23.svg"
+  },
+  {
+    "id": "2b77d3375bb27f5b",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:2b77d3375bb27f5b",
+    "localPath": "public/assets/svg/inline-24.svg"
+  },
+  {
+    "id": "efdc37236ccc024d",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:efdc37236ccc024d",
+    "localPath": "public/assets/svg/inline-25.svg"
+  },
+  {
+    "id": "da5ef728670fef48",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:da5ef728670fef48",
+    "localPath": "public/assets/svg/inline-26.svg"
+  },
+  {
+    "id": "418cd12c8df1295b",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:418cd12c8df1295b",
+    "localPath": "public/assets/svg/inline-27.svg"
+  },
+  {
+    "id": "4139876b3a17c9da",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:4139876b3a17c9da",
+    "localPath": "public/assets/svg/inline-28.svg"
+  },
+  {
+    "id": "f39e8b237994551b",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:f39e8b237994551b",
+    "localPath": "public/assets/svg/inline-29.svg"
+  },
+  {
+    "id": "5c1b5a716f7d4457",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:5c1b5a716f7d4457",
+    "localPath": "public/assets/svg/inline-30.svg"
+  },
+  {
+    "id": "338b257657e194b7",
+    "kind": "inline-svg",
+    "sourceUrl": "inline-svg:338b257657e194b7",
+    "localPath": "public/assets/svg/inline-31.svg"
+  },
+  {
+    "id": "605872cf473a95c6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/l/0.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/l/0.webp"
+  },
+  {
+    "id": "fc0c8c7335de7f8d",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/s/0.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/s/0.webp"
+  },
+  {
+    "id": "bf3fbdc81d4a6c48",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/l/1.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/l/1.webp"
+  },
+  {
+    "id": "c88b935d826dd6f9",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/s/1.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/s/1.webp"
+  },
+  {
+    "id": "cc59cd11ee75820f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/l/2.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/l/2.webp"
+  },
+  {
+    "id": "b8bfc1d9c04132fd",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/s/2.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/s/2.webp"
+  },
+  {
+    "id": "dda8d1c91a2f71d3",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/l/3.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/l/3.webp"
+  },
+  {
+    "id": "d9856704df6c656d",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/s/3.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/s/3.webp"
+  },
+  {
+    "id": "34376921f9664c63",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/l/4.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/l/4.webp"
+  },
+  {
+    "id": "852756392eb95f4a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/s/4.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/s/4.webp"
+  },
+  {
+    "id": "5b3b27754d499b5c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/l/5.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/l/5.webp"
+  },
+  {
+    "id": "f5e68a7d6220a336",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/s/5.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/s/5.webp"
+  },
+  {
+    "id": "e35cdcee92c628ec",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/l/6.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/l/6.webp"
+  },
+  {
+    "id": "f16a9b3bbaa5e061",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/house-of-gucci/w/s/6.webp?2",
+    "localPath": "public/assets/work/house-of-gucci/s/6.webp"
+  },
+  {
+    "id": "17306643f3b3c380",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/l/0.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/l/0.webp"
+  },
+  {
+    "id": "085e33156e498c56",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/s/0.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/s/0.webp"
+  },
+  {
+    "id": "48d50ee612aa5dfb",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/l/1.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/l/1.webp"
+  },
+  {
+    "id": "038cd1824a3b8c51",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/s/1.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/s/1.webp"
+  },
+  {
+    "id": "4291420919d22d64",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/l/2.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/l/2.webp"
+  },
+  {
+    "id": "591652a207efb836",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/s/2.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/s/2.webp"
+  },
+  {
+    "id": "f1919e7b1346a371",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/l/3.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/l/3.webp"
+  },
+  {
+    "id": "929f46d807afe326",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/s/3.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/s/3.webp"
+  },
+  {
+    "id": "876ac56ce925ebdf",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/l/4.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/l/4.webp"
+  },
+  {
+    "id": "bc4fac707690582a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/s/4.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/s/4.webp"
+  },
+  {
+    "id": "bdb8aea6485b44fd",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/l/5.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/l/5.webp"
+  },
+  {
+    "id": "50bd3504eac77dbf",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/s/5.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/s/5.webp"
+  },
+  {
+    "id": "40938b09d56c55d1",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/l/6.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/l/6.webp"
+  },
+  {
+    "id": "f41b3f214c8d68ee",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/s/6.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/s/6.webp"
+  },
+  {
+    "id": "90a0e87b9769ac2c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/l/7.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/l/7.webp"
+  },
+  {
+    "id": "c6de2649fa7cae2e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ph/w/s/7.webp?2",
+    "localPath": "public/assets/work/paul-et-henriette/s/7.webp"
+  },
+  {
+    "id": "f95bd13b892cfc86",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/l/0.webp?2",
+    "localPath": "public/assets/work/canals/l/0.webp"
+  },
+  {
+    "id": "aa3445ec3cce17d4",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/s/0.webp?2",
+    "localPath": "public/assets/work/canals/s/0.webp"
+  },
+  {
+    "id": "b9218012f1349e5a",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/l/1.webp?2",
+    "localPath": "public/assets/work/canals/l/1.webp"
+  },
+  {
+    "id": "ccf969be57dd376b",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/s/1.webp?2",
+    "localPath": "public/assets/work/canals/s/1.webp"
+  },
+  {
+    "id": "a7c750108c18a245",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/l/2.webp?2",
+    "localPath": "public/assets/work/canals/l/2.webp"
+  },
+  {
+    "id": "cea2203412ea98ff",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/s/2.webp?2",
+    "localPath": "public/assets/work/canals/s/2.webp"
+  },
+  {
+    "id": "26ad3da727b7b592",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/l/3.webp?2",
+    "localPath": "public/assets/work/canals/l/3.webp"
+  },
+  {
+    "id": "ca9b1d1dd01805c1",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/s/3.webp?2",
+    "localPath": "public/assets/work/canals/s/3.webp"
+  },
+  {
+    "id": "039397cbcf883dbe",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/l/4.webp?2",
+    "localPath": "public/assets/work/canals/l/4.webp"
+  },
+  {
+    "id": "f60f04ea067e6211",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/s/4.webp?2",
+    "localPath": "public/assets/work/canals/s/4.webp"
+  },
+  {
+    "id": "dc822104d33ad59f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/l/5.webp?2",
+    "localPath": "public/assets/work/canals/l/5.webp"
+  },
+  {
+    "id": "45d9f191959a8ea4",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/s/5.webp?2",
+    "localPath": "public/assets/work/canals/s/5.webp"
+  },
+  {
+    "id": "1ac407dc8b5a8c92",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/l/6.webp?2",
+    "localPath": "public/assets/work/canals/l/6.webp"
+  },
+  {
+    "id": "452a2047d11d5a71",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/canals/w/s/6.webp?2",
+    "localPath": "public/assets/work/canals/s/6.webp"
+  },
+  {
+    "id": "76d32dfe8df249dd",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/l/0.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/l/0.webp"
+  },
+  {
+    "id": "7c4b50b636716974",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/s/0.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/s/0.webp"
+  },
+  {
+    "id": "d5778d73636b5782",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/l/1.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/l/1.webp"
+  },
+  {
+    "id": "d1c44093ffa57146",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/s/1.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/s/1.webp"
+  },
+  {
+    "id": "6b59247aff75878d",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/l/2.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/l/2.webp"
+  },
+  {
+    "id": "1d89127879b87b1c",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/s/2.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/s/2.webp"
+  },
+  {
+    "id": "766aa29eddd052eb",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/l/3.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/l/3.webp"
+  },
+  {
+    "id": "45e8b901bdd164ab",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/s/3.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/s/3.webp"
+  },
+  {
+    "id": "f6f6aef783956d1f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/l/4.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/l/4.webp"
+  },
+  {
+    "id": "68f07f2b8c271440",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/s/4.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/s/4.webp"
+  },
+  {
+    "id": "8c4be6e40c737946",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/l/5.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/l/5.webp"
+  },
+  {
+    "id": "ba438c7700d2c3c4",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/s/5.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/s/5.webp"
+  },
+  {
+    "id": "6dd3de95dfab129e",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/l/6.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/l/6.webp"
+  },
+  {
+    "id": "2df439ce92aa0433",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jmm/w/s/6.webp?2",
+    "localPath": "public/assets/work/jacques-marie-mage/s/6.webp"
+  },
+  {
+    "id": "23014430e92cd884",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/l/0.webp?2",
+    "localPath": "public/assets/work/mank/l/0.webp"
+  },
+  {
+    "id": "3b041de4974f6dd7",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/s/0.webp?2",
+    "localPath": "public/assets/work/mank/s/0.webp"
+  },
+  {
+    "id": "3830f9be8c4e7d13",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/l/1.webp?2",
+    "localPath": "public/assets/work/mank/l/1.webp"
+  },
+  {
+    "id": "f710bd7995a2ba8a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/s/1.webp?2",
+    "localPath": "public/assets/work/mank/s/1.webp"
+  },
+  {
+    "id": "67674aa7f4c472b0",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/l/2.webp?2",
+    "localPath": "public/assets/work/mank/l/2.webp"
+  },
+  {
+    "id": "bebbe136c0a4267e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/s/2.webp?2",
+    "localPath": "public/assets/work/mank/s/2.webp"
+  },
+  {
+    "id": "a511c724f73c32e4",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/l/3.webp?2",
+    "localPath": "public/assets/work/mank/l/3.webp"
+  },
+  {
+    "id": "c313d5e9e360a606",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/s/3.webp?2",
+    "localPath": "public/assets/work/mank/s/3.webp"
+  },
+  {
+    "id": "e276cc4cd9564a6a",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/l/4.webp?2",
+    "localPath": "public/assets/work/mank/l/4.webp"
+  },
+  {
+    "id": "b4e8d12dde848319",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/s/4.webp?2",
+    "localPath": "public/assets/work/mank/s/4.webp"
+  },
+  {
+    "id": "9e07ebd62457c241",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/l/5.webp?2",
+    "localPath": "public/assets/work/mank/l/5.webp"
+  },
+  {
+    "id": "b281c1a21956a4b0",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/s/5.webp?2",
+    "localPath": "public/assets/work/mank/s/5.webp"
+  },
+  {
+    "id": "d63bb3e06d50ca95",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/l/6.webp?2",
+    "localPath": "public/assets/work/mank/l/6.webp"
+  },
+  {
+    "id": "8f3d835d757ebe17",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/s/6.webp?2",
+    "localPath": "public/assets/work/mank/s/6.webp"
+  },
+  {
+    "id": "435a764968a5f500",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/l/7.webp?2",
+    "localPath": "public/assets/work/mank/l/7.webp"
+  },
+  {
+    "id": "0f197d9af5d5136a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/mank/w/s/7.webp?2",
+    "localPath": "public/assets/work/mank/s/7.webp"
+  },
+  {
+    "id": "b9f689bb7f333ec1",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/l/0.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/l/0.webp"
+  },
+  {
+    "id": "addd2ccf317d2fc8",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/s/0.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/s/0.webp"
+  },
+  {
+    "id": "a2d2f21ec0778bed",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/l/1.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/l/1.webp"
+  },
+  {
+    "id": "7afba2061dafb512",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/s/1.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/s/1.webp"
+  },
+  {
+    "id": "a1f842551e6380a3",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/l/2.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/l/2.webp"
+  },
+  {
+    "id": "5221fbab91348b78",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/s/2.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/s/2.webp"
+  },
+  {
+    "id": "e4f3538e3921b2e7",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/l/3.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/l/3.webp"
+  },
+  {
+    "id": "85a352bdae7148b3",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/s/3.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/s/3.webp"
+  },
+  {
+    "id": "7d64990ca4c9e856",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/l/4.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/l/4.webp"
+  },
+  {
+    "id": "4e2a093fcc10687e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/s/4.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/s/4.webp"
+  },
+  {
+    "id": "e1f6550e7f9c7c4f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/l/5.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/l/5.webp"
+  },
+  {
+    "id": "77d8a7f2a2af2d1b",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/s/5.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/s/5.webp"
+  },
+  {
+    "id": "82476df620fc32d0",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/l/6.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/l/6.webp"
+  },
+  {
+    "id": "08f0796ef9edb721",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/s/6.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/s/6.webp"
+  },
+  {
+    "id": "5e03b5f48c73501b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/l/7.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/l/7.webp"
+  },
+  {
+    "id": "edd3743f69ddbad2",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-1/w/s/7.webp?2",
+    "localPath": "public/assets/work/waka-waka-1/s/7.webp"
+  },
+  {
+    "id": "6c0d7aac3ce25c44",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/l/0.webp?2",
+    "localPath": "public/assets/work/capsulin/l/0.webp"
+  },
+  {
+    "id": "ac95376a90d0112f",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/s/0.webp?2",
+    "localPath": "public/assets/work/capsulin/s/0.webp"
+  },
+  {
+    "id": "f14a02a71f5c330c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/l/1.webp?2",
+    "localPath": "public/assets/work/capsulin/l/1.webp"
+  },
+  {
+    "id": "113d458f2f0182c0",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/s/1.webp?2",
+    "localPath": "public/assets/work/capsulin/s/1.webp"
+  },
+  {
+    "id": "e50a4d80dc9b992d",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/l/2.webp?2",
+    "localPath": "public/assets/work/capsulin/l/2.webp"
+  },
+  {
+    "id": "6433240f0125674e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/s/2.webp?2",
+    "localPath": "public/assets/work/capsulin/s/2.webp"
+  },
+  {
+    "id": "18488b91d23022da",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/l/3.webp?2",
+    "localPath": "public/assets/work/capsulin/l/3.webp"
+  },
+  {
+    "id": "9827daf4ca3ed553",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/s/3.webp?2",
+    "localPath": "public/assets/work/capsulin/s/3.webp"
+  },
+  {
+    "id": "ff568262f11c0ef1",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/l/4.webp?2",
+    "localPath": "public/assets/work/capsulin/l/4.webp"
+  },
+  {
+    "id": "52b32008de90cb8c",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/s/4.webp?2",
+    "localPath": "public/assets/work/capsulin/s/4.webp"
+  },
+  {
+    "id": "1cc10d921f532747",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/l/5.webp?2",
+    "localPath": "public/assets/work/capsulin/l/5.webp"
+  },
+  {
+    "id": "10dfeeab31f46c36",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/capsulin/w/s/5.webp?2",
+    "localPath": "public/assets/work/capsulin/s/5.webp"
+  },
+  {
+    "id": "a9cb9d185de34d0c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/l/0.webp?2",
+    "localPath": "public/assets/work/design-embraced/l/0.webp"
+  },
+  {
+    "id": "db77f4095d5cdf6d",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/s/0.webp?2",
+    "localPath": "public/assets/work/design-embraced/s/0.webp"
+  },
+  {
+    "id": "edd67b4d553885d6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/l/1.webp?2",
+    "localPath": "public/assets/work/design-embraced/l/1.webp"
+  },
+  {
+    "id": "fd457293b15d2163",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/s/1.webp?2",
+    "localPath": "public/assets/work/design-embraced/s/1.webp"
+  },
+  {
+    "id": "822c5ea0cd5f67b6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/l/2.webp?2",
+    "localPath": "public/assets/work/design-embraced/l/2.webp"
+  },
+  {
+    "id": "6c083f980eb282e5",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/s/2.webp?2",
+    "localPath": "public/assets/work/design-embraced/s/2.webp"
+  },
+  {
+    "id": "f0563ac7c103a097",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/l/3.webp?2",
+    "localPath": "public/assets/work/design-embraced/l/3.webp"
+  },
+  {
+    "id": "ab0ba6f99a97813e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/s/3.webp?2",
+    "localPath": "public/assets/work/design-embraced/s/3.webp"
+  },
+  {
+    "id": "b249c3856c267075",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/l/4.webp?2",
+    "localPath": "public/assets/work/design-embraced/l/4.webp"
+  },
+  {
+    "id": "2dfe2a82751e6b53",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/s/4.webp?2",
+    "localPath": "public/assets/work/design-embraced/s/4.webp"
+  },
+  {
+    "id": "842f34bf679a98a3",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/l/5.webp?2",
+    "localPath": "public/assets/work/design-embraced/l/5.webp"
+  },
+  {
+    "id": "5c1f04dcf29f5a9e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/design-embraced/w/s/5.webp?2",
+    "localPath": "public/assets/work/design-embraced/s/5.webp"
+  },
+  {
+    "id": "55e3fbdc42bd3c2b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/l/0.webp?2",
+    "localPath": "public/assets/work/new-company/l/0.webp"
+  },
+  {
+    "id": "daf67589a049abe8",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/s/0.webp?2",
+    "localPath": "public/assets/work/new-company/s/0.webp"
+  },
+  {
+    "id": "68f50a0398162cc6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/l/1.webp?2",
+    "localPath": "public/assets/work/new-company/l/1.webp"
+  },
+  {
+    "id": "d8c221bdc93accfd",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/s/1.webp?2",
+    "localPath": "public/assets/work/new-company/s/1.webp"
+  },
+  {
+    "id": "0ef10ee631f55178",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/l/2.webp?2",
+    "localPath": "public/assets/work/new-company/l/2.webp"
+  },
+  {
+    "id": "7734159f711daf9e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/s/2.webp?2",
+    "localPath": "public/assets/work/new-company/s/2.webp"
+  },
+  {
+    "id": "15b3f005885ee640",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/l/3.webp?2",
+    "localPath": "public/assets/work/new-company/l/3.webp"
+  },
+  {
+    "id": "6416bdf1d15fef91",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/s/3.webp?2",
+    "localPath": "public/assets/work/new-company/s/3.webp"
+  },
+  {
+    "id": "a74cb396973fe627",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/l/4.webp?2",
+    "localPath": "public/assets/work/new-company/l/4.webp"
+  },
+  {
+    "id": "c21b59ef0c767b5a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/s/4.webp?2",
+    "localPath": "public/assets/work/new-company/s/4.webp"
+  },
+  {
+    "id": "fdedf72450008c88",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/l/5.webp?2",
+    "localPath": "public/assets/work/new-company/l/5.webp"
+  },
+  {
+    "id": "96a876c60d7cdbdd",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/s/5.webp?2",
+    "localPath": "public/assets/work/new-company/s/5.webp"
+  },
+  {
+    "id": "18ab4fe1d207ace6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/l/6.webp?2",
+    "localPath": "public/assets/work/new-company/l/6.webp"
+  },
+  {
+    "id": "b530250aff1b187c",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/new-company/w/s/6.webp?2",
+    "localPath": "public/assets/work/new-company/s/6.webp"
+  },
+  {
+    "id": "825b4c81abb29618",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/l/0.webp?2",
+    "localPath": "public/assets/work/tm/l/0.webp"
+  },
+  {
+    "id": "1de9da6b05206e02",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/s/0.webp?2",
+    "localPath": "public/assets/work/tm/s/0.webp"
+  },
+  {
+    "id": "58b3b7cc3b0b459a",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/l/1.webp?2",
+    "localPath": "public/assets/work/tm/l/1.webp"
+  },
+  {
+    "id": "c8e1b79b269fced0",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/s/1.webp?2",
+    "localPath": "public/assets/work/tm/s/1.webp"
+  },
+  {
+    "id": "1a161f195e0dca6c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/l/2.webp?2",
+    "localPath": "public/assets/work/tm/l/2.webp"
+  },
+  {
+    "id": "8aea85b52ed8dc86",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/s/2.webp?2",
+    "localPath": "public/assets/work/tm/s/2.webp"
+  },
+  {
+    "id": "d6edc424ffa71f8d",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/l/3.webp?2",
+    "localPath": "public/assets/work/tm/l/3.webp"
+  },
+  {
+    "id": "fa48acb601dc6ec4",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/s/3.webp?2",
+    "localPath": "public/assets/work/tm/s/3.webp"
+  },
+  {
+    "id": "e47229c034750e05",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/l/4.webp?2",
+    "localPath": "public/assets/work/tm/l/4.webp"
+  },
+  {
+    "id": "8576241798f9c5c9",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/s/4.webp?2",
+    "localPath": "public/assets/work/tm/s/4.webp"
+  },
+  {
+    "id": "e67df630b50f3e67",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/l/5.webp?2",
+    "localPath": "public/assets/work/tm/l/5.webp"
+  },
+  {
+    "id": "4a7728d3afef0f9d",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/s/5.webp?2",
+    "localPath": "public/assets/work/tm/s/5.webp"
+  },
+  {
+    "id": "76d68ae0cd145e36",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/l/6.webp?2",
+    "localPath": "public/assets/work/tm/l/6.webp"
+  },
+  {
+    "id": "f4a494714c50aed8",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/tm/w/s/6.webp?2",
+    "localPath": "public/assets/work/tm/s/6.webp"
+  },
+  {
+    "id": "f6397796331427bd",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/l/0.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/l/0.webp"
+  },
+  {
+    "id": "9f6669187151357f",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/s/0.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/s/0.webp"
+  },
+  {
+    "id": "fc753bf9996d56d9",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/l/1.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/l/1.webp"
+  },
+  {
+    "id": "9c890d0b4d0d46b2",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/s/1.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/s/1.webp"
+  },
+  {
+    "id": "3bcbb1b5f15ba66f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/l/2.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/l/2.webp"
+  },
+  {
+    "id": "69270b10e9470132",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/s/2.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/s/2.webp"
+  },
+  {
+    "id": "4101d8acd6976de7",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/l/3.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/l/3.webp"
+  },
+  {
+    "id": "03ad30e309f0fea8",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/s/3.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/s/3.webp"
+  },
+  {
+    "id": "913b87ef4d2b037b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/l/4.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/l/4.webp"
+  },
+  {
+    "id": "5e88d5f6ba706304",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/s/4.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/s/4.webp"
+  },
+  {
+    "id": "7894f533e0bca9e4",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/l/5.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/l/5.webp"
+  },
+  {
+    "id": "1e4933ad080a38b6",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/s/5.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/s/5.webp"
+  },
+  {
+    "id": "eb200c7ced2c4ed1",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/l/6.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/l/6.webp"
+  },
+  {
+    "id": "083c00a18a7456f5",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/waka-2/w/s/6.webp?2",
+    "localPath": "public/assets/work/waka-waka-2/s/6.webp"
+  },
+  {
+    "id": "cf8185834907e3b6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/l/0.webp?2",
+    "localPath": "public/assets/work/stuuudio/l/0.webp"
+  },
+  {
+    "id": "287b1e99388ab491",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/s/0.webp?2",
+    "localPath": "public/assets/work/stuuudio/s/0.webp"
+  },
+  {
+    "id": "98995b1d7aad4397",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/l/1.webp?2",
+    "localPath": "public/assets/work/stuuudio/l/1.webp"
+  },
+  {
+    "id": "8159c62643b2fc2d",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/s/1.webp?2",
+    "localPath": "public/assets/work/stuuudio/s/1.webp"
+  },
+  {
+    "id": "b447c5f33451fe4b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/l/2.webp?2",
+    "localPath": "public/assets/work/stuuudio/l/2.webp"
+  },
+  {
+    "id": "3e478b6f655f69ad",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/s/2.webp?2",
+    "localPath": "public/assets/work/stuuudio/s/2.webp"
+  },
+  {
+    "id": "71e5e6d112d5d54d",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/l/3.webp?2",
+    "localPath": "public/assets/work/stuuudio/l/3.webp"
+  },
+  {
+    "id": "2aa35dbec775df1e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/s/3.webp?2",
+    "localPath": "public/assets/work/stuuudio/s/3.webp"
+  },
+  {
+    "id": "a84c62f1aeccf2d8",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/l/4.webp?2",
+    "localPath": "public/assets/work/stuuudio/l/4.webp"
+  },
+  {
+    "id": "20d0f8042ae79af7",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/s/4.webp?2",
+    "localPath": "public/assets/work/stuuudio/s/4.webp"
+  },
+  {
+    "id": "7af490543b43884a",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/l/5.webp?2",
+    "localPath": "public/assets/work/stuuudio/l/5.webp"
+  },
+  {
+    "id": "dbc90af9627448c4",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/s/5.webp?2",
+    "localPath": "public/assets/work/stuuudio/s/5.webp"
+  },
+  {
+    "id": "f7d3e5a3f58e4577",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/l/6.webp?2",
+    "localPath": "public/assets/work/stuuudio/l/6.webp"
+  },
+  {
+    "id": "270d636aca774688",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/s/6.webp?2",
+    "localPath": "public/assets/work/stuuudio/s/6.webp"
+  },
+  {
+    "id": "62dfb04f4332570e",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/l/7.webp?2",
+    "localPath": "public/assets/work/stuuudio/l/7.webp"
+  },
+  {
+    "id": "cb96c284377ea4c0",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/stuuudio/w/s/7.webp?2",
+    "localPath": "public/assets/work/stuuudio/s/7.webp"
+  },
+  {
+    "id": "b8d4cd7d2c63d426",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/l/0.webp?2",
+    "localPath": "public/assets/work/dribbble/l/0.webp"
+  },
+  {
+    "id": "a3afe18b58f57496",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/s/0.webp?2",
+    "localPath": "public/assets/work/dribbble/s/0.webp"
+  },
+  {
+    "id": "66eeb65617a0bd36",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/l/1.webp?2",
+    "localPath": "public/assets/work/dribbble/l/1.webp"
+  },
+  {
+    "id": "85adb33b837bf898",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/s/1.webp?2",
+    "localPath": "public/assets/work/dribbble/s/1.webp"
+  },
+  {
+    "id": "6fd405af28d34e80",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/l/2.webp?2",
+    "localPath": "public/assets/work/dribbble/l/2.webp"
+  },
+  {
+    "id": "50199b3a3db57a07",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/s/2.webp?2",
+    "localPath": "public/assets/work/dribbble/s/2.webp"
+  },
+  {
+    "id": "c19a75199bd995de",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/l/3.webp?2",
+    "localPath": "public/assets/work/dribbble/l/3.webp"
+  },
+  {
+    "id": "9b10fbac1e31eaf7",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/s/3.webp?2",
+    "localPath": "public/assets/work/dribbble/s/3.webp"
+  },
+  {
+    "id": "e46a671c74fe5abd",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/l/4.webp?2",
+    "localPath": "public/assets/work/dribbble/l/4.webp"
+  },
+  {
+    "id": "e31a7d2b4131a016",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/s/4.webp?2",
+    "localPath": "public/assets/work/dribbble/s/4.webp"
+  },
+  {
+    "id": "ae9308415e58002b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/l/5.webp?2",
+    "localPath": "public/assets/work/dribbble/l/5.webp"
+  },
+  {
+    "id": "954f29761e8d3e10",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/s/5.webp?2",
+    "localPath": "public/assets/work/dribbble/s/5.webp"
+  },
+  {
+    "id": "62cdef2242fd47db",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/l/6.webp?2",
+    "localPath": "public/assets/work/dribbble/l/6.webp"
+  },
+  {
+    "id": "f34903cd649754e8",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/dribbble/w/s/6.webp?2",
+    "localPath": "public/assets/work/dribbble/s/6.webp"
+  },
+  {
+    "id": "4d31c066e014aa3f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/l/0.webp?2",
+    "localPath": "public/assets/work/folio-v4/l/0.webp"
+  },
+  {
+    "id": "72c07eccd444c737",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/s/0.webp?2",
+    "localPath": "public/assets/work/folio-v4/s/0.webp"
+  },
+  {
+    "id": "564f3a043d7df784",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/l/1.webp?2",
+    "localPath": "public/assets/work/folio-v4/l/1.webp"
+  },
+  {
+    "id": "77f1101d397da414",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/s/1.webp?2",
+    "localPath": "public/assets/work/folio-v4/s/1.webp"
+  },
+  {
+    "id": "e422f6e9d265dd4b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/l/2.webp?2",
+    "localPath": "public/assets/work/folio-v4/l/2.webp"
+  },
+  {
+    "id": "dc826dbf3a19debe",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/s/2.webp?2",
+    "localPath": "public/assets/work/folio-v4/s/2.webp"
+  },
+  {
+    "id": "70408c33ba1d66cc",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/l/3.webp?2",
+    "localPath": "public/assets/work/folio-v4/l/3.webp"
+  },
+  {
+    "id": "bb3c47de01ac8b4b",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/s/3.webp?2",
+    "localPath": "public/assets/work/folio-v4/s/3.webp"
+  },
+  {
+    "id": "2cb9e70e143a9c1c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/l/4.webp?2",
+    "localPath": "public/assets/work/folio-v4/l/4.webp"
+  },
+  {
+    "id": "ef30f2cb68fa18e0",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/s/4.webp?2",
+    "localPath": "public/assets/work/folio-v4/s/4.webp"
+  },
+  {
+    "id": "a87feac105c40758",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/l/5.webp?2",
+    "localPath": "public/assets/work/folio-v4/l/5.webp"
+  },
+  {
+    "id": "6b4b7a674b08fc5a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/s/5.webp?2",
+    "localPath": "public/assets/work/folio-v4/s/5.webp"
+  },
+  {
+    "id": "0aa3242c23e5ede6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/l/6.webp?2",
+    "localPath": "public/assets/work/folio-v4/l/6.webp"
+  },
+  {
+    "id": "7af55a571a8f621a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v4/w/s/6.webp?2",
+    "localPath": "public/assets/work/folio-v4/s/6.webp"
+  },
+  {
+    "id": "5a336ff29e296c79",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/l/0.webp?2",
+    "localPath": "public/assets/work/crsa/l/0.webp"
+  },
+  {
+    "id": "61357bb6f943ee4b",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/s/0.webp?2",
+    "localPath": "public/assets/work/crsa/s/0.webp"
+  },
+  {
+    "id": "036166a2651a46a6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/l/1.webp?2",
+    "localPath": "public/assets/work/crsa/l/1.webp"
+  },
+  {
+    "id": "eb5a3cb8d5512a59",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/s/1.webp?2",
+    "localPath": "public/assets/work/crsa/s/1.webp"
+  },
+  {
+    "id": "2abc041d8d88d136",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/l/2.webp?2",
+    "localPath": "public/assets/work/crsa/l/2.webp"
+  },
+  {
+    "id": "78ea186e583e6caf",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/s/2.webp?2",
+    "localPath": "public/assets/work/crsa/s/2.webp"
+  },
+  {
+    "id": "7fa175b234d64ca3",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/l/3.webp?2",
+    "localPath": "public/assets/work/crsa/l/3.webp"
+  },
+  {
+    "id": "f6c4e677def64aa4",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/s/3.webp?2",
+    "localPath": "public/assets/work/crsa/s/3.webp"
+  },
+  {
+    "id": "be38a1a8445c113d",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/l/4.webp?2",
+    "localPath": "public/assets/work/crsa/l/4.webp"
+  },
+  {
+    "id": "c59dce6f41df3862",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/crsa/w/s/4.webp?2",
+    "localPath": "public/assets/work/crsa/s/4.webp"
+  },
+  {
+    "id": "4819ba41a7ca94d5",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/l/0.webp?2",
+    "localPath": "public/assets/work/marry-monday/l/0.webp"
+  },
+  {
+    "id": "950240aa69f7f232",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/s/0.webp?2",
+    "localPath": "public/assets/work/marry-monday/s/0.webp"
+  },
+  {
+    "id": "af698ff60b46b336",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/l/1.webp?2",
+    "localPath": "public/assets/work/marry-monday/l/1.webp"
+  },
+  {
+    "id": "55345c37991ce82a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/s/1.webp?2",
+    "localPath": "public/assets/work/marry-monday/s/1.webp"
+  },
+  {
+    "id": "280e432aecc8cf49",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/l/2.webp?2",
+    "localPath": "public/assets/work/marry-monday/l/2.webp"
+  },
+  {
+    "id": "c0bb312afdbc152d",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/s/2.webp?2",
+    "localPath": "public/assets/work/marry-monday/s/2.webp"
+  },
+  {
+    "id": "18a6ef1451397250",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/l/3.webp?2",
+    "localPath": "public/assets/work/marry-monday/l/3.webp"
+  },
+  {
+    "id": "ec4f0488de793689",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/s/3.webp?2",
+    "localPath": "public/assets/work/marry-monday/s/3.webp"
+  },
+  {
+    "id": "4c487f3e3dd71a8c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/l/4.webp?2",
+    "localPath": "public/assets/work/marry-monday/l/4.webp"
+  },
+  {
+    "id": "71f17f3a1f391068",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/s/4.webp?2",
+    "localPath": "public/assets/work/marry-monday/s/4.webp"
+  },
+  {
+    "id": "4f22b00cb8d8c5be",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/l/5.webp?2",
+    "localPath": "public/assets/work/marry-monday/l/5.webp"
+  },
+  {
+    "id": "5b762b62cfd0f73b",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/s/5.webp?2",
+    "localPath": "public/assets/work/marry-monday/s/5.webp"
+  },
+  {
+    "id": "b30ce89518ef0b18",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/l/6.webp?2",
+    "localPath": "public/assets/work/marry-monday/l/6.webp"
+  },
+  {
+    "id": "7114f01d61f578e7",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/s/6.webp?2",
+    "localPath": "public/assets/work/marry-monday/s/6.webp"
+  },
+  {
+    "id": "6a297d7f8c52cb08",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/l/7.webp?2",
+    "localPath": "public/assets/work/marry-monday/l/7.webp"
+  },
+  {
+    "id": "4c98bd8c79e07bfc",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/marry-monday/w/s/7.webp?2",
+    "localPath": "public/assets/work/marry-monday/s/7.webp"
+  },
+  {
+    "id": "9ca654588c31bd4a",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/l/0.webp?2",
+    "localPath": "public/assets/work/rappi-pay/l/0.webp"
+  },
+  {
+    "id": "5f620cb38a86ab6e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/s/0.webp?2",
+    "localPath": "public/assets/work/rappi-pay/s/0.webp"
+  },
+  {
+    "id": "edca641296234be5",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/l/1.webp?2",
+    "localPath": "public/assets/work/rappi-pay/l/1.webp"
+  },
+  {
+    "id": "d9052b86c77bef58",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/s/1.webp?2",
+    "localPath": "public/assets/work/rappi-pay/s/1.webp"
+  },
+  {
+    "id": "49e631e58f354047",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/l/2.webp?2",
+    "localPath": "public/assets/work/rappi-pay/l/2.webp"
+  },
+  {
+    "id": "fc73d396653c2f0d",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/s/2.webp?2",
+    "localPath": "public/assets/work/rappi-pay/s/2.webp"
+  },
+  {
+    "id": "273ba2c00f58aaa6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/l/3.webp?2",
+    "localPath": "public/assets/work/rappi-pay/l/3.webp"
+  },
+  {
+    "id": "e046b958802edc13",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/s/3.webp?2",
+    "localPath": "public/assets/work/rappi-pay/s/3.webp"
+  },
+  {
+    "id": "9515c464a2c7d537",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/l/4.webp?2",
+    "localPath": "public/assets/work/rappi-pay/l/4.webp"
+  },
+  {
+    "id": "8563d99cdafaa5cc",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/rappi-pay/w/s/4.webp?2",
+    "localPath": "public/assets/work/rappi-pay/s/4.webp"
+  },
+  {
+    "id": "55b31be17809e479",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/l/0.webp?2",
+    "localPath": "public/assets/work/monfrini/l/0.webp"
+  },
+  {
+    "id": "c40eeca62f559e15",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/s/0.webp?2",
+    "localPath": "public/assets/work/monfrini/s/0.webp"
+  },
+  {
+    "id": "a3265204ca8ffcd4",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/l/1.webp?2",
+    "localPath": "public/assets/work/monfrini/l/1.webp"
+  },
+  {
+    "id": "50d837f696ef7e62",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/s/1.webp?2",
+    "localPath": "public/assets/work/monfrini/s/1.webp"
+  },
+  {
+    "id": "457a5d4b673d1db4",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/l/2.webp?2",
+    "localPath": "public/assets/work/monfrini/l/2.webp"
+  },
+  {
+    "id": "1e5bc81e672db7e7",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/s/2.webp?2",
+    "localPath": "public/assets/work/monfrini/s/2.webp"
+  },
+  {
+    "id": "8d71fd82b10ccda6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/l/3.webp?2",
+    "localPath": "public/assets/work/monfrini/l/3.webp"
+  },
+  {
+    "id": "8cb04d0be930d611",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/s/3.webp?2",
+    "localPath": "public/assets/work/monfrini/s/3.webp"
+  },
+  {
+    "id": "1eafde8f5dc73329",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/l/4.webp?2",
+    "localPath": "public/assets/work/monfrini/l/4.webp"
+  },
+  {
+    "id": "209f59be96e0a29b",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/s/4.webp?2",
+    "localPath": "public/assets/work/monfrini/s/4.webp"
+  },
+  {
+    "id": "f3ae23a288a5fe3c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/l/5.webp?2",
+    "localPath": "public/assets/work/monfrini/l/5.webp"
+  },
+  {
+    "id": "69c1d85756d2d252",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/s/5.webp?2",
+    "localPath": "public/assets/work/monfrini/s/5.webp"
+  },
+  {
+    "id": "af441a9556682435",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/l/6.webp?2",
+    "localPath": "public/assets/work/monfrini/l/6.webp"
+  },
+  {
+    "id": "a1d08d1c3ec08aad",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/monfrini/w/s/6.webp?2",
+    "localPath": "public/assets/work/monfrini/s/6.webp"
+  },
+  {
+    "id": "70cca6c820b7f17c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/l/0.webp?2",
+    "localPath": "public/assets/work/shallou/l/0.webp"
+  },
+  {
+    "id": "db34bafa06b23ba0",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/s/0.webp?2",
+    "localPath": "public/assets/work/shallou/s/0.webp"
+  },
+  {
+    "id": "f13f54e386919721",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/l/1.webp?2",
+    "localPath": "public/assets/work/shallou/l/1.webp"
+  },
+  {
+    "id": "77b3436402213260",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/s/1.webp?2",
+    "localPath": "public/assets/work/shallou/s/1.webp"
+  },
+  {
+    "id": "98ded2b1292f03c8",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/l/2.webp?2",
+    "localPath": "public/assets/work/shallou/l/2.webp"
+  },
+  {
+    "id": "6d4cd45b5fe5b0b9",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/s/2.webp?2",
+    "localPath": "public/assets/work/shallou/s/2.webp"
+  },
+  {
+    "id": "240b609480b3fda2",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/l/3.webp?2",
+    "localPath": "public/assets/work/shallou/l/3.webp"
+  },
+  {
+    "id": "5d41c87c43bdd899",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/s/3.webp?2",
+    "localPath": "public/assets/work/shallou/s/3.webp"
+  },
+  {
+    "id": "7e9c03f531bbc23c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/l/4.webp?2",
+    "localPath": "public/assets/work/shallou/l/4.webp"
+  },
+  {
+    "id": "da1a748c15f6e40a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/s/4.webp?2",
+    "localPath": "public/assets/work/shallou/s/4.webp"
+  },
+  {
+    "id": "8358e25817fcac8b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/l/5.webp?2",
+    "localPath": "public/assets/work/shallou/l/5.webp"
+  },
+  {
+    "id": "1157c9ec1ce8bd12",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/s/5.webp?2",
+    "localPath": "public/assets/work/shallou/s/5.webp"
+  },
+  {
+    "id": "5de59460abadbccf",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/l/6.webp?2",
+    "localPath": "public/assets/work/shallou/l/6.webp"
+  },
+  {
+    "id": "6079c7eb4b3d257c",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/s/6.webp?2",
+    "localPath": "public/assets/work/shallou/s/6.webp"
+  },
+  {
+    "id": "0fed7addb1656c1e",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/l/7.webp?2",
+    "localPath": "public/assets/work/shallou/l/7.webp"
+  },
+  {
+    "id": "87de6f793a0abcae",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/all-your-days/w/s/7.webp?2",
+    "localPath": "public/assets/work/shallou/s/7.webp"
+  },
+  {
+    "id": "358082db37e4c291",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/l/0.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/l/0.webp"
+  },
+  {
+    "id": "0a78b2ad863a9b54",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/s/0.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/s/0.webp"
+  },
+  {
+    "id": "62fa63b40db90a9c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/l/1.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/l/1.webp"
+  },
+  {
+    "id": "d9ddffae76c92e3a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/s/1.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/s/1.webp"
+  },
+  {
+    "id": "d9756e08e30a566c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/l/2.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/l/2.webp"
+  },
+  {
+    "id": "39a8ba471979edf2",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/s/2.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/s/2.webp"
+  },
+  {
+    "id": "f5dce2878a8cb3da",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/l/3.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/l/3.webp"
+  },
+  {
+    "id": "db81ba17b8398226",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/s/3.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/s/3.webp"
+  },
+  {
+    "id": "488d70c1b7e3e9dd",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/l/4.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/l/4.webp"
+  },
+  {
+    "id": "3ea0553c7152d44b",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/s/4.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/s/4.webp"
+  },
+  {
+    "id": "9621dc4a1ba4f2fe",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/l/5.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/l/5.webp"
+  },
+  {
+    "id": "7ff0ed956321c0b1",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/benjamin-guedj/w/s/5.webp?2",
+    "localPath": "public/assets/work/benjamin-guedj/s/5.webp"
+  },
+  {
+    "id": "c9c6825737f27f8f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/l/0.webp?2",
+    "localPath": "public/assets/work/everest/l/0.webp"
+  },
+  {
+    "id": "4afbe4c9292a77ee",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/s/0.webp?2",
+    "localPath": "public/assets/work/everest/s/0.webp"
+  },
+  {
+    "id": "129d6068cda470c7",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/l/1.webp?2",
+    "localPath": "public/assets/work/everest/l/1.webp"
+  },
+  {
+    "id": "fa9f1f0120d7405e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/s/1.webp?2",
+    "localPath": "public/assets/work/everest/s/1.webp"
+  },
+  {
+    "id": "2b8e289c40a20a70",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/l/2.webp?2",
+    "localPath": "public/assets/work/everest/l/2.webp"
+  },
+  {
+    "id": "49c711efef380b46",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/s/2.webp?2",
+    "localPath": "public/assets/work/everest/s/2.webp"
+  },
+  {
+    "id": "d4e32638a88a4b60",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/l/3.webp?2",
+    "localPath": "public/assets/work/everest/l/3.webp"
+  },
+  {
+    "id": "58cc840c1c20d09c",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/s/3.webp?2",
+    "localPath": "public/assets/work/everest/s/3.webp"
+  },
+  {
+    "id": "fee28591270ae7b0",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/l/4.webp?2",
+    "localPath": "public/assets/work/everest/l/4.webp"
+  },
+  {
+    "id": "495a11880100fed3",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/s/4.webp?2",
+    "localPath": "public/assets/work/everest/s/4.webp"
+  },
+  {
+    "id": "7eb592421f537241",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/l/5.webp?2",
+    "localPath": "public/assets/work/everest/l/5.webp"
+  },
+  {
+    "id": "d40b9a841efaeb44",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/s/5.webp?2",
+    "localPath": "public/assets/work/everest/s/5.webp"
+  },
+  {
+    "id": "2c9f34a61beaffd7",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/l/6.webp?2",
+    "localPath": "public/assets/work/everest/l/6.webp"
+  },
+  {
+    "id": "4d3d72f392bc701f",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/everest/w/s/6.webp?2",
+    "localPath": "public/assets/work/everest/s/6.webp"
+  },
+  {
+    "id": "afb9985a71d5c2e4",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/l/0.webp?2",
+    "localPath": "public/assets/work/make-reign/l/0.webp"
+  },
+  {
+    "id": "10cd68cec970e6da",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/s/0.webp?2",
+    "localPath": "public/assets/work/make-reign/s/0.webp"
+  },
+  {
+    "id": "bdcd92be4e9d5cc3",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/l/1.webp?2",
+    "localPath": "public/assets/work/make-reign/l/1.webp"
+  },
+  {
+    "id": "08fcd0df70a65227",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/s/1.webp?2",
+    "localPath": "public/assets/work/make-reign/s/1.webp"
+  },
+  {
+    "id": "5a7e63e2a54ea5a9",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/l/2.webp?2",
+    "localPath": "public/assets/work/make-reign/l/2.webp"
+  },
+  {
+    "id": "7a4c9216d36be2d7",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/s/2.webp?2",
+    "localPath": "public/assets/work/make-reign/s/2.webp"
+  },
+  {
+    "id": "3607ce393eaec00a",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/l/3.webp?2",
+    "localPath": "public/assets/work/make-reign/l/3.webp"
+  },
+  {
+    "id": "657fa87f217ed568",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/s/3.webp?2",
+    "localPath": "public/assets/work/make-reign/s/3.webp"
+  },
+  {
+    "id": "01e74b640e2eb9c2",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/l/4.webp?2",
+    "localPath": "public/assets/work/make-reign/l/4.webp"
+  },
+  {
+    "id": "69d9e6066152370c",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/s/4.webp?2",
+    "localPath": "public/assets/work/make-reign/s/4.webp"
+  },
+  {
+    "id": "7f6cbe4c78d8876f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/l/5.webp?2",
+    "localPath": "public/assets/work/make-reign/l/5.webp"
+  },
+  {
+    "id": "01b890e2e98cb086",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/s/5.webp?2",
+    "localPath": "public/assets/work/make-reign/s/5.webp"
+  },
+  {
+    "id": "897deb21ebb6af67",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/l/6.webp?2",
+    "localPath": "public/assets/work/make-reign/l/6.webp"
+  },
+  {
+    "id": "779ef8955a347dd4",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/make-reign/w/s/6.webp?2",
+    "localPath": "public/assets/work/make-reign/s/6.webp"
+  },
+  {
+    "id": "e633c64e0b5006ff",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/l/0.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/l/0.webp"
+  },
+  {
+    "id": "ae453ea4b7a5f0e3",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/s/0.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/s/0.webp"
+  },
+  {
+    "id": "b9a939d7d31aad1c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/l/1.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/l/1.webp"
+  },
+  {
+    "id": "aef36fa14faec315",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/s/1.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/s/1.webp"
+  },
+  {
+    "id": "32ada4297fc34e30",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/l/2.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/l/2.webp"
+  },
+  {
+    "id": "f696978487ba23d8",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/s/2.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/s/2.webp"
+  },
+  {
+    "id": "529b5baca56f5e63",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/l/3.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/l/3.webp"
+  },
+  {
+    "id": "da839425767833d6",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/s/3.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/s/3.webp"
+  },
+  {
+    "id": "0aae6913a25c1980",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/l/4.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/l/4.webp"
+  },
+  {
+    "id": "f41a365fa01254d1",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/s/4.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/s/4.webp"
+  },
+  {
+    "id": "9fc95b1264b184e5",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/l/5.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/l/5.webp"
+  },
+  {
+    "id": "3a841717d9d5dac3",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/guillaume/w/s/5.webp?2",
+    "localPath": "public/assets/work/guillaume-belveze/s/5.webp"
+  },
+  {
+    "id": "6c070ec8f086d82b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/l/0.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/l/0.webp"
+  },
+  {
+    "id": "6020df38d35ed7ba",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/s/0.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/s/0.webp"
+  },
+  {
+    "id": "69ed1b76addea634",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/l/1.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/l/1.webp"
+  },
+  {
+    "id": "1e24caa45faef54b",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/s/1.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/s/1.webp"
+  },
+  {
+    "id": "71720b08bd7cbb73",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/l/2.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/l/2.webp"
+  },
+  {
+    "id": "15fe44648ef2c480",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/s/2.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/s/2.webp"
+  },
+  {
+    "id": "c0a250727d1428fe",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/l/3.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/l/3.webp"
+  },
+  {
+    "id": "3e73260d8506b0b7",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/s/3.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/s/3.webp"
+  },
+  {
+    "id": "0b5f8177b9cff256",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/l/4.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/l/4.webp"
+  },
+  {
+    "id": "88154a65dd427686",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/s/4.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/s/4.webp"
+  },
+  {
+    "id": "83865070b5cff12b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/l/5.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/l/5.webp"
+  },
+  {
+    "id": "29b21ffdf0930766",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/s/5.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/s/5.webp"
+  },
+  {
+    "id": "ac130249324fe090",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/l/6.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/l/6.webp"
+  },
+  {
+    "id": "30e5ac3191c0752d",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-8/w/s/6.webp?2",
+    "localPath": "public/assets/work/epicurrence-8/s/6.webp"
+  },
+  {
+    "id": "5dac0eb8642e9b4c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/l/0.webp?2",
+    "localPath": "public/assets/work/folio-v1/l/0.webp"
+  },
+  {
+    "id": "131cec9bd2ebddfa",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/s/0.webp?2",
+    "localPath": "public/assets/work/folio-v1/s/0.webp"
+  },
+  {
+    "id": "96ce2eb3e6143a5b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/l/1.webp?2",
+    "localPath": "public/assets/work/folio-v1/l/1.webp"
+  },
+  {
+    "id": "4eff27f9dfe5c843",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/s/1.webp?2",
+    "localPath": "public/assets/work/folio-v1/s/1.webp"
+  },
+  {
+    "id": "c5f193d667412997",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/l/2.webp?2",
+    "localPath": "public/assets/work/folio-v1/l/2.webp"
+  },
+  {
+    "id": "6c1db0cea5d430c7",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/s/2.webp?2",
+    "localPath": "public/assets/work/folio-v1/s/2.webp"
+  },
+  {
+    "id": "68dc8e752ea7a8c5",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/l/3.webp?2",
+    "localPath": "public/assets/work/folio-v1/l/3.webp"
+  },
+  {
+    "id": "ca6966de2c7836fc",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/s/3.webp?2",
+    "localPath": "public/assets/work/folio-v1/s/3.webp"
+  },
+  {
+    "id": "ac704230fbf10aa5",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/l/4.webp?2",
+    "localPath": "public/assets/work/folio-v1/l/4.webp"
+  },
+  {
+    "id": "cbc772f10ba90c1f",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/s/4.webp?2",
+    "localPath": "public/assets/work/folio-v1/s/4.webp"
+  },
+  {
+    "id": "bb9cad745e8153ed",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/l/5.webp?2",
+    "localPath": "public/assets/work/folio-v1/l/5.webp"
+  },
+  {
+    "id": "396bce4b419e5799",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/folio-v1/w/s/5.webp?2",
+    "localPath": "public/assets/work/folio-v1/s/5.webp"
+  },
+  {
+    "id": "d4c4d2f0b20c41be",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/l/0.webp?2",
+    "localPath": "public/assets/work/ben-mingo/l/0.webp"
+  },
+  {
+    "id": "634bc4836b2cd759",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/s/0.webp?2",
+    "localPath": "public/assets/work/ben-mingo/s/0.webp"
+  },
+  {
+    "id": "1bb1457fb6f09894",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/l/1.webp?2",
+    "localPath": "public/assets/work/ben-mingo/l/1.webp"
+  },
+  {
+    "id": "da435aa5eebe7546",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/s/1.webp?2",
+    "localPath": "public/assets/work/ben-mingo/s/1.webp"
+  },
+  {
+    "id": "1f492fdaca741875",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/l/2.webp?2",
+    "localPath": "public/assets/work/ben-mingo/l/2.webp"
+  },
+  {
+    "id": "c2990285a10ffb24",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/s/2.webp?2",
+    "localPath": "public/assets/work/ben-mingo/s/2.webp"
+  },
+  {
+    "id": "3813580ed38ec26f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/l/3.webp?2",
+    "localPath": "public/assets/work/ben-mingo/l/3.webp"
+  },
+  {
+    "id": "48e6a0d5453571aa",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/s/3.webp?2",
+    "localPath": "public/assets/work/ben-mingo/s/3.webp"
+  },
+  {
+    "id": "caec264aa2fcd1de",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/l/4.webp?2",
+    "localPath": "public/assets/work/ben-mingo/l/4.webp"
+  },
+  {
+    "id": "fa155c70bde0eb29",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/s/4.webp?2",
+    "localPath": "public/assets/work/ben-mingo/s/4.webp"
+  },
+  {
+    "id": "d5f752506ad5e327",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/l/5.webp?2",
+    "localPath": "public/assets/work/ben-mingo/l/5.webp"
+  },
+  {
+    "id": "dc860a4cddc1e613",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/ben-mingo/w/s/5.webp?2",
+    "localPath": "public/assets/work/ben-mingo/s/5.webp"
+  },
+  {
+    "id": "5632fd1bacab9b6b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/l/0.webp?2",
+    "localPath": "public/assets/work/digital-asset/l/0.webp"
+  },
+  {
+    "id": "b040fe26df8c1ff0",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/s/0.webp?2",
+    "localPath": "public/assets/work/digital-asset/s/0.webp"
+  },
+  {
+    "id": "47c150f081f35da2",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/l/1.webp?2",
+    "localPath": "public/assets/work/digital-asset/l/1.webp"
+  },
+  {
+    "id": "e47e31bef8087ea2",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/s/1.webp?2",
+    "localPath": "public/assets/work/digital-asset/s/1.webp"
+  },
+  {
+    "id": "da5e7c22337d492d",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/l/2.webp?2",
+    "localPath": "public/assets/work/digital-asset/l/2.webp"
+  },
+  {
+    "id": "c7b6494221862136",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/s/2.webp?2",
+    "localPath": "public/assets/work/digital-asset/s/2.webp"
+  },
+  {
+    "id": "4db60c85ef0a7a76",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/l/3.webp?2",
+    "localPath": "public/assets/work/digital-asset/l/3.webp"
+  },
+  {
+    "id": "f6a3060090f1d9b9",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/s/3.webp?2",
+    "localPath": "public/assets/work/digital-asset/s/3.webp"
+  },
+  {
+    "id": "ebc389a9bd25af3c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/l/4.webp?2",
+    "localPath": "public/assets/work/digital-asset/l/4.webp"
+  },
+  {
+    "id": "6951d44cc0ab8c2b",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/s/4.webp?2",
+    "localPath": "public/assets/work/digital-asset/s/4.webp"
+  },
+  {
+    "id": "095885b71d98b2b9",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/l/5.webp?2",
+    "localPath": "public/assets/work/digital-asset/l/5.webp"
+  },
+  {
+    "id": "7c1ed07a47ea8dc4",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/s/5.webp?2",
+    "localPath": "public/assets/work/digital-asset/s/5.webp"
+  },
+  {
+    "id": "4186c6b2aa05a6fb",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/l/6.webp?2",
+    "localPath": "public/assets/work/digital-asset/l/6.webp"
+  },
+  {
+    "id": "eac89b721e8b935f",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/s/6.webp?2",
+    "localPath": "public/assets/work/digital-asset/s/6.webp"
+  },
+  {
+    "id": "e3b410ba6b44e19f",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/l/7.webp?2",
+    "localPath": "public/assets/work/digital-asset/l/7.webp"
+  },
+  {
+    "id": "a071455077660b1a",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/digital-asset/w/s/7.webp?2",
+    "localPath": "public/assets/work/digital-asset/s/7.webp"
+  },
+  {
+    "id": "e3fcfb1063b98046",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/l/0.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/l/0.webp"
+  },
+  {
+    "id": "27757680b049e75c",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/s/0.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/s/0.webp"
+  },
+  {
+    "id": "53a1195e8e7a752c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/l/1.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/l/1.webp"
+  },
+  {
+    "id": "7ffe361e6ffd013c",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/s/1.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/s/1.webp"
+  },
+  {
+    "id": "785a812d99636e39",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/l/2.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/l/2.webp"
+  },
+  {
+    "id": "7a5c7103f489849e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/s/2.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/s/2.webp"
+  },
+  {
+    "id": "8683ab89dc62f626",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/l/3.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/l/3.webp"
+  },
+  {
+    "id": "ad7673514806ff51",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/s/3.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/s/3.webp"
+  },
+  {
+    "id": "e0e156e6c34012e0",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/l/4.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/l/4.webp"
+  },
+  {
+    "id": "1e402b8dcce8a476",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/s/4.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/s/4.webp"
+  },
+  {
+    "id": "16a07be7241bb7ac",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/l/5.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/l/5.webp"
+  },
+  {
+    "id": "2854113eaccff635",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/s/5.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/s/5.webp"
+  },
+  {
+    "id": "b69f89f31a4fad87",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/l/6.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/l/6.webp"
+  },
+  {
+    "id": "67c117d30f12a965",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/s/6.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/s/6.webp"
+  },
+  {
+    "id": "92780f03bd1c76c7",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/l/7.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/l/7.webp"
+  },
+  {
+    "id": "1ff78bbb59577e74",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/jenny/w/s/7.webp?2",
+    "localPath": "public/assets/work/jenny-johannesson/s/7.webp"
+  },
+  {
+    "id": "1502316b5d7b0c98",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/l/0.webp?2",
+    "localPath": "public/assets/work/bear-grylls/l/0.webp"
+  },
+  {
+    "id": "b412f71a7d4eeb0f",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/s/0.webp?2",
+    "localPath": "public/assets/work/bear-grylls/s/0.webp"
+  },
+  {
+    "id": "cf2e0db61aeac7ab",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/l/1.webp?2",
+    "localPath": "public/assets/work/bear-grylls/l/1.webp"
+  },
+  {
+    "id": "0ecbeec1fd969509",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/s/1.webp?2",
+    "localPath": "public/assets/work/bear-grylls/s/1.webp"
+  },
+  {
+    "id": "64b6f51a6bdebd1e",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/l/2.webp?2",
+    "localPath": "public/assets/work/bear-grylls/l/2.webp"
+  },
+  {
+    "id": "d257234824c46918",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/s/2.webp?2",
+    "localPath": "public/assets/work/bear-grylls/s/2.webp"
+  },
+  {
+    "id": "2c7d137c7de7ba5a",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/l/3.webp?2",
+    "localPath": "public/assets/work/bear-grylls/l/3.webp"
+  },
+  {
+    "id": "ee34ad3de55cff9d",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/s/3.webp?2",
+    "localPath": "public/assets/work/bear-grylls/s/3.webp"
+  },
+  {
+    "id": "368896ed880d60b0",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/l/4.webp?2",
+    "localPath": "public/assets/work/bear-grylls/l/4.webp"
+  },
+  {
+    "id": "2e95fc107b64ca82",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/s/4.webp?2",
+    "localPath": "public/assets/work/bear-grylls/s/4.webp"
+  },
+  {
+    "id": "19fced33f0184900",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/l/5.webp?2",
+    "localPath": "public/assets/work/bear-grylls/l/5.webp"
+  },
+  {
+    "id": "5e13b8639b8cca0c",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/s/5.webp?2",
+    "localPath": "public/assets/work/bear-grylls/s/5.webp"
+  },
+  {
+    "id": "5ee548ce58190ad6",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/l/6.webp?2",
+    "localPath": "public/assets/work/bear-grylls/l/6.webp"
+  },
+  {
+    "id": "88e8faf9b9973dc8",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/s/6.webp?2",
+    "localPath": "public/assets/work/bear-grylls/s/6.webp"
+  },
+  {
+    "id": "7c1efb495314762b",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/l/7.webp?2",
+    "localPath": "public/assets/work/bear-grylls/l/7.webp"
+  },
+  {
+    "id": "d046abd909bfd5dd",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/bear-grylls/w/s/7.webp?2",
+    "localPath": "public/assets/work/bear-grylls/s/7.webp"
+  },
+  {
+    "id": "91ccc3a7e713ea7c",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/l/0.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/l/0.webp"
+  },
+  {
+    "id": "b1a0075c70573770",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/s/0.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/s/0.webp"
+  },
+  {
+    "id": "4da287426a33cd18",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/l/1.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/l/1.webp"
+  },
+  {
+    "id": "c9fea04289a48c21",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/s/1.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/s/1.webp"
+  },
+  {
+    "id": "1e6d6bb69afa0f37",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/l/2.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/l/2.webp"
+  },
+  {
+    "id": "1ed7c5c7c76af727",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/s/2.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/s/2.webp"
+  },
+  {
+    "id": "a1a66bfea3b2e212",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/l/3.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/l/3.webp"
+  },
+  {
+    "id": "4e58545066d8dc5e",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/s/3.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/s/3.webp"
+  },
+  {
+    "id": "2ee20d2880187bc9",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/l/4.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/l/4.webp"
+  },
+  {
+    "id": "410105e5e210d474",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/s/4.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/s/4.webp"
+  },
+  {
+    "id": "33f644f28e0a659a",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/l/5.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/l/5.webp"
+  },
+  {
+    "id": "64186038fb644748",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/s/5.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/s/5.webp"
+  },
+  {
+    "id": "a3a5ce0ef9a579df",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/l/6.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/l/6.webp"
+  },
+  {
+    "id": "ae6ccbc89ca972d5",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/s/6.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/s/6.webp"
+  },
+  {
+    "id": "bc61b2b2d6fc21ee",
+    "kind": "work-image",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/l/7.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/l/7.webp"
+  },
+  {
+    "id": "9955966b6ad20553",
+    "kind": "work-thumbnail",
+    "sourceUrl": "https://aristidebenoist.com/static/media/epicurrence-6/w/s/7.webp?2",
+    "localPath": "public/assets/work/epicurrence-6/s/7.webp"
+  }
+]

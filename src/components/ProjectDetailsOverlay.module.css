@@ -1,0 +1,319 @@
+.overlay {
+  --project-accent: #bac4b8;
+  --details-enter-duration: 1600ms;
+  --details-exit-duration: 500ms;
+  --details-enter-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --details-exit-ease: cubic-bezier(0.7, 0, 0.84, 0);
+
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  color: var(--project-accent);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.overlay:not([data-phase="hidden"]) {
+  visibility: visible;
+}
+
+.counter {
+  position: absolute;
+  top: 49px;
+  left: 50%;
+  display: grid;
+  width: 102px;
+  grid-template-columns: 24px 38px 24px;
+  align-items: center;
+  transform: translateX(-50%);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  line-height: 14px;
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--details-enter-duration) var(--details-enter-ease),
+    transform var(--details-enter-duration) var(--details-enter-ease);
+}
+
+.overlay[data-phase="entering"] .counter,
+.overlay[data-phase="visible"] .counter {
+  opacity: 1;
+}
+
+.overlay[data-phase="exiting"] .counter {
+  opacity: 0;
+  transition-duration: var(--details-exit-duration);
+  transition-timing-function: var(--details-exit-ease);
+}
+
+.counter:disabled {
+  pointer-events: none;
+}
+
+.counter i {
+  display: block;
+  width: 28px;
+  height: 12px;
+  margin: auto;
+  border: 1px solid currentColor;
+}
+
+.title {
+  position: absolute;
+  top: 17vh;
+  left: 38px;
+  right: 38px;
+  display: grid;
+  margin: 0;
+  color: var(--project-accent);
+  font-family: "TNY", sans-serif;
+  font-size: clamp(108px, 26.5vw, 380px);
+  font-weight: 400;
+  line-height: 0.75;
+  letter-spacing: -0.024em;
+  pointer-events: none;
+}
+
+.titleRow {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+}
+
+.titleLetter {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.titleLetter > span {
+  display: block;
+  transform: translate3d(0, 112%, 0);
+  transition: transform var(--details-enter-duration) var(--details-enter-ease);
+  transition-delay: var(--letter-delay, 0ms);
+  will-change: transform;
+}
+
+.overlay[data-phase="entering"] .titleLetter > span,
+.overlay[data-phase="visible"] .titleLetter > span {
+  transform: translate3d(0, 0, 0);
+}
+
+.overlay[data-phase="exiting"] .titleLetter > span {
+  transform: translate3d(0, -112%, 0);
+  transition-duration: var(--details-exit-duration);
+  transition-timing-function: var(--details-exit-ease);
+  transition-delay: 0ms;
+}
+
+.metadata {
+  position: absolute;
+  bottom: 47px;
+  left: 50%;
+  width: 410px;
+  margin: 0;
+  transform: translateX(-100%);
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.02em;
+}
+
+.metadataRow {
+  display: grid;
+  grid-template-columns: 160px 250px;
+  overflow: hidden;
+}
+
+.metadataRow dt,
+.metadataRow dd {
+  margin: 0;
+  transform: translate3d(0, 115%, 0);
+  transition: transform var(--details-enter-duration) var(--details-enter-ease) 400ms;
+  will-change: transform;
+}
+
+.overlay[data-phase="entering"] .metadataRow dt,
+.overlay[data-phase="entering"] .metadataRow dd,
+.overlay[data-phase="visible"] .metadataRow dt,
+.overlay[data-phase="visible"] .metadataRow dd {
+  transform: translate3d(0, 0, 0);
+}
+
+.overlay[data-phase="exiting"] .metadataRow dt,
+.overlay[data-phase="exiting"] .metadataRow dd {
+  transform: translate3d(0, -115%, 0);
+  transition-duration: var(--details-exit-duration);
+  transition-timing-function: var(--details-exit-ease);
+  transition-delay: 0ms;
+}
+
+.metadataRow dt {
+  display: grid;
+  grid-template-columns: 30px 130px;
+}
+
+.description {
+  position: absolute;
+  bottom: 48px;
+  left: calc(50% + 140px);
+  margin: 0;
+  font-size: 10px;
+  line-height: 10px;
+  letter-spacing: 0.02em;
+}
+
+.descriptionLine {
+  display: block;
+  overflow: hidden;
+}
+
+.descriptionLine > span {
+  display: block;
+  transform: translate3d(0, 115%, 0);
+  transition: transform var(--details-enter-duration) var(--details-enter-ease) 400ms;
+  will-change: transform;
+}
+
+.overlay[data-phase="entering"] .descriptionLine > span,
+.overlay[data-phase="visible"] .descriptionLine > span {
+  transform: translate3d(0, 0, 0);
+}
+
+.overlay[data-phase="exiting"] .descriptionLine > span {
+  transform: translate3d(0, -115%, 0);
+  transition-duration: var(--details-exit-duration);
+  transition-timing-function: var(--details-exit-ease);
+  transition-delay: 0ms;
+}
+
+.explore {
+  position: absolute;
+  bottom: 49px;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  transform: translateX(-50%);
+  font-size: 12px;
+  line-height: 34px;
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.explore span {
+  display: block;
+  border-bottom: 1px solid currentColor;
+  transform: translate3d(0, 115%, 0);
+  transition: transform var(--details-enter-duration) var(--details-enter-ease) 600ms;
+}
+
+.explore i {
+  display: block;
+  width: 1px;
+  height: 34px;
+  margin-top: 9px;
+  background: currentColor;
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition:
+    opacity var(--details-enter-duration) var(--details-enter-ease) 720ms,
+    transform var(--details-enter-duration) var(--details-enter-ease) 720ms;
+}
+
+.explore b {
+  display: grid;
+  width: 14px;
+  height: 14px;
+  margin-top: 13px;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 14px;
+  opacity: 0;
+  transform: translate3d(0, -100%, 0);
+  transition:
+    opacity var(--details-enter-duration) var(--details-enter-ease) 840ms,
+    transform var(--details-enter-duration) var(--details-enter-ease) 840ms;
+}
+
+.overlay[data-phase="entering"] .explore span,
+.overlay[data-phase="visible"] .explore span {
+  transform: translate3d(0, 0, 0);
+}
+
+.overlay[data-phase="entering"] .explore i,
+.overlay[data-phase="visible"] .explore i {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.overlay[data-phase="entering"] .explore b,
+.overlay[data-phase="visible"] .explore b {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.overlay[data-phase="exiting"] .explore span {
+  transform: translate3d(0, -115%, 0);
+  transition-duration: var(--details-exit-duration);
+  transition-timing-function: var(--details-exit-ease);
+  transition-delay: 0ms;
+}
+
+.overlay[data-phase="exiting"] .explore i {
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition-duration: var(--details-exit-duration);
+  transition-timing-function: var(--details-exit-ease);
+  transition-delay: 0ms;
+}
+
+.overlay[data-phase="exiting"] .explore b {
+  opacity: 0;
+  transform: translate3d(0, -100%, 0);
+  transition-duration: var(--details-exit-duration);
+  transition-timing-function: var(--details-exit-ease);
+  transition-delay: 0ms;
+}
+
+@media (max-width: 1350px) {
+  .metadata,
+  .description {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .title {
+    top: 26vh;
+    font-size: 30vw;
+  }
+
+  .counter {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    --details-enter-duration: 120ms;
+    --details-exit-duration: 120ms;
+  }
+
+  .titleLetter > span,
+  .metadataRow dt,
+  .metadataRow dd,
+  .descriptionLine > span,
+  .explore span,
+  .explore i,
+  .explore b {
+    transition-delay: 0ms;
+  }
+}

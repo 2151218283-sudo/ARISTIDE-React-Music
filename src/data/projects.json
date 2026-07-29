@@ -1,0 +1,1135 @@
+[
+  {
+    "description": [
+      "EXPLORE BEHIND-THE-SCENES THE MAKING OF",
+      "RIDLEY SCOTT'S HOUSE OF GUCCI.."
+    ],
+    "href": "https://aristidebenoist.com/house-of-gucci",
+    "index": 0,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "FEBRUARY 2022"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PROMOTIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "MGM STUDIOS - WATSON DG"
+      }
+    ],
+    "number": "01",
+    "title": "houseof GuccI",
+    "titleRows": [
+      "houseof",
+      "GuccI"
+    ],
+    "total": "30",
+    "slug": "house-of-gucci",
+    "image": "/assets/projects/house-of-gucci.webp"
+  },
+  {
+    "description": [
+      "PORTFOLIO OF PAUL & HENRIETTE, A FRENCH",
+      "PHOTOGRAPHERS DUO BASED IN PARIS."
+    ],
+    "href": "https://aristidebenoist.com/paul-et-henriette",
+    "index": 1,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "MAY 2021"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PHOTOGRAPHY"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "PAUL & HENRIETTE"
+      }
+    ],
+    "number": "02",
+    "title": "p&h",
+    "titleRows": [
+      "p&h"
+    ],
+    "total": "30",
+    "slug": "paul-et-henriette",
+    "image": "/assets/projects/ph.webp"
+  },
+  {
+    "description": [
+      "PERSONAL PROJECT MADE WITH MARCUS BROWN",
+      "ABOUT THE HISTORY OF THE AMSTERDAM CANALS."
+    ],
+    "href": "https://aristidebenoist.com/canals",
+    "index": 2,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "DECEMBER 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PERSONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      }
+    ],
+    "number": "03",
+    "title": "CanaLS",
+    "titleRows": [
+      "CanaLS"
+    ],
+    "total": "30",
+    "slug": "canals",
+    "image": "/assets/projects/canals.webp"
+  },
+  {
+    "description": [
+      "ECOMMERCE FOR JACQUES MARIE MAGE,",
+      "EYEWEAR DESIGNER AND MANUFACTURER.."
+    ],
+    "href": "https://aristidebenoist.com/jacques-marie-mage",
+    "index": 3,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "APRIL 2022"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "ECOMMERCE"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FRONT-END DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "JACQUES MARIE MAGE"
+      }
+    ],
+    "number": "04",
+    "title": "Jmm",
+    "titleRows": [
+      "Jmm"
+    ],
+    "total": "30",
+    "slug": "jacques-marie-mage",
+    "image": "/assets/projects/jmm.webp"
+  },
+  {
+    "description": [
+      "THE DIGITAL ART BOOK OF MANK, A NETFLIX",
+      "MOVIE DIRECTED BY DAVID FINCHER."
+    ],
+    "href": "https://aristidebenoist.com/mank",
+    "index": 4,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "MARCH 2021"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PROMOTIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "NETFLIX - WATSON DG"
+      }
+    ],
+    "number": "05",
+    "title": "ManK",
+    "titleRows": [
+      "ManK"
+    ],
+    "total": "30",
+    "slug": "mank",
+    "image": "/assets/projects/mank.webp"
+  },
+  {
+    "description": [
+      "STUDIO FOCUSING ON WOOD FURNITURE AND",
+      "FUNCTIONAL OBJECTS BASED IN LOS ANGELES."
+    ],
+    "href": "https://aristidebenoist.com/waka-waka-1",
+    "index": 5,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "OCTOBER 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PROMOTIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "SHIN OKUDA"
+      }
+    ],
+    "number": "06",
+    "title": "WaKa WaKa",
+    "titleRows": [
+      "WaKa",
+      "WaKa"
+    ],
+    "total": "30",
+    "slug": "waka-waka-1",
+    "image": "/assets/projects/waka-1.webp"
+  },
+  {
+    "description": [
+      "CAPSULIN ALUMINIUM, A ONE PAGE WEBSITE",
+      "MADE WITH INDEX STUDIO IN NATIVE WEBGL."
+    ],
+    "href": "https://aristidebenoist.com/capsulin",
+    "index": 6,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "NOVEMBER 2021"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PROMOTIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULL STACK DEV & MOTION"
+      }
+    ],
+    "number": "07",
+    "title": "CapsulIn",
+    "titleRows": [
+      "CapsulIn"
+    ],
+    "total": "30",
+    "slug": "capsulin",
+    "image": "/assets/projects/capsulin.webp"
+  },
+  {
+    "description": [
+      "PORTFOLIO OF ANTHONY GOODWIN, CREATIVE",
+      "AND ART DIRECTOR AND DESIGNER."
+    ],
+    "href": "https://aristidebenoist.com/design-embraced",
+    "index": 7,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "SEPTEMBER 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "ANTHONY GOODWIN"
+      }
+    ],
+    "number": "08",
+    "title": "desIGn eMbRaced",
+    "titleRows": [
+      "desIGn",
+      "eMbRaced"
+    ],
+    "total": "30",
+    "slug": "design-embraced",
+    "image": "/assets/projects/design-embraced.webp"
+  },
+  {
+    "description": [
+      "DESIGN AND MARKETING COMPANY IN PURSUIT",
+      "OF THE NOVEL IN SAN FRANCISCO."
+    ],
+    "href": "https://aristidebenoist.com/new-company",
+    "index": 8,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "APRIL 2021"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PORTFOLIO & SHOP"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "CREATIVE DEV"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "NEW COMPANY"
+      }
+    ],
+    "number": "09",
+    "title": "nEW COMPanY",
+    "titleRows": [
+      "nEW",
+      "COMPanY"
+    ],
+    "total": "30",
+    "slug": "new-company",
+    "image": "/assets/projects/new-company.webp"
+  },
+  {
+    "description": [
+      "PRODUCT DESIGN AND INNOVATION GROUP",
+      "BASED IN SAN FRANCISCO, CALIFORNIA."
+    ],
+    "href": "https://aristidebenoist.com/tm",
+    "index": 9,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "SEPTEMBER 2020"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "AGENCY PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FRONT-END DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "WE ARE TM"
+      }
+    ],
+    "number": "10",
+    "title": "TM",
+    "titleRows": [
+      "TM"
+    ],
+    "total": "30",
+    "slug": "tm",
+    "image": "/assets/projects/tm.webp"
+  },
+  {
+    "description": [
+      "THE SECOND COLLECTION OF FUNCTIONAL",
+      "OBJECTS DESIGNED BY SHIN OKUDA."
+    ],
+    "href": "https://aristidebenoist.com/waka-waka-2",
+    "index": 10,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "APRIL 2020"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PROMOTIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "SHIN OKUDA"
+      }
+    ],
+    "number": "11",
+    "title": "WaKa WaKa",
+    "titleRows": [
+      "WaKa",
+      "WaKa"
+    ],
+    "total": "30",
+    "slug": "waka-waka-2",
+    "image": "/assets/projects/waka-2.webp"
+  },
+  {
+    "description": [
+      "MULTI-DISCIPLINARY STUDIO CREATING DESIGN",
+      "SOLUTIONS FOR BRANDS AND AUDIENCES."
+    ],
+    "href": "https://aristidebenoist.com/stuuudio",
+    "index": 11,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "AUGUST 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "STUUUDIO"
+      }
+    ],
+    "number": "12",
+    "title": "stuuudIo",
+    "titleRows": [
+      "stuuudIo"
+    ],
+    "total": "30",
+    "slug": "stuuudio",
+    "image": "/assets/projects/stuuudio.webp"
+  },
+  {
+    "description": [
+      "SELF-PROMOTION AND SOCIAL NETWORKING",
+      "PLATFORM FOR DESIGNERS AND CREATIVES."
+    ],
+    "href": "https://aristidebenoist.com/dribbble",
+    "index": 12,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "NOVEMBER 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "INSPIRATIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FRONT-END DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "DRIBBBLE"
+      }
+    ],
+    "number": "13",
+    "title": "DRIBBBLE",
+    "titleRows": [
+      "DRIBBBLE"
+    ],
+    "total": "30",
+    "slug": "dribbble",
+    "image": "/assets/projects/dribbble.webp"
+  },
+  {
+    "description": [
+      "FOURTH VERSION OF MY PORTFOLIO",
+      "MADE WITH BEN MINGO."
+    ],
+    "href": "https://aristidebenoist.com/folio-v4",
+    "index": 13,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "AUGUST 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      }
+    ],
+    "number": "14",
+    "title": "folIo v4",
+    "titleRows": [
+      "folIo",
+      "v4"
+    ],
+    "total": "30",
+    "slug": "folio-v4",
+    "image": "/assets/projects/folio-v4.webp"
+  },
+  {
+    "description": [
+      "ARCHITECTURAL DESIGN FIRM BASED",
+      "IN SALT LAKE CITY, UTAH."
+    ],
+    "href": "https://aristidebenoist.com/crsa",
+    "index": 14,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "JANUARY 2021"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "ARCHITECTURE"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FRONT-END DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "CRSA ARCHITECTS"
+      }
+    ],
+    "number": "15",
+    "title": "CRsa",
+    "titleRows": [
+      "CRsa"
+    ],
+    "total": "30",
+    "slug": "crsa",
+    "image": "/assets/projects/crsa.webp"
+  },
+  {
+    "description": [
+      "WEDDING WEBSITE DEDICATED TO THE UNION",
+      "OF ALICE VELEY AND GENE ROSS."
+    ],
+    "href": "https://aristidebenoist.com/marry-monday",
+    "index": 15,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "AUGUST 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PERSONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      }
+    ],
+    "number": "16",
+    "title": "maRRy mondAy",
+    "titleRows": [
+      "maRRy",
+      "mondAy"
+    ],
+    "total": "30",
+    "slug": "marry-monday",
+    "image": "/assets/projects/marry-monday.webp"
+  },
+  {
+    "description": [
+      "PROMOTIONAL WEBSITE FOR RAPPI PAY,",
+      "A NEW WAY PEOPLE TO MAKE PAYMENTS."
+    ],
+    "href": "https://aristidebenoist.com/rappi-pay",
+    "index": 16,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "JUNE 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "ADVERTISING"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "RAPPI PAY"
+      }
+    ],
+    "number": "17",
+    "title": "RappI pay",
+    "titleRows": [
+      "RappI",
+      "pay"
+    ],
+    "total": "30",
+    "slug": "rappi-pay",
+    "image": "/assets/projects/rappi-pay.webp"
+  },
+  {
+    "description": [
+      "PROMOTIONAL SITE FOR FLORIAN MONFRINI,",
+      "A FRENCH PAINTER BASED IN PARIS."
+    ],
+    "href": "https://aristidebenoist.com/monfrini",
+    "index": 17,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "MARCH 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PROMOTIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "FLORIAN MONFRINI"
+      }
+    ],
+    "number": "18",
+    "title": "monfRInI",
+    "titleRows": [
+      "monfRInI"
+    ],
+    "total": "30",
+    "slug": "monfrini",
+    "image": "/assets/projects/monfrini.webp"
+  },
+  {
+    "description": [
+      "PROMOTIONAL WEBSITE FOR ALL YOUR DAYS,",
+      "THE NEW SINGLE OF THE MUSICIAN SHALLOU."
+    ],
+    "href": "https://aristidebenoist.com/shallou",
+    "index": 18,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "MARCH 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PROMOTIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "SHALLOU"
+      }
+    ],
+    "number": "19",
+    "title": "aLLYOUR Days",
+    "titleRows": [
+      "aLLYOUR",
+      "Days"
+    ],
+    "total": "30",
+    "slug": "shallou",
+    "image": "/assets/projects/all-your-days.webp"
+  },
+  {
+    "description": [
+      "MULTI-DISCIPLINARY DESIGNER SPECIALIZED",
+      "IN DIGITAL ART, PRODUCT & SET DESIGN."
+    ],
+    "href": "https://aristidebenoist.com/benjamin-guedj",
+    "index": 19,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "OCTOBER 2018"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "BENJAMIN GUEDJ"
+      }
+    ],
+    "number": "20",
+    "title": "BEnJamIn Guedj",
+    "titleRows": [
+      "BEnJamIn",
+      "Guedj"
+    ],
+    "total": "30",
+    "slug": "benjamin-guedj",
+    "image": "/assets/projects/benjamin-guedj.webp"
+  },
+  {
+    "description": [
+      "DIGITAL AGENCY THAT SOLVES COMPLEX",
+      "PROBLEMS FOR PRODUCTS AND BRANDS."
+    ],
+    "href": "https://aristidebenoist.com/everest",
+    "index": 20,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "JANUARY 2019"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "AGENCY PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "EVEREST"
+      }
+    ],
+    "number": "21",
+    "title": "eveRest",
+    "titleRows": [
+      "eveRest"
+    ],
+    "total": "30",
+    "slug": "everest",
+    "image": "/assets/projects/everest.webp"
+  },
+  {
+    "description": [
+      "DIGITAL DESIGN STUDIO THAT FOCUS",
+      "ON DELIVERING DIGITAL PRODUCTS."
+    ],
+    "href": "https://aristidebenoist.com/make-reign",
+    "index": 21,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "OCTOBER 2018"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "AGENCY PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "MAKE REIGN"
+      }
+    ],
+    "number": "22",
+    "title": "maKe ReIGn",
+    "titleRows": [
+      "maKe",
+      "ReIGn"
+    ],
+    "total": "30",
+    "slug": "make-reign",
+    "image": "/assets/projects/make-reign.webp"
+  },
+  {
+    "description": [
+      "PORTFOLIO OF A COMMISSIONED AND PRESS",
+      "PHOTOGRAPHER BASED IN PARIS."
+    ],
+    "href": "https://aristidebenoist.com/guillaume-belveze",
+    "index": 22,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "APRIL 2018"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "GUILLAUME BELVEZE"
+      }
+    ],
+    "number": "23",
+    "title": "GuIllauMe",
+    "titleRows": [
+      "GuIllauMe"
+    ],
+    "total": "30",
+    "slug": "guillaume-belveze",
+    "image": "/assets/projects/guillaume.webp"
+  },
+  {
+    "description": [
+      "WEBSITE OF THE EIGHTH EDITION OF EPICURRENCE",
+      "AT YOSEMITE NATIONAL PARK, CALIFORNIA."
+    ],
+    "href": "https://aristidebenoist.com/epicurrence-8",
+    "index": 23,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "JULY 2018"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PROMOTIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "DANN PETTY"
+      }
+    ],
+    "number": "24",
+    "title": "epIcuRRence nØ8",
+    "titleRows": [
+      "epIcuRRence",
+      "nØ8"
+    ],
+    "total": "30",
+    "slug": "epicurrence-8",
+    "image": "/assets/projects/epicurrence-8.webp"
+  },
+  {
+    "description": [
+      "FIRST VERSION OF MY PORTFOLIO MADE",
+      "WITH BEN MINGO & MICHAEL NOVIA."
+    ],
+    "href": "https://aristidebenoist.com/folio-v1",
+    "index": 24,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "OCTOBER 2017"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      }
+    ],
+    "number": "25",
+    "title": "folIo v1",
+    "titleRows": [
+      "folIo",
+      "v1"
+    ],
+    "total": "30",
+    "slug": "folio-v1",
+    "image": "/assets/projects/folio-v1.webp"
+  },
+  {
+    "description": [
+      "PORTFOLIO OF THE GRAPHIC AND INTERACTIVE",
+      "DESIGNER BEN MINGO BASED IN CALIFORNIA."
+    ],
+    "href": "https://aristidebenoist.com/ben-mingo",
+    "index": 25,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "DECEMBER 2017"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "BEN MINGO"
+      }
+    ],
+    "number": "26",
+    "title": "Ben mInGo",
+    "titleRows": [
+      "Ben",
+      "mInGo"
+    ],
+    "total": "30",
+    "slug": "ben-mingo",
+    "image": "/assets/projects/ben-mingo.webp"
+  },
+  {
+    "description": [
+      "THE GLOBAL ECONOMIC NETWORK OF",
+      "SEAMLESSLY INTERCONNECTED BUSINESSES."
+    ],
+    "href": "https://aristidebenoist.com/digital-asset",
+    "index": 26,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "SEPTEMBER 2017"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "FINANCIAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "DIGITAL ASSET"
+      }
+    ],
+    "number": "27",
+    "title": "dIGItal asset",
+    "titleRows": [
+      "dIGItal",
+      "asset"
+    ],
+    "total": "30",
+    "slug": "digital-asset",
+    "image": "/assets/projects/digital-asset.webp"
+  },
+  {
+    "description": [
+      "PORTFOLIO OF JENNY JOHANNESSON,",
+      "A DIGITAL DESIGNER BASED IN SWEDEN."
+    ],
+    "href": "https://aristidebenoist.com/jenny-johannesson",
+    "index": 27,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "NOVEMBER 2016"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PORTFOLIO"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "JENNY JOHANNESSON"
+      }
+    ],
+    "number": "28",
+    "title": "jenny johannesson",
+    "titleRows": [
+      "jenny",
+      "johannesson"
+    ],
+    "total": "30",
+    "slug": "jenny-johannesson",
+    "image": "/assets/projects/jenny.webp"
+  },
+  {
+    "description": [
+      "BRITISH ADVENTURER, WRITER, TELEVISION",
+      "PRESENTER AND BUSINESSMAN."
+    ],
+    "href": "https://aristidebenoist.com/bear-grylls",
+    "index": 28,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "SEPTEMBER 2017"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "ADVENTURE"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "BEAR GRYLLS"
+      }
+    ],
+    "number": "29",
+    "title": "BEaR GRylls",
+    "titleRows": [
+      "BEaR",
+      "GRylls"
+    ],
+    "total": "30",
+    "slug": "bear-grylls",
+    "image": "/assets/projects/bear-grylls.webp"
+  },
+  {
+    "description": [
+      "WEBSITE OF THE SIXTH EDITION OF EPICURRENCE",
+      "AT ZION NATIONAL PARK, UTAH."
+    ],
+    "href": "https://aristidebenoist.com/epicurrence-6",
+    "index": 29,
+    "metadata": [
+      {
+        "key": "A",
+        "label": "COMPLETED",
+        "value": "AUGUST 2017"
+      },
+      {
+        "key": "B",
+        "label": "TYPE",
+        "value": "PROMOTIONAL"
+      },
+      {
+        "key": "C",
+        "label": "ROLE",
+        "value": "FULLSTACK DEV & MOTION"
+      },
+      {
+        "key": "D",
+        "label": "CLIENT",
+        "value": "DANN PETTY"
+      }
+    ],
+    "number": "30",
+    "title": "epIcuRRence nØ6",
+    "titleRows": [
+      "epIcuRRence",
+      "nØ6"
+    ],
+    "total": "30",
+    "slug": "epicurrence-6",
+    "image": "/assets/projects/epicurrence-6.webp"
+  }
+]
