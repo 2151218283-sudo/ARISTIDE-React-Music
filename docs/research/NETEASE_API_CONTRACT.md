@@ -173,9 +173,9 @@ Enhanced，Enhanced 的源码修复也不能反向证明 Legacy 可用。
 增强版运行验收必须重复 Legacy 的全部匿名矩阵，不能只测试“服务能启动”。登录态验收还要
 覆盖扫码成功、Session 恢复、个人日推、受限音源和账号退出。
 
-### 4.4 Provider 切换策略
+### 4.4 Real Provider 与数据模式切换策略
 
-Provider 是启动时选择，不是单次请求失败后的自动重试目标：
+Legacy / Enhanced Real Provider 是启动时选择，不是单次请求失败后的自动重试目标：
 
 1. 默认继续使用已经达到 `RUNTIME_ANON` 的 Legacy 4.32.0。
 2. Legacy 的核心链路在当前环境无法通过时，先确认不是 Session、风控、网络或单曲版权
@@ -188,8 +188,11 @@ Provider 是启动时选择，不是单次请求失败后的自动重试目标�
    Provider 重复提交。
 6. 两个 Real Provider 都失败时，只能由用户显式进入带 `DEMO` 标识的 Demo Mode。
 
-以下任何情况都不能单独触发 Provider 切换：单首歌曲无版权、VIP/地区限制、一次超时、
-QR 过期、用户主动退出或非法请求参数。
+Demo Mode 不会把 Real Provider 替换为另一个上游实现。服务端始终保留启动时固定的 Real
+Provider，同时提供独立 `DemoMusicProvider`。新 ECHOFORM Session 的数据模式为 `real`；
+只有用户调用 `PUT /api/mode` 才能把当前 Session 切换为 `demo` 或返回 `real`。Real 请求
+失败、单首歌曲无版权、VIP/地区限制、一次超时、QR 过期、用户退出或非法参数都不能自动
+改变数据模式，也不能触发 Real Provider 切换。
 
 ### 4.5 增强版禁止能力
 
@@ -395,7 +398,33 @@ export type Comment = {
 
 ## 7. ECHOFORM BFF 具体契约
 
-### 7.1 QR
+### 7.1 数据模式
+
+`PUT /api/mode`
+
+```ts
+type SetDataModeInput = {
+  mode: "real" | "demo";
+};
+
+type SetDataModeResponse = {
+  mode: "real" | "demo";
+  user: UserProfile | null;
+};
+```
+
+- 新 Session 始终从 `real` 开始；接口只接受上述两个枚举值并使用 `no-store`。
+- `demo` 只在用户点击“使用演示数据”等明确操作后设置，不能由错误处理器内部调用。
+- Demo 响应由独立 `DemoMusicProvider` 产生并带 `meta.mode = "demo"`，不得混入真实用户
+  资料、真实日推或上游音源。
+- 返回 `real` 时重新验证现有服务端上游 Session；无有效账号时以 Real 游客态返回
+  `user: null`，不得沿用 Demo 身份或伪造登录。
+- 模式仅保存在 ECHOFORM 服务端 Session，不写入 URL 或 localStorage；服务器重启后随
+  Session 一起回到默认 Real Mode。
+- 模式切换前，客户端必须取消旧模式请求并发送 Player `UNLOAD`，防止真实音源、队列或
+  用户资料与 Demo 数据混用；模式切换是用户主动的上下文重置。
+
+### 7.2 QR
 
 `POST /api/auth/qr`
 
@@ -424,7 +453,7 @@ type QrStatusResponse =
 过期 Challenge、Session 不匹配和已被新 Challenge 替换都返回 `QR_EXPIRED`，防止旧轮询
 覆盖新登录状态。
 
-### 7.2 搜索
+### 7.3 搜索
 
 `GET /api/search?q=...&type=all|track|album|artist&limit=20&offset=0`
 
@@ -471,7 +500,7 @@ type SearchResponse =
 `partialErrors`；三类全部失败时返回统一 `ApiFailure`。综合结果不分页，用户进入单类型
 Tab 后再使用 `limit` 和 `offset`。持按搜索只改变 UI 展开方式，不改变 HTTP 契约。
 
-### 7.3 音源
+### 7.4 音源
 
 `GET /api/tracks/:id/source?quality=standard`
 
@@ -485,7 +514,7 @@ Tab 后再使用 `limit` 和 `offset`。持按搜索只改变 UI 展开方式，
 无法从固定版本字段可靠区分 VIP、地区和普通无版权时，先返回
 `TRACK_UNAVAILABLE`，不得根据文案字符串臆测。只有登录态样本建立稳定映射后再细分。
 
-### 7.4 评论写入
+### 7.5 评论写入
 
 `POST /api/tracks/:id/comments`
 
@@ -568,6 +597,7 @@ BFF 在单个 Session 内短期记录 `clientMutationId`，重复提交返回第
 - `API-AC-11`：登录态和写操作必须在本文件升级验证等级后才能标记完成。
 - `API-AC-12`：上游未知形状返回可恢复错误，不把原始 Response 传给组件。
 - `API-AC-13`：Enhanced 只有通过同一 Contract Probe 后才可成为当前 Real Provider。
-- `API-AC-14`：Provider 切换发生在启动边界并清除 Session，不做逐请求自动故障转移。
+- `API-AC-14`：Legacy / Enhanced Real Provider 切换发生在启动边界并清除 Session，不做逐请求自动故障转移。
 - `API-AC-15`：Enhanced 的解灰、第三方匹配和代理 URL 在代码、配置与测试中均不可达。
 - `API-AC-16`：`type=all` 使用三类独立查询，支持部分成功且不会被单类失败清空全部结果。
+- `API-AC-17`：新 Session 默认 Real；Demo 只能由用户显式切换，响应带明确模式且不混用真实用户数据。

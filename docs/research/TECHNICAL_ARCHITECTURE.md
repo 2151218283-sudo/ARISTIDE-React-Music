@@ -1,13 +1,13 @@
 # ECHOFORM 技术架构
 
-> 状态：Implementation Baseline
+> 状态：Architecture Baseline v1.0
 > 冻结日期：2026-07-29
 > 适用范围：本地开发、单实例毕设演示
 > 关联文档：`ECHOFORM_PRD_DRAFT.md`、`ECHOFORM_VISUAL_DESIGN.md`、`NETEASE_API_CONTRACT.md`、`PLAYER_STATE_MACHINE.md`
 
 ## 1. 结论
 
-ECHOFORM 第一交付版本采用 Next.js 单仓应用：App Router 负责页面，Route
+ECHOFORM 当前交付目标是本地单实例毕业设计版本，采用 Next.js 单仓应用：App Router 负责页面，Route
 Handlers 组成同源 BFF，浏览器只访问 ECHOFORM 的 `/api/*`，BFF 通过 server-only
 Provider 调用固定版本的网易云 API 包。音频元素与播放器控制器挂在根布局下，路由切换
 不能重建。
@@ -130,7 +130,10 @@ export interface MusicProvider {
   `NeteaseCloudMusicApi@4.32.0`。
 - `DemoMusicProvider`：确定性本地夹具，只使用获准的本地演示音频。
 
-Provider 在服务启动时根据显式配置选择。一次请求不能在真实接口失败后自动切换 Demo。
+Legacy 或 Enhanced 中哪一个充当 Real Provider，只能在服务启动时根据显式配置选择；切换
+Real Provider 必须重启服务并销毁旧 Session。`DemoMusicProvider` 是独立的答辩数据源，
+不参与 Real Provider 的自动故障转移。ECHOFORM Session 默认处于 `real` 数据模式，只有
+用户明确执行模式切换操作后才可进入 `demo`；一次 Real 请求失败不能改变 Session 模式。
 
 ## 5. 目录与所有权
 
@@ -205,6 +208,7 @@ type ApiFailure = {
 | Method | ECHOFORM 路由 | 登录 | 用途 |
 | --- | --- | :---: | --- |
 | `GET` | `/api/auth/session` | 否 | 当前登录状态与归一化用户 |
+| `PUT` | `/api/mode` | 否 | 用户显式切换当前 Session 的 `real` / `demo` 数据模式 |
 | `POST` | `/api/auth/qr` | 否 | 创建 QR Challenge |
 | `GET` | `/api/auth/qr/status` | 否 | 查询当前 Challenge 状态 |
 | `POST` | `/api/auth/logout` | 是 | 清理上游与本地 Session |
@@ -247,6 +251,7 @@ type ServerSession = {
   id: string;
   createdAt: number;
   lastSeenAt: number;
+  mode: "real" | "demo";
   userId?: string;
   upstreamCookie?: string;
   qr?: {
@@ -258,6 +263,9 @@ type ServerSession = {
 ```
 
 - 本地版本以 `Map<string, ServerSession>` 保存。
+- 新 Session 的 `mode` 必须是 `real`；只有 `PUT /api/mode` 可因用户操作改变它。
+- 进入 `demo` 不伪造或覆盖真实账号凭证；Demo 响应不得包含真实用户资料。返回 `real`
+  后重新校验现有上游 Session，失效则回到游客态。
 - Session 空闲 12 小时清理；QR Challenge 使用独立、较短截止时间。
 - 页面刷新继续使用同一 `sid`；服务器重启后 Session 消失并回到访客态。
 - 登录成功时只在服务端保存上游 Cookie，并立即清除 QR key。
@@ -297,6 +305,7 @@ sequenceDiagram
 | 上游 Cookie | 服务端 Session | 空闲 12h 或登出 | 是 |
 | QR key | 服务端 Session | 单次 Challenge | 是 |
 | ECHOFORM `sid` | HttpOnly Cookie | Session 生命周期 | 是 |
+| Real / Demo 数据模式 | 服务端 Session | Session 生命周期 | 否 |
 | 主题、音量、音质、动效偏好 | localStorage | 用户清理前 | 否 |
 | 播放历史 | IndexedDB | 用户清理前 | 可能敏感 |
 | 当前队列和播放位置 | React 内存 | 当前标签页 | 否 |
@@ -364,10 +373,17 @@ RootLayout
 
 Demo Mode 是答辩容灾，不是 Real Provider 的自动降级：
 
-- 由显式配置或开发入口选择。
+- 新 Session 默认处于 Real Mode。Real 页面失败时可显示“使用演示数据”，但只有用户点击
+  后调用 `PUT /api/mode` 才进入 Demo Mode。
+- Demo Mode 期间所有可演示读取和播放都由 `DemoMusicProvider` 返回，响应 `meta.mode`
+  必须为 `demo`；不得按单个失败请求临时混用 Real 与 Demo 数据。
+- 用户可显式返回 Real Mode；返回后必须重新获取 Session、日推和当前页面数据。
+- 每次模式切换都取消旧模式的数据请求，并由浏览器先暂停、卸载当前 Audio 与队列，再请求
+  新模式数据；模式切换是显式上下文重置，不适用“路由切换不断播”的规则。
 - 页面固定显示 `DEMO` 状态标识。
 - 使用确定性、非用户数据夹具和获准的本地音频。
 - 不生成虚假扫码成功或伪造网易云用户资料。
+- Demo Mode 不改变启动时固定的 Real Provider，也不能使 Legacy/Enhanced 的契约失败通过。
 - Contract Test 必须分别报告 Real 与 Demo，Demo 通过不能覆盖 Real 失败。
 
 ## 13. 性能与可访问性边界
@@ -413,7 +429,7 @@ Live Probe 不能成为默认 CI 的稳定性门槛，因为上游没有 SLA 且
 - `ARCH-AC-03`：页面只消费内部模型，未引用上游字段名。
 - `ARCH-AC-04`：路由切换不重建 Audio，不中断正在播放的歌曲。
 - `ARCH-AC-05`：服务器重启后明确回到访客态，不展示过期账号缓存。
-- `ARCH-AC-06`：Real 与 Demo 模式可辨认且验收分开。
+- `ARCH-AC-06`：新 Session 默认 Real；只有用户显式操作可切换 Demo；两种模式可辨认且验收分开。
 - `ARCH-AC-07`：私有响应、QR 和音源均为 `no-store`。
 - `ARCH-AC-08`：日志不含 Cookie、QR、评论正文、音源 URL 和原始用户 Response。
 - `ARCH-AC-09`：所有写操作在契约登录态实测通过后才标记完成。

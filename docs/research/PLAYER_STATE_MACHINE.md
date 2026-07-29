@@ -77,6 +77,8 @@ export type PlayerSnapshot = {
 ```
 
 `currentTimeMs` 和 `bufferedUntilMs` 是 Audio 的投影，不是第二个时间源。
+`volume` 是用户选择并持久化的基础音量。Sleep Timer 渐弱使用 Controller 内部的临时
+`sleepFadeGain`，不得改写 `volume` 或其持久化值。
 
 ## 3. 状态语义
 
@@ -174,6 +176,7 @@ export type PlayerEvent =
   | { type: "MEDIA_ENDED"; revision: number }
   | { type: "MEDIA_ERROR"; revision: number; mediaCode: number | null }
   | { type: "PLAY_REJECTED"; revision: number; name: string }
+  | { type: "SLEEP_TIMER_TICK"; now: number }
   | { type: "SLEEP_TIMER_FIRED" };
 ```
 
@@ -422,7 +425,7 @@ flowchart TD
 - Seek 后立即重新计算，不逐行补动画。
 - 有 words 时在活动行内按同样规则计算单词；无 yrc 时只高亮整行。
 - plain/instrumental/unavailable 都是正常模型，不进入 player error。
-- 用户手动滚歌词后进入 4 秒 browse lock；播放继续，但不自动把视图拉回。
+- 用户手动滚歌词后进入 5 秒 browse lock；播放继续，但不自动把视图拉回。
 - 用户点击“回到当前”或 lock 超时后恢复跟随。
 
 ## 16. 路由、预览与页面生命周期
@@ -448,7 +451,15 @@ type SleepTimer =
 - Timer 触发发送 PAUSE，原因 `sleep-timer`，不清队列和当前时间。
 - 用户手动下一首不触发 end-of-track timer。
 - Timer 状态只存在当前标签页；刷新后清除。
-- 不做自动音量渐弱，避免倒计时和真实暂停点不一致。
+- 到期前最后 3 秒使用线性临时增益渐弱：after-duration 按
+  `clamp((firesAt - now) / 3000, 0, 1)` 计算；end-of-track 在 duration 有效时按剩余
+  播放时间使用同一公式。duration 未知时不伪造倒计时，在真实 ended 时直接暂停。
+- 实际 Audio 输出为 `muted ? 0 : volume * sleepFadeGain`。渐弱不得修改系统音量、用户
+  `volume`、静音偏好或 localStorage。
+- Timer 触发、取消或被新 Timer 替换后，先暂停（若需要），再把 `sleepFadeGain` 恢复为
+  `1`，保证用户下次播放仍使用保存音量。
+- `SLEEP_TIMER_TICK` 只驱动临时增益；后台计时以绝对时间和最终触发定时器为准，不能依赖
+  `requestAnimationFrame` 准点暂停。
 
 ## 18. 页面后台与系统控制
 
@@ -506,7 +517,7 @@ type SleepTimer =
 - sequential 队首/队尾、shuffle bag、repeat-one 手动 next。
 - 自动跳过 1 项、多项和全部不可播。
 - yrc 有/无、翻译合并、Seek 后歌词定位。
-- Sleep duration、end-of-track、后台触发。
+- Sleep duration、end-of-track、最后 3 秒渐弱、取消恢复音量、刷新清除和后台触发。
 - 旧 revision 的 ended/error/canplay 被忽略。
 
 ### 22.2 组件与 E2E
@@ -535,7 +546,7 @@ type SleepTimer =
 - `PLAYER-AC-11`：Autoplay 拒绝后不循环重试，用户可一次点击恢复。
 - `PLAYER-AC-12`：Seek 不改变用户播放意图，Pause 在 Seek 后仍有效。
 - `PLAYER-AC-13`：歌词以 currentTime 为唯一真值，缺少逐字歌词可降级。
-- `PLAYER-AC-14`：Sleep Timer 在后台可触发且不清空队列。
+- `PLAYER-AC-14`：Sleep Timer 在后台可触发且不清空队列；最后 3 秒渐弱不修改用户保存音量，刷新后清除。
 - `PLAYER-AC-15`：旧 source 事件和异步 Response 不能污染当前歌曲。
 - `PLAYER-AC-16`：错误提供可执行恢复动作且不只依赖 Toast。
 - `PLAYER-AC-17`：音源 URL 不进入持久存储或日志。
