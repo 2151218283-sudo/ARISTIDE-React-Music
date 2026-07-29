@@ -1,5 +1,6 @@
 import {
   normalizeUnknownError,
+  sanitizePublicAppErrorDetails,
   type AppErrorCode,
   type AppErrorDetails,
 } from "./errors";
@@ -54,9 +55,10 @@ export function createApiFailure(
     retryable: appError.retryable,
     requestId,
   };
+  const details = sanitizePublicAppErrorDetails(appError.details);
 
-  if (appError.details) {
-    body.details = appError.details;
+  if (details) {
+    body.details = details;
   }
 
   return { ok: false, error: body };

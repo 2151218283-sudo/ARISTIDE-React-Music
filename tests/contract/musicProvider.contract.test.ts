@@ -7,6 +7,29 @@ function useMusicProvider(provider: MusicProvider): MusicProvider {
   return provider;
 }
 
+const audioFilePattern = /(?:^|[\\/])[^?#]+\.(?:aac|flac|m4a|mp3|ogg|opus|wav)(?:[?#].*)?$/i;
+const privateMediaKeys = new Set(["audioUrl", "playbackUrl", "sourceUrl", "url"]);
+
+function containsPrivateMediaAddress(value: unknown): boolean {
+  if (typeof value === "string") {
+    return /^(?:blob:|data:audio\/)/i.test(value)
+      || audioFilePattern.test(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.some(containsPrivateMediaAddress);
+  }
+
+  if (value && typeof value === "object") {
+    return Object.entries(value).some(([key, entry]) => (
+      (privateMediaKeys.has(key) && typeof entry === "string" && entry.length > 0)
+      || containsPrivateMediaAddress(entry)
+    ));
+  }
+
+  return false;
+}
+
 describe("DemoMusicProvider contract", () => {
   it("returns normalized track, lyric, comment, and search shapes", async () => {
     const provider = useMusicProvider(new DemoMusicProvider({ seed: "contract" }));
@@ -43,7 +66,7 @@ describe("DemoMusicProvider contract", () => {
     }
   });
 
-  it("contains no media URL or private session data in built-in demo reads", async () => {
+  it("contains no private media address or session data in built-in demo reads", async () => {
     const provider = new DemoMusicProvider();
     const tracks = await provider.getDailyRecommendations("demo-session");
     const lyrics = await provider.getLyrics("demo-track-001");
@@ -53,10 +76,27 @@ describe("DemoMusicProvider contract", () => {
     });
     const serialized = JSON.stringify({ tracks, lyrics, comments });
 
-    expect(serialized).not.toContain("://");
-    expect(serialized).not.toContain(".mp3");
+    expect(containsPrivateMediaAddress({ tracks, lyrics, comments })).toBe(false);
     expect(serialized.toLocaleLowerCase()).not.toContain("cookie");
     expect(serialized.toLocaleLowerCase()).not.toContain("token");
+  });
+
+  it("detects common private media address forms without rejecting artwork", () => {
+    const forbiddenSamples = [
+      { sourceUrl: "https://media.example/stream" },
+      { audioUrl: "/assets/demo.wav" },
+      { playbackUrl: "../audio/demo.ogg" },
+      { url: "data:audio/mpeg;base64,c3ludGhldGlj" },
+      { url: "blob:https://example.test/synthetic-id" },
+    ];
+
+    for (const sample of forbiddenSamples) {
+      expect(containsPrivateMediaAddress(sample)).toBe(true);
+    }
+
+    expect(containsPrivateMediaAddress({
+      artworkUrl: "/assets/demo-cover.webp",
+    })).toBe(false);
   });
 
   it("does not fabricate QR authorization, a session user, or writes", async () => {

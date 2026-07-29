@@ -33,13 +33,24 @@ test("renders the local homepage without horizontal overflow", async ({ page }, 
       path: testInfo.outputPath(`homepage-${viewport.name}.png`),
     });
 
+    await page.evaluate(() => {
+      const galleryCanvas = document.querySelector(
+        'canvas[aria-label="Interactive project gallery"]',
+      );
+
+      if (!(galleryCanvas instanceof HTMLCanvasElement)) {
+        throw new Error("The interactive gallery canvas is missing.");
+      }
+
+      for (const element of document.body.querySelectorAll("*")) {
+        if (element !== galleryCanvas && !element.contains(galleryCanvas)) {
+          element.setAttribute("data-e2e-canvas-hidden", "true");
+        }
+      }
+    });
     await page.addStyleTag({
       content: `
-        main[aria-label="Aristide Benoist portfolio"] > :not(section[aria-label="Project filmstrip"]) {
-          visibility: hidden !important;
-        }
-
-        section[aria-label="Project filmstrip"] canvas[aria-hidden="true"] {
+        [data-e2e-canvas-hidden="true"] {
           visibility: hidden !important;
         }
       `,

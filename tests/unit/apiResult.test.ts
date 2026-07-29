@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { createApiFailure, createApiSuccess } from "../../src/lib/music/apiResult";
-import { AppError, normalizeUnknownError } from "../../src/lib/music/errors";
+import {
+  AppError,
+  normalizeUnknownError,
+  type AppErrorDetails,
+} from "../../src/lib/music/errors";
 
 describe("music API result", () => {
   it("wraps a successful normalized response with mode metadata", () => {
@@ -60,5 +64,38 @@ describe("music API result", () => {
       retryable: true,
     });
     expect(normalized.message).not.toContain("private upstream response");
+  });
+
+  it("removes unknown or sensitive details before creating a browser response", () => {
+    const unsafeDetails = {
+      trackId: "demo-track-001",
+      cookie: "MUSIC_U=private",
+      qrKey: "private-qr-key",
+      sourceUrl: "https://media.example/private.mp3",
+      commentContent: "private comment",
+      rawResponse: "private upstream body",
+    } as unknown as AppErrorDetails;
+    const result = createApiFailure(
+      new AppError("UPSTREAM_UNAVAILABLE", "请求失败。", {
+        details: unsafeDetails,
+      }),
+      "request-003",
+    );
+
+    expect(result.error.details).toEqual({ trackId: "demo-track-001" });
+    expect(JSON.stringify(result)).not.toContain("private");
+  });
+
+  it("removes an invalid public detail value instead of exposing it", () => {
+    const result = createApiFailure(
+      new AppError("TRACK_UNAVAILABLE", "歌曲不可播放。", {
+        details: {
+          trackId: "https://media.example/private.mp3",
+        },
+      }),
+      "request-004",
+    );
+
+    expect(result.error).not.toHaveProperty("details");
   });
 });

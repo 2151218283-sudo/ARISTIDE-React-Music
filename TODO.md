@@ -1,7 +1,7 @@
 # ECHOFORM 开发 TODO
 
 > 状态：执行基线 v1
-> 更新日期：2026-07-29
+> 更新日期：2026-07-30
 > 当前任务：`T004`（待开始）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
@@ -105,8 +105,8 @@
 - 路由只有 `/`、`/about` 和作品集 `/[slug]`，尚无 ECHOFORM 信息架构。
 - `Project`、`ProjectWork`、旧 JSON、About、社交链接和作品详情仍是原作品集数据。
 - CSS 直接使用旧 Raw Color、负字距和旧固定布局，尚无 ECHOFORM 三层 Token 与三主题。
-- 当前没有 `MusicProvider`、BFF、Session、播放器、歌词、搜索、评论、用户主页或音乐库。
-- 当前没有 unit、component、contract 或 E2E 测试框架，只有 lint/typecheck/build。
+- 当前已有内部音乐模型、`MusicProvider` 契约与 Demo Provider，但尚无 BFF、Session、真实 Provider、播放器、页面级歌词、搜索、评论、用户主页或音乐库。
+- 当前已有 unit、component、contract 与 E2E 测试框架及基础 smoke/domain 覆盖；后续模块仍须按各自状态矩阵扩充测试。
 - 画廊 Canvas 初始化失败会静默返回，没有可操作 DOM 降级。
 - `sync-work-assets.mjs` 仍面向原站，仅可作为旧资产维护脚本，不能进入 ECHOFORM 运行时。
 
@@ -125,7 +125,7 @@
 
 - 当前任务：`T004 ECHOFORM Token 与基础状态组件`
 - 状态：待开始。
-- 上一任务完成记录：`T003` 已建立内部音乐模型、统一错误/API 结果、`MusicProvider` 契约和确定性 Demo Provider；七种 Demo 场景、unit/contract、全量测试与 `npm run check` 已通过。
+- 上一任务完成记录：`T003R` 已修复错误详情白名单、Canvas 非空误判与 Demo 媒体地址扫描缺口；unit 17、component 1、contract 6、E2E 1、三视口、`npm run check` 和差异检查全部通过。
 - 本轮修改目标：将 `globals.css` 建成 Primitive -> Semantic -> Component 三层 Token；实现 INK/PAPER/ARTWORK 映射骨架及 `IconButton`、`TextButton`、`AlbumArtwork`、`StatusView`、`Skeleton`。
 - 允许修改：组件规格、`src/app/globals.css`、`src/components/` 中本任务组件、对应 CSS Modules 和组件测试；允许安装项目级 `lucide-react`。
 - 不允许修改：`.env*`、CI/CD、生产部署配置、真实 Provider、播放器状态机、Git 历史。
@@ -165,6 +165,16 @@
   不允许破坏：React 组件不得看到上游字段；Demo 不伪造网易云登录；不保存音源 URL；不引入数据库；旧 `Project` 数据暂不删除。
 
   验收：模型无 `any`；Demo 场景覆盖正常、空、超时、上游错误、不可播放、无歌词、无评论；同一 seed 结果稳定；Provider 契约测试和 `npm run check` 通过。页面状态测试不适用，本任务以 unit/contract 为门槛。
+
+- [x] **T003R T001-T003 审查问题修复**
+
+  目标：修复 T002 Canvas 非空像素误判，以及 T003 错误详情白名单和 Demo 媒体地址扫描缺口；T001 无需代码修复。
+
+  允许修改：当前执行卡列出的文件和测试路径。
+
+  不允许破坏：T001 已冻结规则、现有页面/WebGL 行为、Demo Provider 数据语义和项目安全边界。
+
+  验收：三个缺口各有可失败的反例测试；专项测试、完整 `npm run test`、`npm run check`、敏感信息检查和 `git diff --check` 通过。
 
 ### Phase 1：设计系统、应用壳与播放内核
 
