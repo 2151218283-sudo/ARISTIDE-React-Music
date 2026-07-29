@@ -1,0 +1,114 @@
+.button {
+  position: relative;
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ef-radius-full);
+  background: transparent;
+  color: var(--ef-text-primary);
+  cursor: pointer;
+  transition:
+    background-color var(--ef-duration-fast) var(--ef-ease-standard),
+    color var(--ef-duration-fast) var(--ef-ease-standard),
+    transform var(--ef-duration-feedback) var(--ef-ease-standard);
+}
+
+.sm {
+  width: var(--ef-icon-button-size-sm);
+  height: var(--ef-icon-button-size-sm);
+}
+
+.md {
+  width: var(--ef-icon-button-size-md);
+  height: var(--ef-icon-button-size-md);
+}
+
+.lg {
+  width: var(--ef-icon-button-size-lg);
+  height: var(--ef-icon-button-size-lg);
+}
+
+.iconSlot {
+  display: inline-grid;
+  place-items: center;
+  width: var(--ef-icon-button-icon-md);
+  height: var(--ef-icon-button-icon-md);
+}
+
+.iconSlot > svg {
+  width: 100%;
+  height: 100%;
+  stroke-width: 1.8;
+}
+
+.sm .iconSlot {
+  width: var(--ef-icon-button-icon-sm);
+  height: var(--ef-icon-button-icon-sm);
+}
+
+.lg .iconSlot {
+  width: var(--ef-icon-button-icon-lg);
+  height: var(--ef-icon-button-icon-lg);
+}
+
+.button:hover:not(:disabled) {
+  background: var(--ef-control-hover);
+}
+
+.button[aria-pressed="true"] {
+  background: var(--ef-control-pressed);
+}
+
+.button:active:not(:disabled) {
+  background: var(--ef-control-pressed);
+  transform: scale(0.97);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ef-focus-ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--ef-surface-canvas);
+}
+
+.button:disabled {
+  color: var(--ef-text-disabled);
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--ef-border-strong);
+  border-top-color: currentcolor;
+  border-radius: var(--ef-radius-full);
+  animation: icon-button-spin 800ms var(--ef-ease-linear) infinite;
+}
+
+@keyframes icon-button-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (max-width: 767px) {
+  .sm {
+    width: var(--ef-icon-button-size-md);
+    height: var(--ef-icon-button-size-md);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition-duration: 0.01ms;
+  }
+
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+}

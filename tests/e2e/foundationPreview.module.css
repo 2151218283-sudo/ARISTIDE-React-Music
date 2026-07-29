@@ -1,0 +1,91 @@
+:global(html),
+:global(body) {
+  width: 100%;
+  min-height: 100%;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--ef-surface-canvas);
+}
+
+.preview {
+  display: grid;
+  width: 100%;
+  min-height: 100dvh;
+  gap: var(--ef-space-8);
+  padding: var(--ef-space-8) var(--ef-space-10);
+  background: var(--ef-surface-canvas);
+  color: var(--ef-text-primary);
+}
+
+.header,
+.section,
+.lines {
+  display: grid;
+}
+
+.header {
+  gap: var(--ef-space-2);
+}
+
+.eyebrow,
+.title,
+.section h2 {
+  margin: 0;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.eyebrow {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-medium) var(--ef-type-label) var(--ef-font-body);
+}
+
+.title {
+  font: var(--ef-weight-semibold) var(--ef-type-title) var(--ef-font-body);
+}
+
+.section {
+  gap: var(--ef-space-4);
+  padding-bottom: var(--ef-space-8);
+  border-bottom: 1px solid var(--ef-border-subtle);
+}
+
+.section h2 {
+  font: var(--ef-weight-medium) var(--ef-type-label) var(--ef-font-body);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ef-space-2);
+}
+
+.artworks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 136px), 1fr));
+  gap: var(--ef-space-4);
+}
+
+.skeletons {
+  display: grid;
+  grid-template-columns: minmax(96px, 180px) minmax(0, 1fr);
+  gap: var(--ef-space-4);
+}
+
+.lines {
+  align-content: start;
+  gap: var(--ef-space-3);
+}
+
+@media (max-width: 767px) {
+  .preview {
+    gap: var(--ef-space-6);
+    padding: var(--ef-space-6) var(--ef-space-4);
+  }
+
+  .skeletons {
+    grid-template-columns: 1fr;
+  }
+}

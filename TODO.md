@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-07-30
-> 当前任务：`T004`（待开始）
+> 当前任务：`T005`（待确认启动）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,14 +123,14 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T004 ECHOFORM Token 与基础状态组件`
-- 状态：待开始。
-- 上一任务完成记录：`T003R` 已修复错误详情白名单、Canvas 非空误判与 Demo 媒体地址扫描缺口；unit 17、component 1、contract 6、E2E 1、三视口、`npm run check` 和差异检查全部通过。
-- 本轮修改目标：将 `globals.css` 建成 Primitive -> Semantic -> Component 三层 Token；实现 INK/PAPER/ARTWORK 映射骨架及 `IconButton`、`TextButton`、`AlbumArtwork`、`StatusView`、`Skeleton`。
-- 允许修改：组件规格、`src/app/globals.css`、`src/components/` 中本任务组件、对应 CSS Modules 和组件测试；允许安装项目级 `lucide-react`。
+- 当前任务：`T005 AppShell、ECHOFORM 导航与路由骨架`
+- 状态：待用户确认启动；尚未进行 T005 代码修改。
+- 上一任务完成记录：`T004` 已完成三层 Token、INK/PAPER/ARTWORK 映射骨架与 5 个基础组件；unit 17、component 10、contract 6、E2E 3 通过；三主题三视口、200% 等效缩放、44px 移动端命中、Reduced Motion、旧首页回归与 `npm run check` 全部通过，lint 0 warning，生产构建 34 个静态页面。
+- 下轮修改目标：建立三种 AppShell 模式、Skip Link、ECHOFORM Metadata、中文页面语言、桌面/移动一级导航与产品路由占位边界。
+- 允许修改：AppShell/Navigation 规格、`src/app/layout.tsx`、T005 列明的新路由、`src/components/AppShell*`、`FixedNavigation*` 和基础路由测试。
 - 不允许修改：`.env*`、CI/CD、生产部署配置、真实 Provider、播放器状态机、Git 历史。
-- 不允许破坏：现有画廊 Canvas 尺寸和交互；不得在组件写 Raw Hex、卡片套卡片、Emoji 或固定紫蓝渐变；ARTWORK 本任务只建接口，不提前实现取色算法。
-- 验收标准：每个异步组件含 default/loading/empty/error/disabled/focus 状态；外框尺寸不因状态变化；对比度、44px 命中、200% 缩放和 Reduced Motion 通过；旧首页仍可用；专项组件测试、三视口 E2E 与 `npm run check` 通过。
+- 不允许破坏：首页现有画廊、首尾边界、预览退出；尚未批准前不删除 `/about`、`/[slug]` 或旧组件；不得创建第二个 AppShell；不得禁用浏览器缩放。
+- 验收标准：所有本地路由可达且不命中原站；导航三视口无重叠；键盘焦点可达主内容；占位页使用 `StatusView`；路由 E2E 与 `npm run check` 通过。
 
 ## 5. 开发清单
 
@@ -178,7 +178,7 @@
 
 ### Phase 1：设计系统、应用壳与播放内核
 
-- [ ] **T004 ECHOFORM Token 与基础状态组件**
+- [x] **T004 ECHOFORM Token 与基础状态组件**
 
   目标：将 `globals.css` 建成 Primitive -> Semantic -> Component 三层 Token；实现 INK/PAPER/ARTWORK 映射骨架及 IconButton、TextButton、AlbumArtwork、StatusView、Skeleton。
 

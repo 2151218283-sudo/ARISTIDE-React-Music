@@ -1,0 +1,112 @@
+.button {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: var(--ef-text-button-height-desktop);
+  align-items: center;
+  justify-content: center;
+  gap: var(--ef-space-2);
+  padding: var(--ef-space-2) var(--ef-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--ef-text-button-radius);
+  cursor: pointer;
+  font: var(--ef-weight-medium) var(--ef-type-label) var(--ef-font-body);
+  letter-spacing: 0;
+  transition:
+    background-color var(--ef-duration-fast) var(--ef-ease-standard),
+    border-color var(--ef-duration-fast) var(--ef-ease-standard),
+    box-shadow var(--ef-duration-fast) var(--ef-ease-standard),
+    color var(--ef-duration-fast) var(--ef-ease-standard),
+    transform var(--ef-duration-feedback) var(--ef-ease-standard);
+}
+
+.leadingSlot,
+.trailingSlot {
+  display: inline-grid;
+  flex: 0 0 var(--ef-space-4);
+  place-items: center;
+  width: var(--ef-space-4);
+  height: var(--ef-space-4);
+}
+
+.label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.primary {
+  background: var(--ef-action-primary);
+  color: var(--ef-text-on-action);
+}
+
+.secondary {
+  border-color: var(--ef-border-strong);
+  background: transparent;
+  color: var(--ef-text-primary);
+}
+
+.quiet {
+  background: transparent;
+  color: var(--ef-text-secondary);
+}
+
+.danger {
+  border-color: color-mix(in srgb, var(--ef-status-error) 50%, transparent);
+  background: transparent;
+  color: var(--ef-status-error);
+}
+
+.button:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 999px var(--ef-control-hover);
+}
+
+.button:active:not(:disabled) {
+  box-shadow: inset 0 0 0 999px var(--ef-control-pressed);
+  transform: scale(0.97);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ef-focus-ring);
+  outline-offset: 3px;
+}
+
+.button:disabled {
+  border-color: var(--ef-border-subtle);
+  background: var(--ef-surface-raised);
+  color: var(--ef-text-disabled);
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--ef-border-strong);
+  border-top-color: currentcolor;
+  border-radius: var(--ef-radius-full);
+  animation: text-button-spin 800ms var(--ef-ease-linear) infinite;
+}
+
+@keyframes text-button-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (max-width: 767px) {
+  .button {
+    min-height: var(--ef-text-button-height-mobile);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition-duration: 0.01ms;
+  }
+
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+}

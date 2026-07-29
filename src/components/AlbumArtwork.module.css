@@ -1,0 +1,204 @@
+.artwork {
+  position: relative;
+  display: inline-grid;
+  overflow: hidden;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--ef-artwork-radius);
+  background: var(--ef-surface-placeholder);
+  color: var(--ef-text-secondary);
+  isolation: isolate;
+}
+
+button.artwork {
+  padding: 0;
+  border: 0;
+  font: var(--ef-weight-medium) var(--ef-type-caption) var(--ef-font-body);
+  letter-spacing: 0;
+}
+
+.filmSlice {
+  aspect-ratio: 0.28;
+}
+
+.thumbnail {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+}
+
+.tile,
+.preview,
+.player {
+  aspect-ratio: 1;
+}
+
+.interactive {
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+  transition:
+    filter var(--ef-duration-fast) var(--ef-ease-standard),
+    transform var(--ef-duration-feedback) var(--ef-ease-standard);
+}
+
+.interactive:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.interactive:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.interactive:focus-visible {
+  outline: 2px solid var(--ef-focus-ring);
+  outline-offset: 3px;
+}
+
+.interactive:disabled {
+  color: var(--ef-text-disabled);
+  cursor: not-allowed;
+  filter: saturate(0.35);
+}
+
+.artwork[data-selected="true"] {
+  box-shadow: inset 0 0 0 2px var(--ef-action-primary);
+}
+
+.image,
+.loadingSurface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  object-fit: cover;
+  opacity: 1;
+  transition: opacity 160ms var(--ef-ease-enter);
+}
+
+.loadingSurface {
+  background: var(--ef-surface-placeholder);
+  animation: artwork-breathe var(--ef-skeleton-duration) var(--ef-ease-standard) 300ms infinite alternate;
+}
+
+.fallback {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  max-width: calc(100% - var(--ef-space-4));
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ef-space-2);
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-medium) var(--ef-type-caption) var(--ef-font-body);
+  text-align: center;
+}
+
+.fallbackIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.unavailable {
+  position: absolute;
+  right: var(--ef-space-2);
+  bottom: var(--ef-space-2);
+  z-index: 2;
+  max-width: calc(100% - var(--ef-space-4));
+  padding: var(--ef-space-1) var(--ef-space-2);
+  border-radius: var(--ef-radius-sm);
+  background: color-mix(in srgb, var(--ef-surface-overlay) 88%, transparent);
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-medium) var(--ef-type-caption) var(--ef-font-body);
+  overflow-wrap: anywhere;
+}
+
+.unavailableIcon {
+  display: none;
+  width: 16px;
+  height: 16px;
+}
+
+.thumbnail .fallback > span {
+  display: none;
+}
+
+.thumbnail .unavailable {
+  padding: var(--ef-space-1);
+}
+
+.thumbnail .unavailableIcon {
+  display: block;
+}
+
+.thumbnail .unavailableText {
+  display: none;
+}
+
+.playingMarker {
+  position: absolute;
+  top: var(--ef-space-2);
+  left: var(--ef-space-2);
+  z-index: 2;
+  display: inline-flex;
+  height: 18px;
+  align-items: flex-end;
+  gap: 2px;
+  padding: var(--ef-space-1);
+  border-radius: var(--ef-radius-sm);
+  background: var(--ef-surface-overlay);
+  color: var(--ef-action-playing);
+}
+
+.playingBar {
+  width: 2px;
+  height: 10px;
+  background: currentcolor;
+}
+
+.playingBar:nth-of-type(2) {
+  height: 6px;
+}
+
+.playingBar:nth-of-type(3) {
+  height: 13px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes artwork-breathe {
+  from {
+    opacity: 0.72;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interactive,
+  .image {
+    transition-duration: 0.01ms;
+  }
+
+  .interactive:active:not(:disabled) {
+    transform: none;
+  }
+
+  .loadingSurface {
+    animation: none;
+  }
+}
