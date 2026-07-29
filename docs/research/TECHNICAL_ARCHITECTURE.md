@@ -97,7 +97,8 @@ BFF 不负责转发完整音频正文。若未来因 CDN CORS 或部署网络需
 
 ### 4.3 MusicProvider
 
-页面和 BFF 不知道网易云参数名。核心接口以内部模型表达：
+页面和 BFF 不知道网易云参数名。精确字段与不变量见 `MUSIC_DOMAIN_MODEL.md`，核心接口以
+内部模型表达：
 
 ```ts
 export interface MusicProvider {
@@ -107,7 +108,7 @@ export interface MusicProvider {
   logout(sessionId: string): Promise<void>;
 
   getDailyRecommendations(sessionId: string): Promise<Track[]>;
-  search(query: SearchQuery, sessionId?: string): Promise<SearchPage>;
+  search(query: SearchQuery, sessionId?: string): Promise<SearchResponse>;
   getTrack(trackId: string, sessionId?: string): Promise<Track>;
   getPlaybackSource(
     trackId: string,

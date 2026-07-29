@@ -298,6 +298,25 @@ JSON `POST`/`PUT`/`DELETE`，不得将评论或歌单名称放在 Query String�
 ### 6.1 Track
 
 ```ts
+export type ArtistSummary = {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+};
+
+export type AlbumSummary = {
+  id: string;
+  name: string;
+  artworkUrl: string | null;
+};
+
+export type TrackAvailability =
+  | "playable"
+  | "vip"
+  | "copyright"
+  | "region"
+  | "unknown";
+
 export type Track = {
   id: string;
   name: string;
@@ -307,6 +326,7 @@ export type Track = {
   artworkUrl: string | null;
   aliases: string[];
   explicit: boolean;
+  availability: TrackAvailability;
   privilege: {
     fee: number | null;
     maxQuality: AudioQuality | null;

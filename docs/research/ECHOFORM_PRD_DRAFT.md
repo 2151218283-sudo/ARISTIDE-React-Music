@@ -626,20 +626,26 @@ type Track = {
   artists: ArtistSummary[];
   album: AlbumSummary;
   durationMs: number;
-  coverUrl: string;
+  artworkUrl: string | null;
+  aliases: string[];
+  explicit: boolean;
   availability: "playable" | "vip" | "copyright" | "region" | "unknown";
+  privilege: {
+    fee: number | null;
+    maxQuality: AudioQuality | null;
+  };
 };
 
 type ArtistSummary = {
   id: string;
   name: string;
-  avatarUrl?: string;
+  avatarUrl: string | null;
 };
 
 type AlbumSummary = {
   id: string;
   name: string;
-  coverUrl: string;
+  artworkUrl: string | null;
 };
 
 type LyricLine = {
@@ -651,7 +657,9 @@ type LyricLine = {
 };
 ```
 
-其他必需模型：`UserProfile`、`Playlist`、`Comment`、`SearchResult`、`PlaybackHistoryItem`、`ThemePalette`、`ApiError`。
+其他必需模型：`Artist`、`Album`、`UserProfile`、`Playlist`、`Comment`、`SearchResult`、
+`PlaybackSource`、`PlaybackHistoryItem`、`ThemePalette`、`ApiError`。字段与错误码的精确定义见
+`MUSIC_DOMAIN_MODEL.md`；本节只保留产品层摘要。
 
 ### 11.3 接口映射
 
@@ -701,14 +709,17 @@ type LyricLine = {
 前端只处理归一化错误：
 
 - `AUTH_REQUIRED`
-- `AUTH_EXPIRED`
+- `SESSION_EXPIRED`
 - `QR_EXPIRED`
+- `VALIDATION_ERROR`
 - `RATE_LIMITED`
 - `TRACK_UNAVAILABLE`
 - `VIP_REQUIRED`
 - `REGION_RESTRICTED`
+- `SOURCE_EXPIRED`
+- `UPSTREAM_TIMEOUT`
+- `UPSTREAM_UNAVAILABLE`
 - `NETWORK_ERROR`
-- `UPSTREAM_ERROR`
 - `UNKNOWN_ERROR`
 
 错误文案必须说明原因和恢复动作，例如“歌曲因版权限制暂不可播放，可播放下一首”，而不是只显示“播放失败”。

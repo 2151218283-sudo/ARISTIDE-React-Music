@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-07-29
-> 当前任务：`T003`（待开始）
+> 当前任务：`T004`（待开始）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,14 +123,14 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T003 内部音乐模型、错误模型与 Demo Provider`
+- 当前任务：`T004 ECHOFORM Token 与基础状态组件`
 - 状态：待开始。
-- 上一任务完成记录：`T002` 已建立本地 Vitest、Testing Library 和 Playwright 测试基础；默认测试离线且确定，三视口画布截图经像素校验非空，`npm run test` 与 `npm run check` 已通过。
-- 本轮修改目标：建立 `Track`、`Album`、`Artist`、`UserProfile`、`Playlist`、`Comment`、`Lyrics`、`PlaybackSource`、统一 API envelope、`MusicProvider` 接口与确定性 Demo Provider。
-- 允许修改：新增组件规格；`src/lib/music/**`、`src/types/**`、`src/data/demo/**`、`tests/unit/**`、`tests/contract/**`。授权演示音频只可引用用户确认的本地资产。
-- 不允许修改：`.env*`、CI/CD、生产部署配置、业务页面、WebGL 行为、真实 Provider、Git 历史。
-- 不允许破坏：React 组件不得接触上游字段；Demo 不伪造网易云登录；不保存音源 URL；不引入数据库；现有 `Project` 数据暂不删除。
-- 验收标准：模型无 `any`；Demo 覆盖正常、空、超时、上游错误、不可播放、无歌词、无评论；相同 seed 结果稳定；Provider contract test 与 `npm run check` 通过。页面状态测试不适用，本轮以 unit/contract 为门槛。
+- 上一任务完成记录：`T003` 已建立内部音乐模型、统一错误/API 结果、`MusicProvider` 契约和确定性 Demo Provider；七种 Demo 场景、unit/contract、全量测试与 `npm run check` 已通过。
+- 本轮修改目标：将 `globals.css` 建成 Primitive -> Semantic -> Component 三层 Token；实现 INK/PAPER/ARTWORK 映射骨架及 `IconButton`、`TextButton`、`AlbumArtwork`、`StatusView`、`Skeleton`。
+- 允许修改：组件规格、`src/app/globals.css`、`src/components/` 中本任务组件、对应 CSS Modules 和组件测试；允许安装项目级 `lucide-react`。
+- 不允许修改：`.env*`、CI/CD、生产部署配置、真实 Provider、播放器状态机、Git 历史。
+- 不允许破坏：现有画廊 Canvas 尺寸和交互；不得在组件写 Raw Hex、卡片套卡片、Emoji 或固定紫蓝渐变；ARTWORK 本任务只建接口，不提前实现取色算法。
+- 验收标准：每个异步组件含 default/loading/empty/error/disabled/focus 状态；外框尺寸不因状态变化；对比度、44px 命中、200% 缩放和 Reduced Motion 通过；旧首页仍可用；专项组件测试、三视口 E2E 与 `npm run check` 通过。
 
 ## 5. 开发清单
 
@@ -156,7 +156,7 @@
 
   验收：新增 `test:unit`、`test:component`、`test:contract`、`test:e2e` 或等价清晰命令；默认测试完全离线且确定；Playwright 可启动本地站点并在 1440/768/390 截图；所有命令和 `npm run check` 通过。
 
-- [ ] **T003 内部音乐模型、错误模型与 Demo Provider**
+- [x] **T003 内部音乐模型、错误模型与 Demo Provider**
 
   目标：建立 `Track`、`Album`、`Artist`、`UserProfile`、`Playlist`、`Comment`、`Lyrics`、`PlaybackSource`、统一 API envelope、`MusicProvider` 接口和确定性 Demo Provider。
 
