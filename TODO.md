@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-07-29
-> 当前任务：`T002`（待开始）
+> 当前任务：`T003`（待开始）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,14 +123,14 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T002 自动化测试与页面状态验收基础`
+- 当前任务：`T003 内部音乐模型、错误模型与 Demo Provider`
 - 状态：待开始。
-- 上一任务完成记录：`T001` 已冻结 ECHOFORM / 声形品牌、本地单实例交付范围、300ms 搜索防抖、约 1100ms 预览目标、5 秒歌词浏览锁、头像共享元素、显式 Demo Mode 和 Sleep Timer 行为；`npm run check` 已通过。
-- 本轮修改目标：引入本地项目级 Vitest、Testing Library 和 Playwright，建立完全离线、确定的 unit/component/contract/e2e 命令、脱敏 fixture 约定及 1440/768/390 截图能力。
-- 允许修改：`package.json`、`package-lock.json`、测试配置、`tests/**`、`scripts/**`、`AGENTS.md`、测试说明文档。允许安装项目依赖，禁止全局安装。
+- 上一任务完成记录：`T002` 已建立本地 Vitest、Testing Library 和 Playwright 测试基础；默认测试离线且确定，三视口画布截图经像素校验非空，`npm run test` 与 `npm run check` 已通过。
+- 本轮修改目标：建立 `Track`、`Album`、`Artist`、`UserProfile`、`Playlist`、`Comment`、`Lyrics`、`PlaybackSource`、统一 API envelope、`MusicProvider` 接口与确定性 Demo Provider。
+- 允许修改：新增组件规格；`src/lib/music/**`、`src/types/**`、`src/data/demo/**`、`tests/unit/**`、`tests/contract/**`。授权演示音频只可引用用户确认的本地资产。
 - 不允许修改：`.env*`、CI/CD、生产部署配置、业务页面、WebGL 行为、真实 Provider、Git 历史。
-- 不允许破坏：现有 `npm run check`、生产构建、旧页面运行；测试不得包含真实账号、QR、Cookie、用户资料或音源 URL。
-- 验收标准：新增并文档化 unit/component/contract/e2e 命令；默认测试离线确定；Playwright 可在三视口截取本地页面；所有新命令与 `npm run check` 通过。
+- 不允许破坏：React 组件不得接触上游字段；Demo 不伪造网易云登录；不保存音源 URL；不引入数据库；现有 `Project` 数据暂不删除。
+- 验收标准：模型无 `any`；Demo 覆盖正常、空、超时、上游错误、不可播放、无歌词、无评论；相同 seed 结果稳定；Provider contract test 与 `npm run check` 通过。页面状态测试不适用，本轮以 unit/contract 为门槛。
 
 ## 5. 开发清单
 
@@ -146,7 +146,7 @@
 
   验收：控制文档无已知冲突；P0/P1/P2、Real/Demo、登录态/匿名态边界可被直接实现；文档链接有效；`npm run check` 通过。
 
-- [ ] **T002 自动化测试与页面状态验收基础**
+- [x] **T002 自动化测试与页面状态验收基础**
 
   目标：引入本地项目级 Vitest、Testing Library 和 Playwright；建立 unit/component/contract/e2e 命令、脱敏 fixtures 约定和三视口截图目录；先用最小 smoke test 证明工具链可运行。
 

@@ -57,9 +57,21 @@ behavior until the controlling documents are aligned.
   behavior research, and component specifications.
 - `docs/design-references/`: original and local screenshots used for visual comparison.
 - `scripts/`: bounded contract, fixture, asset, and visual verification scripts.
-- `tests/contract/`: upstream adapter and normalized contract tests once the test
-  runner is introduced.
-- `tests/e2e/`: browser-level critical-path tests once Playwright is introduced.
+- `tests/unit/`: deterministic, DOM-free tests for state machines, parsers,
+  pure utilities, and queue behavior. Do not use network, browser storage, or
+  real provider data here.
+- `tests/components/`: JSDOM component tests for semantic states, focus,
+  keyboard behavior, and recovery actions. Keep page-level network mocking out
+  of this directory.
+- `tests/contract/`: upstream adapter and normalized contract tests using
+  sanitized, deterministic fixtures only; live probes remain manual scripts.
+- `tests/e2e/`: Playwright browser-level critical-path, responsive, and visual
+  smoke tests against the local app only. Do not call an upstream music service.
+- `tests/fixtures/`: sanitized, non-user-specific fixture inputs and README
+  rules. Never put QR payloads, cookies, audio URLs, user profiles, or raw
+  upstream responses here.
+- `tests/artifacts/`: ignored Playwright screenshots, traces, and reports.
+  The test runner may recreate these files; do not commit generated artifacts.
 
 Before creating any other top-level or `src/` directory, document its ownership,
 contents, naming convention, and cleanup rule here.
@@ -95,8 +107,13 @@ contents, naming convention, and cleanup rule here.
 - `npm run typecheck`: strict TypeScript check.
 - `npm run build`: production build.
 - `npm run check`: lint, typecheck, and build.
-- Add and document unit, contract, and E2E commands before those test suites are
-  introduced; do not claim they passed while only `npm run check` exists.
+- `npm run test:unit`: deterministic DOM-free tests.
+- `npm run test:component`: JSDOM component tests.
+- `npm run test:contract`: sanitized fixture contract tests.
+- `npm run test:e2e`: local Playwright browser and three-viewport visual smoke tests.
+- `npm run test`: all test suites in serial command order.
+- Do not claim a suite passed before its command and fixture rules exist; live
+  real-provider probes remain explicit manual commands rather than default tests.
 - Run visual checks at 1440px desktop, 768px tablet, and 390px mobile widths.
 - Confirm each WebGL canvas has nonblank pixels and stable dimensions before completion.
 - Verify real-provider and demo-mode critical paths separately.
