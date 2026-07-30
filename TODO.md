@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-07-30
-> 当前任务：`T008`（待确认，未开始）
+> 当前任务：`T009`（未开始，等待确认）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,14 +123,14 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T008 Legacy Netease Adapter 与匿名契约`
-- 状态：待用户确认，尚未开始；不得提前安装 Provider 或实现 BFF。
-- 上一任务完成记录：`T007` 已在根布局建立唯一 `PlayerProvider`、唯一 Audio host 和持久 Player Bar，接通 T006 controller 与真实 media event；完成播放/暂停、有限上下曲、进度预览与键盘/Pointer Seek、缓冲/停滞恢复、桌面音量/静音、三种模式、自动播放受阻和错误 Retry/Next。unit 50、component 26、contract 6、E2E 10 与 `npm run check` 全部通过，生产构建 37 个页面；三视口、200% 等效缩放、Reduced Motion、fixed 主区避让和跨路由同一 Audio DOM 节点均已验收。T007 未接入或伪造真实音源，默认 resolver 仅指向未来同源 BFF。
-- 下轮修改目标：精确安装 `NeteaseCloudMusicApi@4.32.0`，只在 server-only Adapter 中调用；完成匿名搜索、详情、音源、歌词、评论和 QR 801 字段归一化。
-- 允许修改：`package*.json`、`src/lib/music/netease/**`、必要类型声明、脱敏 fixtures、contract tests 和 API 契约文档的实测记录。
-- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Session、客户端播放器 UI、Git 历史。
-- 不允许破坏：不得安装 Enhanced 4.38.0 作为当前 Provider；不得使用 `^`/`~`；不得启动上游 Express；不得调用解灰、代理或匹配音源；不得输出上游原始 Body、URL、Cookie 或 QR key。
-- 验收标准：lockfile integrity 匹配契约；根 code 200 + 行 code 404/null URL 正确失败；`yrc` 缺失自然降级；异常形状映射统一错误；离线 fixtures 默认通过；Live 匿名 probe 仅手动运行并脱敏。页面状态测试不适用。
+- 当前任务：`T009 BFF 公共读取路由与统一错误边界`
+- 状态：未开始；T008R 已通过验收，等待用户确认后进入同源 BFF Route Handler 开发。
+- 上一任务完成记录：`T008` 已精确安装 `NeteaseCloudMusicApi@4.32.0`，仅在 `src/lib/music/netease/legacyApi.server.ts` 延迟加载真实 CommonJS 包；完成匿名搜索、详情、可用性预检、音源、歌词、评论和 QR 801 的归一化 Adapter。通用歌词解析器已迁到 `src/lib/music/lyricParser.ts`，`src/lib/player/lyrics.ts` 保持兼容重导出。`npm run test:contract` 19 项、`npm run test:unit` 50 项和 `npm run check` 全部通过；页面状态测试不适用，因为本任务不新增或修改页面/BFF 路由；Live 匿名 probe 未运行，未保存 QR key、Cookie、用户资料或音源 URL。
+- 下轮修改目标：实现同源 `/api/search`、track、source、lyrics、comments 等公共读取 Route Handlers，统一校验、超时、Cache-Control、requestId 和错误 envelope。
+- 允许修改：BFF 规格；`src/app/api/**`、`src/lib/music/**`、contract/component tests。
+- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史；不得实现登录态写操作或 Session 持久化变更。
+- 不允许破坏：浏览器不得直连上游；私有数据和音源 `no-store`；读取最多重试一次；错误 details 不含输入正文、音源 URL、Cookie、QR key 或原始上游 Body。
+- 验收标准：Route Handler 契约与文档一致；客户端 bundle 不含上游包；所有错误有稳定 code/retryable/requestId；成功、loading 不适用说明、empty、参数错误、超时/上游错误、不可播放和部分成功均有契约或页面级测试覆盖；contract/E2E 与 `npm run check` 通过。
 
 ## 5. 开发清单
 
@@ -232,15 +232,25 @@
 
 ### Phase 2：真实 Provider、BFF 与登录
 
-- [ ] **T008 Legacy Netease Adapter 与匿名契约**
+- [x] **T008 Legacy Netease Adapter 与匿名契约**
 
   目标：精确安装 `NeteaseCloudMusicApi@4.32.0`，只在 server-only Adapter 中调用；完成匿名搜索、详情、音源、歌词、评论和 QR 801 字段归一化。
 
-  允许修改：`package*.json`、`src/lib/music/netease/**`、必要类型声明、脱敏 fixtures、contract tests 和 API 契约文档的实测记录。
+  允许修改：`package*.json`、`src/lib/music/netease/**`、必要类型声明、脱敏 fixtures、contract tests 和 API 契约文档的实测记录；为避免 Adapter 反向依赖 Player，可将通用歌词解析器迁到 `src/lib/music/lyricParser.ts`，并由 `src/lib/player/lyrics.ts` 兼容重导出。
 
   不允许破坏：不得安装 Enhanced 4.38.0 作为当前 Provider；不得使用 `^`/`~`；不得启动上游 Express；不得调用解灰、代理或匹配音源；不得输出上游原始 Body、URL、Cookie 或 QR key。
 
   验收：lockfile integrity 匹配契约；根 code 200 + 行 code 404/null URL 正确失败；`yrc` 缺失自然降级；异常形状映射统一错误；离线 fixtures 默认通过；Live 匿名 probe 仅手动运行并脱敏。页面状态测试不适用。
+
+- [x] **T008R 播放源请求取消链路修复**
+
+  目标：修复 T006/T007 仅丢弃旧异步结果、未实际中止旧音源请求的问题；由 Controller 创建并中止 `AbortController`，并由同源音源客户端把 signal 传给 `fetch`。
+
+  允许修改：`TODO.md`、`src/lib/player/**`、`src/features/player/sourceClient.ts` 及对应 unit/component tests。
+
+  不允许破坏：最新 revision 优先、用户 Pause、音源 URL 不进入日志或持久化；不实现 BFF 路由、Session、登录态或上游直连。
+
+  验收：A/B/C 快速切歌会实际 abort A/B 请求且只接受 C；同源 source fetch 接收 signal；现有播放、错误恢复和三视口测试均通过。`npm run test:unit` 51 项、`npm run test:component` 26 项、`npm run test:contract` 19 项、`npm run test:e2e` 10 项和 `npm run check` 均通过。
 
 - [ ] **T009 BFF 公共读取路由与统一错误边界**
 

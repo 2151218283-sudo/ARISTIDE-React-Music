@@ -85,10 +85,14 @@ async function loadReady(
 describe("player controller revision and intent guards", () => {
   it("allows only C to resolve after rapid A/B/C loads", async () => {
     const requests = new Map<string, Deferred<PlaybackSource>>();
+    const abortedTracks: string[] = [];
     const controller = createPlayerController({
-      resolveSource: (value) => {
+      resolveSource: (value, context) => {
         const request = deferred<PlaybackSource>();
         requests.set(value.id, request);
+        context.signal.addEventListener("abort", () => {
+          abortedTracks.push(value.id);
+        });
         return request.promise;
       },
     });
@@ -106,6 +110,7 @@ describe("player controller revision and intent guards", () => {
       source: { url: "memory-c" },
       loadRevision: 3,
     });
+    expect(abortedTracks).toEqual(["a", "b"]);
   });
 
   it("does not let a pending play promise override pause", async () => {

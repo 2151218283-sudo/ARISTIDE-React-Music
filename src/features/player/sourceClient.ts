@@ -72,7 +72,11 @@ export const resolvePlaybackSource: PlayerSourceResolver = async (
 ) => {
   const response = await fetch(
     `/api/tracks/${encodeURIComponent(track.id)}/source`,
-    { cache: "no-store", credentials: "same-origin" },
+    {
+      cache: "no-store",
+      credentials: "same-origin",
+      signal: context.signal,
+    },
   );
 
   if (context.cancelled()) {

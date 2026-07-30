@@ -122,7 +122,11 @@ export interface PlayerReducerContext {
 export interface PlayerSourceResolver {
   (
     track: Track,
-    context: { revision: number; cancelled: () => boolean },
+    context: {
+      revision: number;
+      cancelled: () => boolean;
+      signal: AbortSignal;
+    },
   ): Promise<PlaybackSource>;
 }
 

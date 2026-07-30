@@ -18,6 +18,7 @@ import type {
 } from "./types";
 
 interface CancellationRecord {
+  abortController: AbortController;
   cancelled: boolean;
 }
 
@@ -137,6 +138,7 @@ export function createPlayerController(
   const cancelResolution = (): void => {
     if (activeResolution) {
       activeResolution.cancelled = true;
+      activeResolution.abortController.abort();
       activeResolution = null;
     }
   };
@@ -178,7 +180,10 @@ export function createPlayerController(
     }
 
     cancelResolution();
-    const cancellation: CancellationRecord = { cancelled: false };
+    const cancellation: CancellationRecord = {
+      abortController: new AbortController(),
+      cancelled: false,
+    };
     activeResolution = cancellation;
     const revision = snapshot.loadRevision;
     const track = snapshot.currentTrack;
@@ -186,6 +191,7 @@ export function createPlayerController(
     void options.resolveSource(track, {
       revision,
       cancelled: () => cancellation.cancelled,
+      signal: cancellation.abortController.signal,
     }).then(
       (source) => {
         if (destroyed || cancellation.cancelled) {
