@@ -1,0 +1,484 @@
+import { AppError } from "../errors";
+import { parseLyrics } from "../lyricParser";
+import type {
+  AlbumSummary,
+  ArtistSummary,
+  AudioQuality,
+  Comment,
+  CommentPage,
+  LyricDocument,
+  PlaybackSource,
+  SearchKind,
+  SearchPage,
+  Track,
+  UserProfile,
+} from "../models";
+import type {
+  LegacyApiResponse,
+  LegacyQrPollResult,
+} from "./types";
+
+type UnknownRecord = Record<string, unknown>;
+
+const audioQualities: readonly AudioQuality[] = [
+  "standard",
+  "exhigh",
+  "lossless",
+  "hires",
+];
+
+function upstreamError(message = "网易云服务返回了无法识别的数据。") {
+  return new AppError("UPSTREAM_UNAVAILABLE", message, { retryable: true });
+}
+
+export function asRecord(value: unknown): UnknownRecord | null {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? value as UnknownRecord
+    : null;
+}
+
+function finiteNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function nonNegativeNumber(value: unknown): number | null {
+  const number = finiteNumber(value);
+  return number !== null && number >= 0 ? number : null;
+}
+
+function text(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
+}
+
+function entityId(value: unknown): string | null {
+  if (typeof value === "string" && /^\d+$/.test(value)) {
+    return value;
+  }
+  if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) {
+    return String(value);
+  }
+  return null;
+}
+
+function publicMediaUrl(value: unknown): string | null {
+  const candidate = text(value);
+  if (!candidate) {
+    return null;
+  }
+  try {
+    const url = new URL(candidate);
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? candidate
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function playbackUrl(value: unknown): string | null {
+  const candidate = text(value);
+  if (!candidate) {
+    return null;
+  }
+  try {
+    return new URL(candidate).protocol === "https:" ? candidate : null;
+  } catch {
+    return null;
+  }
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.flatMap((entry) => {
+      const normalized = text(entry);
+      return normalized ? [normalized] : [];
+    })
+    : [];
+}
+
+function childRecord(parent: UnknownRecord, ...keys: string[]): UnknownRecord | null {
+  for (const key of keys) {
+    const value = asRecord(parent[key]);
+    if (value) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function childArray(parent: UnknownRecord, ...keys: string[]): unknown[] | null {
+  for (const key of keys) {
+    const value = parent[key];
+    if (Array.isArray(value)) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function quality(value: unknown): AudioQuality | null {
+  return typeof value === "string" && audioQualities.includes(value as AudioQuality)
+    ? value as AudioQuality
+    : null;
+}
+
+function mapArtist(value: unknown): ArtistSummary | null {
+  const artist = asRecord(value);
+  const id = artist ? entityId(artist.id) : null;
+  const name = artist ? text(artist.name) : null;
+  if (!artist || !id || !name) {
+    return null;
+  }
+  return {
+    id,
+    name,
+    avatarUrl: publicMediaUrl(artist.picUrl ?? artist.img1v1Url),
+  };
+}
+
+function mapAlbum(value: unknown): AlbumSummary | null {
+  const album = asRecord(value);
+  const id = album ? entityId(album.id) : null;
+  const name = album ? text(album.name) : null;
+  if (!album || !id || !name) {
+    return null;
+  }
+  return {
+    id,
+    name,
+    artworkUrl: publicMediaUrl(album.picUrl ?? album.blurPicUrl),
+  };
+}
+
+function mapUser(value: unknown): UserProfile | null {
+  const user = asRecord(value);
+  const id = user ? entityId(user.userId ?? user.id) : null;
+  const nickname = user ? text(user.nickname) : null;
+  if (!user || !id || !nickname) {
+    return null;
+  }
+  return {
+    id,
+    nickname,
+    avatarUrl: publicMediaUrl(user.avatarUrl),
+    signature: text(user.signature),
+  };
+}
+
+function privilegeForTrack(
+  track: UnknownRecord,
+  privilege: UnknownRecord | null,
+): Track["privilege"] {
+  const fee = nonNegativeNumber(privilege?.fee ?? track.fee);
+  const maxQuality = quality(
+    privilege?.playMaxLevel
+      ?? privilege?.maxLevel
+      ?? track.playMaxLevel,
+  );
+  return { fee, maxQuality };
+}
+
+function mapTrack(
+  value: unknown,
+  privilege: UnknownRecord | null = null,
+): Track | null {
+  const track = asRecord(value);
+  const id = track ? entityId(track.id) : null;
+  const name = track ? text(track.name) : null;
+  const album = track ? mapAlbum(track.al ?? track.album) : null;
+  if (!track || !id || !name || !album) {
+    return null;
+  }
+
+  const rawArtists = childArray(track, "ar", "artists") ?? [];
+  const artists = rawArtists.flatMap((artist) => {
+    const normalized = mapArtist(artist);
+    return normalized ? [normalized] : [];
+  });
+  const durationMs = nonNegativeNumber(track.dt ?? track.duration) ?? 0;
+
+  return {
+    id,
+    name,
+    artists,
+    album,
+    durationMs,
+    artworkUrl: album.artworkUrl,
+    aliases: stringArray(track.alia ?? track.alias),
+    explicit: track.explicit === true,
+    availability: "unknown",
+    privilege: privilegeForTrack(track, privilege),
+  };
+}
+
+function mapRows<T>(
+  value: unknown,
+  mapper: (row: unknown) => T | null,
+): T[] {
+  if (!Array.isArray(value)) {
+    throw upstreamError();
+  }
+  const mapped = value.flatMap((row) => {
+    const result = mapper(row);
+    return result ? [result] : [];
+  });
+  if (value.length > 0 && mapped.length === 0) {
+    throw upstreamError();
+  }
+  return mapped;
+}
+
+function hasMore(total: number | null, offset: number, count: number, limit: number) {
+  return total !== null ? offset + count < total : count === limit;
+}
+
+export function unwrapLegacyBody(response: LegacyApiResponse): UnknownRecord {
+  const status = finiteNumber(response.status);
+  const body = asRecord(response.body);
+  const code = body ? finiteNumber(body.code) : null;
+
+  if (status === 429 || code === 429) {
+    throw new AppError("RATE_LIMITED", "请求过于频繁，请稍后重试。", {
+      retryable: true,
+    });
+  }
+  if (!body || status === null || status < 200 || status >= 300 || code !== 200) {
+    throw upstreamError("网易云服务暂时不可用。");
+  }
+  return body;
+}
+
+export function unwrapLegacyQrBody(response: LegacyApiResponse): UnknownRecord {
+  const status = finiteNumber(response.status);
+  const body = asRecord(response.body);
+  if (!body || status === null || status < 200 || status >= 300) {
+    throw upstreamError("二维码状态暂时无法获取。");
+  }
+  return body;
+}
+
+export function mapSearchPage(
+  body: UnknownRecord,
+  type: "track",
+  limit: number,
+  offset: number,
+): SearchPage<Track, "track">;
+export function mapSearchPage(
+  body: UnknownRecord,
+  type: "album",
+  limit: number,
+  offset: number,
+): SearchPage<AlbumSummary, "album">;
+export function mapSearchPage(
+  body: UnknownRecord,
+  type: "artist",
+  limit: number,
+  offset: number,
+): SearchPage<ArtistSummary, "artist">;
+export function mapSearchPage(
+  body: UnknownRecord,
+  type: SearchKind,
+  limit: number,
+  offset: number,
+): SearchPage<Track, "track"> | SearchPage<AlbumSummary, "album">
+  | SearchPage<ArtistSummary, "artist"> {
+  const result = childRecord(body, "result");
+  if (!result) {
+    throw upstreamError();
+  }
+
+  if (type === "track") {
+    const items = mapRows(result.songs ?? [], (row) => mapTrack(row));
+    const total = nonNegativeNumber(result.songCount);
+    return {
+      type,
+      items,
+      total,
+      limit,
+      offset,
+      hasMore: hasMore(total, offset, items.length, limit),
+    };
+  }
+  if (type === "album") {
+    const items = mapRows(result.albums ?? [], mapAlbum);
+    const total = nonNegativeNumber(result.albumCount);
+    return {
+      type,
+      items,
+      total,
+      limit,
+      offset,
+      hasMore: hasMore(total, offset, items.length, limit),
+    };
+  }
+
+  const items = mapRows(result.artists ?? [], mapArtist);
+  const total = nonNegativeNumber(result.artistCount);
+  return {
+    type,
+    items,
+    total,
+    limit,
+    offset,
+    hasMore: hasMore(total, offset, items.length, limit),
+  };
+}
+
+export function mapTrackDetail(body: UnknownRecord, trackId: string): Track {
+  const rawSongs = Array.isArray(body.songs) ? body.songs : null;
+  if (!rawSongs) {
+    throw upstreamError();
+  }
+  const privileges = Array.isArray(body.privileges) ? body.privileges : [];
+  const privilegeById = new Map<string, UnknownRecord>();
+  for (const value of privileges) {
+    const privilege = asRecord(value);
+    const id = privilege ? entityId(privilege.id) : null;
+    if (privilege && id) {
+      privilegeById.set(id, privilege);
+    }
+  }
+
+  for (const value of rawSongs) {
+    const row = asRecord(value);
+    const id = row ? entityId(row.id) : null;
+    if (row && id === trackId) {
+      const mapped = mapTrack(row, privilegeById.get(id) ?? null);
+      if (mapped) {
+        return mapped;
+      }
+      break;
+    }
+  }
+
+  throw new AppError("TRACK_UNAVAILABLE", "未找到指定歌曲。", {
+    details: { trackId },
+  });
+}
+
+export function assertTrackPlayable(body: UnknownRecord, trackId: string): void {
+  if (body.success !== true) {
+    throw new AppError("TRACK_UNAVAILABLE", "当前歌曲无法播放。", {
+      details: { trackId },
+    });
+  }
+}
+
+export function mapPlaybackSource(
+  body: UnknownRecord,
+  trackId: string,
+  requestedQuality: AudioQuality,
+  receivedAt: number,
+): PlaybackSource {
+  const rows = Array.isArray(body.data) ? body.data : null;
+  if (!rows) {
+    throw upstreamError();
+  }
+  const row = rows
+    .map(asRecord)
+    .find((candidate) => candidate && entityId(candidate.id) === trackId) ?? null;
+  const url = row ? playbackUrl(row.url) : null;
+  if (!row || finiteNumber(row.code) !== 200 || !url) {
+    throw new AppError("TRACK_UNAVAILABLE", "当前歌曲没有可用音源。", {
+      details: { trackId },
+    });
+  }
+
+  const expiSeconds = nonNegativeNumber(row.expi);
+  const expiresAt = receivedAt + (expiSeconds && expiSeconds > 0
+    ? expiSeconds * 1_000
+    : 300_000);
+
+  return {
+    url,
+    expiresAt,
+    quality: quality(row.level) ?? requestedQuality,
+    codec: text(row.encodeType ?? row.type),
+    bitrate: nonNegativeNumber(row.br),
+    sampleRate: nonNegativeNumber(row.sr),
+    sizeBytes: nonNegativeNumber(row.size),
+    corsMode: "unavailable",
+  };
+}
+
+function nestedLyric(body: UnknownRecord, key: string): string | null {
+  return text(asRecord(body[key])?.lyric);
+}
+
+export function mapLyrics(body: UnknownRecord): LyricDocument {
+  return parseLyrics({
+    lrc: nestedLyric(body, "lrc"),
+    tlyric: nestedLyric(body, "tlyric"),
+    romalrc: nestedLyric(body, "romalrc"),
+    yrc: nestedLyric(body, "yrc"),
+    instrumental: body.nolyric === true,
+  });
+}
+
+function mapComment(value: unknown): Comment | null {
+  const comment = asRecord(value);
+  const id = comment ? entityId(comment.commentId ?? comment.id) : null;
+  const author = comment ? mapUser(comment.user) : null;
+  const content = comment ? text(comment.content) : null;
+  const createdAt = comment ? nonNegativeNumber(comment.time) : null;
+  if (!comment || !id || !author || !content || createdAt === null) {
+    return null;
+  }
+
+  const rawReply = Array.isArray(comment.beReplied) ? comment.beReplied[0] : null;
+  const reply = asRecord(rawReply);
+  const replyUser = reply ? asRecord(reply.user) : null;
+  const replyId = reply ? entityId(reply.beRepliedCommentId ?? reply.commentId) : null;
+  const replyNickname = replyUser ? text(replyUser.nickname) : null;
+
+  return {
+    id,
+    author,
+    content,
+    createdAt,
+    likedCount: nonNegativeNumber(comment.likedCount) ?? 0,
+    likedByCurrentUser: comment.liked === true,
+    replyTo: replyId && replyNickname
+      ? { id: replyId, nickname: replyNickname }
+      : null,
+  };
+}
+
+export function mapCommentPage(
+  body: UnknownRecord,
+  limit: number,
+  offset: number,
+): CommentPage {
+  const items = mapRows(body.comments ?? [], mapComment);
+  const total = nonNegativeNumber(body.total);
+  const upstreamHasMore = typeof body.more === "boolean" ? body.more : null;
+  return {
+    items,
+    total,
+    limit,
+    offset,
+    hasMore: upstreamHasMore ?? hasMore(total, offset, items.length, limit),
+  };
+}
+
+export function mapQrPollResult(body: UnknownRecord): LegacyQrPollResult {
+  const code = finiteNumber(body.code);
+  if (code === 800) {
+    return { status: "expired" };
+  }
+  if (code === 801) {
+    return { status: "waiting" };
+  }
+  if (code === 802) {
+    return { status: "scanned" };
+  }
+  if (code === 803) {
+    const upstreamCookie = text(body.cookie);
+    if (upstreamCookie) {
+      return { status: "authorized", upstreamCookie };
+    }
+  }
+  throw upstreamError("二维码状态暂时无法识别。");
+}

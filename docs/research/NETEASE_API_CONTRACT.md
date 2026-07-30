@@ -1,6 +1,6 @@
 # ECHOFORM 网易云 API 契约
 
-> 状态：Primary Baseline + Candidate Provider
+> 状态：Primary Baseline + T008 Installed Legacy Adapter + Candidate Provider
 > 核验日期：2026-07-29
 > 当前主 Provider：`NeteaseCloudMusicApi@4.32.0`
 > 候选替代 Provider：`@neteasecloudmusicapienhanced/api@4.38.0`
@@ -92,6 +92,31 @@ Standalone 构建中无法正确打包，再评估受限 sidecar；该变更必�
 增强包即使不启用解灰，也会把
 `@neteasecloudmusicapienhanced/unblockmusic-utils` 作为依赖安装。ECHOFORM 只允许使用其
 官方网易云请求路径，不得调用该依赖或任何解灰路由。
+
+### 2.4 T008 落地记录（2026-07-30）
+
+- 项目依赖已精确写入 `NeteaseCloudMusicApi: "4.32.0"`，无 `^`/`~`；lockfile 的
+  version 与本节固定值一致，integrity 为
+  `sha512-yRDwpMcLZnOSkmR/flEpGEJpufNxOQVILb2+2mnSrKPZp/3PbIo2uIOuTa3SjGaAtK3dUKJdQBTkOn0POKDa+A==`。
+- 当前 npm 配置把 tarball resolved 地址写为 `registry.npmmirror.com`；内容 integrity 与
+  固定 npm 发布物一致。本轮没有改 npm 全局配置。
+- 真实 CommonJS 包只由 `src/lib/music/netease/legacyApi.server.ts` 延迟加载；loader 只
+  提取白名单函数，不启动 `app.js` 或 Express `server.js`。纯 Adapter 通过依赖注入接受
+  同一函数契约，因此默认 contract tests 不导入发布包、不创建网络请求。
+- T008 已完成匿名搜索、歌曲详情、可用性预检、音源、歌词、评论与 QR code 状态的字段
+  映射。`type=all` 由歌曲/歌手/专辑三类调用组合；音源默认 `corsMode: unavailable`，不把
+  单次历史 CORS 样本推广成所有 CDN 节点的保证。
+- 新增 13 项完全合成的离线 Legacy contract tests；连同既有用例当前 contract 为 19 项。
+  覆盖精确版本/integrity、包引用边界、搜索/详情、部分成功、根业务码非 200、
+  `check_music.success=false`、音源行 404/null URL、短期音源映射、`yrc` 缺失、评论、
+  QR 801 与未知异常脱敏。
+- 安装命令成功退出，但 npm 报告现有可选 WASM 依赖树中 `@emnapi/*` 的 peer override
+  警告；未使用 bypass flag。该警告不来自 Legacy 包的运行调用，后续仍由全量测试和构建
+  验证是否产生实际影响。
+- 本轮没有运行 Live 匿名 probe，没有扫码，没有产生或保存 QR key/Cookie/音源 URL，
+  没有调用登录态或外部写操作。因此 802/803、个人日推与写操作的验证等级保持不变。
+- T008 Adapter 是 T009/T010 的 server-only 基础，不提前实现 BFF、Session 或完整登录
+  生命周期；这些任务不能因离线字段契约通过而标记完成。
 
 ## 3. 核验等级
 
