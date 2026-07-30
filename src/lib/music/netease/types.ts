@@ -26,6 +26,7 @@ export interface LegacyNeteaseApi {
 
 export interface LegacyAdapterOptions {
   now?: () => number;
+  transportProxyUrl?: string;
 }
 
 export type LegacyQrPollResult =

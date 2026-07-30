@@ -127,6 +127,7 @@ test("supports skip navigation and focuses headings after local navigation", asy
 test("keeps one persistent audio node across client-side product routes", async ({ page }) => {
   await page.setViewportSize(viewports[0]);
   await page.goto("/");
+  await expect(page.getByRole("button", { name: "使用网易云音乐登录" })).toBeVisible();
 
   const audio = page.locator("[data-echoform-audio]");
   await expect(audio).toHaveCount(1);

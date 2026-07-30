@@ -104,12 +104,14 @@ function withCookie(
 
 export class LegacyNeteaseAdapter {
   private readonly now: () => number;
+  private readonly transportProxyUrl: string | undefined;
 
   constructor(
     private readonly api: LegacyNeteaseApi,
     options: LegacyAdapterOptions = {},
   ) {
     this.now = options.now ?? Date.now;
+    this.transportProxyUrl = options.transportProxyUrl;
   }
 
   private async invoke(
@@ -117,7 +119,9 @@ export class LegacyNeteaseAdapter {
     params: Readonly<Record<string, unknown>>,
   ) {
     try {
-      return await method(params);
+      return await method(this.transportProxyUrl
+        ? { ...params, proxy: this.transportProxyUrl }
+        : params);
     } catch (error) {
       throw safeUpstreamError(error);
     }

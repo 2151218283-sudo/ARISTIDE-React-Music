@@ -45,7 +45,11 @@ function currentAttribute(isCurrent: boolean): "page" | undefined {
   return isCurrent ? "page" : undefined;
 }
 
-export function FixedNavigation() {
+interface FixedNavigationProps {
+  onNavigate?: (path: string) => void;
+}
+
+export function FixedNavigation({ onNavigate }: FixedNavigationProps) {
   const pathname = usePathname();
 
   return (
@@ -55,6 +59,7 @@ export function FixedNavigation() {
         aria-label="ECHOFORM 首页"
         className={styles.brand}
         href="/"
+        onClick={() => onNavigate?.("/")}
       >
         ECHOFORM
       </Link>
@@ -70,6 +75,7 @@ export function FixedNavigation() {
           className={styles.iconLink}
           data-current={pathname === "/search"}
           href="/search"
+          onClick={() => onNavigate?.("/search")}
           title="搜索"
         >
           <Search aria-hidden="true" strokeWidth={1.7} />

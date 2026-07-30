@@ -230,7 +230,24 @@ Provider，同时提供独立 `DemoMusicProvider`。新 ECHOFORM Session 的数�
 失败、单首歌曲无版权、VIP/地区限制、一次超时、QR 过期、用户退出或非法参数都不能自动
 改变数据模式，也不能触发 Real Provider 切换。
 
-### 4.5 增强版禁止能力
+### 4.5 受限的本地上游传输代理
+
+2026-07-30 的本地运行探测确认：当前网络直连 `interface.music.163.com:443` 不可用，而
+Clash loopback HTTP proxy 能取得 Legacy QR key。为使该开发机可进行真实 Provider 验收，
+Legacy Adapter 可在服务启动时读取可选 `NETEASE_UPSTREAM_PROXY`。
+
+- 仅接受无凭据的 `http://127.0.0.1:<port>` 或 `http://[::1]:<port>`；其他形状均视为无效
+  server configuration，不会转发任何上游请求。
+- 该值仅传给固定 Legacy 包的 HTTP transport `proxy` 参数，绝不返回给客户端，也不写入
+  Cookie、URL、日志、fixture、错误 details 或 Git。
+- 未配置时保持直连；上游失败不会自动切换到代理或 Enhanced Provider。
+- 该传输代理不转发音频正文，不修改 `song_url_v1` 参数，不改变版权、VIP、地区和账号权限
+  语义，也不等同于本节之后禁止的上游 `proxyUrl` 音源响应。
+
+运行验收仅记录“QR key 可创建”；802/803、真实账户资料和任何写操作仍为 `PENDING_AUTH`，
+不得据此标记为已实测。
+
+### 4.6 增强版禁止能力
 
 ECHOFORM 不使用增强版的解灰、第三方音源匹配或代理 URL：
 

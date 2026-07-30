@@ -106,6 +106,32 @@ describe("Legacy package boundary", () => {
       expect.stringMatching(/src\/lib\/music\/netease\/legacyApi\.server\.ts$/),
     ]);
   });
+
+  it("passes an explicit transport proxy only to server-side upstream calls", async () => {
+    const qrKey = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      data: { unikey: opaqueRuntimeValue() },
+    }));
+    const qrCreate = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      data: { qrimg: "data:image/png;base64,visual-stage-placeholder" },
+    }));
+    const adapter = new LegacyNeteaseAdapter(makeApi({
+      login_qr_key: qrKey,
+      login_qr_create: qrCreate,
+    }), { transportProxyUrl: "http://127.0.0.1:7897/" });
+
+    await adapter.startQrLogin();
+
+    expect(qrKey).toHaveBeenCalledWith({
+      proxy: "http://127.0.0.1:7897/",
+    });
+    expect(qrCreate).toHaveBeenCalledWith({
+      key: expect.any(String),
+      qrimg: true,
+      proxy: "http://127.0.0.1:7897/",
+    });
+  });
 });
 
 describe("Legacy anonymous reads", () => {

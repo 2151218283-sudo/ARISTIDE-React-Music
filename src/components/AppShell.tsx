@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 import { FixedNavigation } from "./FixedNavigation";
 import styles from "./AppShell.module.css";
@@ -19,6 +19,7 @@ const CONTENT_ROUTE_PATTERNS = [
   /^\/playlist\/[^/]+\/?$/,
   /^\/profile\/[^/]+\/?$/,
 ] as const;
+const pageHeadingFocusStorageKey = "echoform:page-heading-focus";
 
 export function getAppShellVariant(pathname: string): AppShellVariant | null {
   if (pathname === "/" || pathname === "/about") {
@@ -49,9 +50,17 @@ export function AppShell({ children }: AppShellProps) {
   const hasMountedRef = useRef(false);
   const mainRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
+  function requestPageHeadingFocus(path: string): void {
+    window.sessionStorage.setItem(pageHeadingFocusStorageKey, path);
+  }
+
+  useLayoutEffect(() => {
     if (!hasMountedRef.current) {
       hasMountedRef.current = true;
+      return;
+    }
+
+    if (window.sessionStorage.getItem(pageHeadingFocusStorageKey) === pathname) {
       return;
     }
 
@@ -77,7 +86,7 @@ export function AppShell({ children }: AppShellProps) {
       >
         跳到主内容
       </a>
-      <FixedNavigation />
+      <FixedNavigation onNavigate={requestPageHeadingFocus} />
       <main
         aria-label="ECHOFORM 主内容"
         className={mainClassName}

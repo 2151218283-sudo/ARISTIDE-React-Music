@@ -54,6 +54,7 @@ test.beforeAll(async () => {
     root: process.cwd(),
     server: {
       host: "127.0.0.1",
+      hmr: false,
       port: previewPort,
       strictPort: true,
     },

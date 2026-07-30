@@ -123,10 +123,10 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T010 进程内 Session 与二维码登录`
-- 状态：待确认提交 T010；实现与验收已完成，未提交、未推送。
-- 本轮完成记录：`T010` 已实现 256-bit 随机 `sid`、进程内 server-only Session Store、二维码 Challenge 生命周期、2 秒可见页轮询、801/802/803/800 映射、刷新恢复、BrandMark 到头像替换、账户菜单登出，以及关闭、Escape、过期、刷新和网络错误状态。二维码 key、上游 Cookie 和原始账号 Response 始终留在服务端；802/803 只完成离线契约/UI 验证，未宣称真实账号实测。复用本地 `3001` 服务的完整 `npm.cmd run test` 通过，其中 unit 57 项、component 29 项、contract 32 项、E2E 12 项；`npm.cmd run check` 通过，包含 production build。lint 保留两条动态头像/二维码 Data URL 的静态图片优化警告，无 lint error。敏感字段扫描和 `git diff --check` 均通过。
-- 下轮修改目标：确认提交 T010 后，进入 `T011 每日推荐数据层与显式 Demo 降级`。
+- 当前任务：`T010R 二维码上游连通性与画廊视觉验收修复`
+- 状态：`T010` 已在本地提交 `8db41df`；`T010R` 实现与验收完成，待确认提交，未推送。
+- 本轮完成记录：`T010` 已实现 256-bit 随机 `sid`、进程内 server-only Session Store、二维码 Challenge 生命周期、2 秒可见页轮询、801/802/803/800 映射、刷新恢复、BrandMark 到头像替换、账户菜单登出，以及关闭、Escape、过期、刷新和网络错误状态。二维码 key、上游 Cookie 和原始账号 Response 始终留在服务端；802/803 只完成离线契约/UI 验证，未宣称真实账号实测。`T010R` 为开发机直连受阻增加了严格限定的 server-only loopback HTTP transport proxy，并确认真实 Legacy QR key 可创建；同时修复了移动端 WebGL 首帧尚未绘制时被过早截图的 E2E 假阴性，截图前必须读取到非背景像素。`.env.local` 仅保存忽略的本地代理地址，不进 Git。复用本地 `3001` 服务的完整 `npm.cmd run test` 通过，其中 unit 66 项、component 29 项、contract 33 项、E2E 12 项；`npm.cmd run check` 通过，包含 production build。lint 保留两条动态头像/二维码 Data URL 的静态图片优化警告，无 lint error。敏感字段扫描和 `git diff --check` 均通过。
+- 下轮修改目标：确认提交 `T010R` 后，进入 `T011 每日推荐数据层与显式 Demo 降级`。
 - 允许修改：Auth 规格；`src/lib/session/**`、`src/features/auth/**`、`src/app/api/auth/**`、导航账号入口和测试。可修补 `src/lib/music/netease/**` 中仅用于二维码创建、账号状态和登出的服务端适配器能力。可更新 API 契约中的实际验证等级。
 - 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史；不得伪造 Demo 登录。
 - 不允许破坏：上游 Cookie/QR key 不得到浏览器；Session 重启后明确回游客；关闭/过期/成功必须停止轮询；未使用专用账号前不得宣称 802/803 已实测。
@@ -264,13 +264,13 @@
 
   验收：Route Handler 契约与文档一致；客户端 bundle 不含上游包；所有错误有稳定 code/retryable/requestId；contract/E2E 与 `npm run check` 通过。
 
-- [ ] **T010 进程内 Session 与二维码登录**
+- [x] **T010 进程内 Session 与二维码登录**
 
   目标：实现随机 `sid`、server-only Session Store、QR Challenge、2 秒可见页轮询、801/802/803/800、登录状态恢复、头像替换和登出。
 
   允许修改：Auth 规格；`src/lib/session/**`、`src/features/auth/**`、`src/app/api/auth/**`、导航账号入口和测试。可修补 `src/lib/music/netease/**` 中仅用于二维码创建、账号状态和登出的服务端适配器能力。可更新 API 契约中的实际验证等级。
 
-  不允许破坏：上游 Cookie/QR key 不得到浏览器；Session 重启后明确回游客；关闭/过期/成功必须停止轮询；不修改 `.env`；不伪造 Demo 登录；未使用专用账号前不得宣称 802/803 已实测。
+  不允许破坏：上游 Cookie/QR key 不得到浏览器；Session 重启后明确回游客；关闭/过期/成功必须停止轮询；不伪造 Demo 登录；未使用专用账号前不得宣称 802/803 已实测。经用户本轮明确授权，允许新增不提交的 `.env.local`，且其中的 `NETEASE_UPSTREAM_PROXY` 只能是无凭据 loopback HTTP transport，不得成为音源代理或客户端配置。
 
   页面测试：QR 初始化 loading、801、802、803、800、网络错误、关闭、Escape、刷新 QR、页面隐藏暂停轮询、Session 过期、头像错误占位。
 

@@ -117,6 +117,21 @@ async function stopServer(server) {
   ]);
 }
 
+async function runPlaywright(testFiles) {
+  const testRunner = spawn(
+    process.execPath,
+    ["node_modules/@playwright/test/cli.js", "test", ...testFiles],
+    {
+      cwd: process.cwd(),
+      stdio: "inherit",
+      windowsHide: true,
+    },
+  );
+  const [code] = await once(testRunner, "exit");
+
+  return code ?? 1;
+}
+
 let exitCode = 1;
 let server;
 
@@ -137,20 +152,19 @@ try {
     await waitForServer(server);
   }
 
-  const testRunner = spawn(
-    process.execPath,
-    ["node_modules/@playwright/test/cli.js", "test"],
-    {
-      cwd: process.cwd(),
-      stdio: "inherit",
-      windowsHide: true,
-    },
-  );
-  const [code] = await once(testRunner, "exit");
-  exitCode = code ?? 1;
+  const foundationTest = "tests/e2e/foundationComponents.visual.spec.ts";
+  const allTestFiles = (await findFiles("tests/e2e"))
+    .map((file) => file.replaceAll("\\", "/"))
+    .filter((file) => file.endsWith(".spec.ts"));
+  const applicationTestFiles = allTestFiles.filter((file) => (
+    file !== foundationTest
+  ));
+
+  exitCode = await runPlaywright(applicationTestFiles);
 
   if (exitCode === 0) {
     await assertCanvasScreenshotsHaveContent();
+    exitCode = await runPlaywright([foundationTest]);
   }
 } finally {
   if (server) {

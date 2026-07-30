@@ -92,6 +92,20 @@ Next.js Route Handlers 负责：
 真实 Provider 所在 Route Handler 必须声明 Node.js runtime。固定包依赖文件系统、Node
 Crypto 和 CommonJS，不能打入 Edge runtime 或 Client Bundle。
 
+### 4.2.1 受限的本地上游传输代理
+
+`NETEASE_UPSTREAM_PROXY` 是仅为开发机网络接入设置的可选 server-only 环境变量。它只允许
+`http://127.0.0.1:<port>` 或 `http://[::1]:<port>` 形式的 loopback HTTP 代理，且拒绝
+用户名、密码、路径、query、fragment、非 loopback 地址及非 HTTP 协议。适配器把该值仅作为
+固定网易云包的出站 HTTP transport `proxy` 参数；它不是音频代理、公开接口、上游 `proxyUrl`
+响应字段或解锁/版权绕过能力。
+
+- 环境变量为空时保持直连，不做自动故障转移，也不猜测本机代理端口。
+- 它仅在服务启动时读取；修改后必须重启本地服务。`.env.local` 不提交，值不得携带凭据。
+- 代理地址、上游 Cookie、QR key、二维码 Data URL 和原始上游响应均不得进入浏览器、日志、
+  夹具、API response 或 Git。
+- 部署环境必须显式决定是否提供受控的 loopback transport；不能把开发机代理假定为生产能力。
+
 BFF 不负责转发完整音频正文。若未来因 CDN CORS 或部署网络需要音频代理，必须重新
 评估带宽、版权和部署成本，并更新本文件后再实现。
 
