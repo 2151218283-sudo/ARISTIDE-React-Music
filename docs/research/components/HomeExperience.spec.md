@@ -3,7 +3,8 @@
 ## Overview
 
 - Target: `src/components/HomeExperience.tsx`
-- Owns homepage mode, selected project, History API state, and keyboard escape.
+- Owns homepage mode, shared daily recommendation state, selected Track,
+  History API state, and keyboard escape.
 
 ## State Machine
 
@@ -35,3 +36,16 @@ mounted until the overlay animation completes.
 
 - The first non-zero wheel event in either details phase starts exit and is consumed.
 - Once WebGL returns to browse, later wheel events are allowed to move the track.
+
+## T012 Track Migration Override
+
+- `DailyRecommendationsProvider` is mounted once by `HomeExperience` and owns
+  the session-aware read state used by both `FilmstripGallery` and
+  `DailyRecommendationStatus`. The homepage must not duplicate the daily-read
+  request for one scope and retry version.
+- A Track data refresh keeps the current Track only when it exists in the active
+  response; otherwise it selects the first Track. Empty/error data never keeps
+  a legacy Project visible.
+- T012 removes the homepage dependency on `ProjectDetailsOverlay`. Existing
+  `/<slug>` routes remain unchanged. Song preview entry, shared-cover expansion
+  and scroll exit are T013 work.

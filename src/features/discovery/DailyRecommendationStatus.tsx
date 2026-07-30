@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { TextButton } from "@/components/TextButton";
 import { useAuth } from "@/features/auth/AuthProvider";
 
-import { useDailyRecommendations } from "./useDailyRecommendations";
+import { useDailyRecommendationsState } from "./DailyRecommendationsProvider";
 import styles from "./DailyRecommendationStatus.module.css";
 
 interface StatusContent {
@@ -33,11 +33,7 @@ export function DailyRecommendationStatus() {
     status: authStatus,
     user,
   } = useAuth();
-  const recommendations = useDailyRecommendations({
-    enabled: authStatus === "ready" && !modeChanging,
-    mode,
-    userId: user?.id ?? null,
-  });
+  const recommendations = useDailyRecommendationsState();
 
   if (authStatus === "loading" || modeChanging || recommendations.status === "loading") {
     return <LoadingStatus modeChanging={modeChanging} />;

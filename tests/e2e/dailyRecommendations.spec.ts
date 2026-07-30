@@ -117,19 +117,20 @@ test("keeps the homepage canvas stable while daily recommendation states load at
     await page.setViewportSize(viewport);
     await page.goto("/");
 
-    const canvas = page.getByLabel("Interactive project gallery");
+    if (viewport.name === "desktop") {
+      const loading = page.locator('[data-state="loading"]');
+      await expect(loading).toContainText("正在载入今日推荐");
+      await expect(page.getByRole("status", { name: "正在加载歌曲画廊" })).toBeVisible();
+      await routes.waitForFirstDaily();
+      routes.releaseFirstDaily();
+    }
+
+    const canvas = page.getByLabel("Interactive daily track gallery");
     await expect(canvas).toBeVisible();
     await expect.poll(async () => canvas.evaluate((element) => {
       const { height, width } = element.getBoundingClientRect();
       return { height, width };
     })).toEqual({ height: viewport.height, width: viewport.width });
-
-    if (viewport.name === "desktop") {
-      const loading = page.getByRole("status");
-      await expect(loading).toContainText("正在载入今日推荐");
-      await routes.waitForFirstDaily();
-      routes.releaseFirstDaily();
-    }
     const publicStatus = page.locator('[data-state="public"]');
     await expect(publicStatus).toBeVisible();
     await expect(publicStatus).toContainText("PUBLIC SELECTION");

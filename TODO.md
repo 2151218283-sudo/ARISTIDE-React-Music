@@ -124,7 +124,7 @@
 ## 4. 当前执行卡
 
 - 当前任务：`T012 将项目画廊迁移为 Track 画廊`
-- 状态：待确认，未开始。`T011` 已通过实现与验收，等待本次提交；不得提前修改 T012 范围内的代码。
+- 状态：已完成，待提交。Track 画廊已通过加载、正常、空、接口错误、纹理错误与 Canvas 初始化失败降级验收；T013 尚未开始。
 - 上轮完成记录：`T011` 已实现 `/api/recommendations/daily` 与 `/api/mode`，Real 游客公共精选、Real 已登录个人日推及空个人结果的公开回退；日推缓存仅位于进程内并在认证/模式变化时清空。Real 读取失败保持 Real，Demo 只由可见操作显式切换，进入/退出模式会卸载播放器上下文并中止旧日推请求。首页新增固定尺寸的状态覆盖层，不改变 Three.js 画廊几何或 Canvas 尺寸。验收通过：unit 11 文件/67 项、component 6 文件/33 项、contract 6 文件/39 项；应用 E2E 12 项与基础组件视觉 E2E 2 项、播放器视觉 E2E 2 项均通过。复用用户本地 `3001` 预览时，日推 E2E 的等待竞争已修复；播放器和基础组件视觉测试改为独立临时本机预览以避免端口竞争。`npm.cmd run check` 通过；仅保留未修改 `AvatarButton.tsx` 与 `QrLoginDialog.tsx` 的两条 `<img>` 优化 warning，无 error。
 - 修改目标：让 WebGL 接收内部 `Track[]`，将方形专辑封面裁为 film slice，保留有限轨道、真实速度波浪、悬停和当前位置恢复。
 - 允许修改：Filmstrip/Home 组件规格；`HomeExperience*`、`FilmstripGallery*`、`src/lib/webgl/**`、Discovery 组件和测试。
@@ -290,7 +290,7 @@
 
   验收：UI 明确显示 Real/Demo；空数据转公共精选但不冒充个人内容；状态切换不改变画廊预留尺寸；contract/component/E2E 与 `npm run check` 通过。
 
-- [ ] **T012 将项目画廊迁移为 Track 画廊**
+- [x] **T012 将项目画廊迁移为 Track 画廊**
 
   目标：让 WebGL 接收内部 `Track[]`，将方形专辑封面裁为 film slice，保留有限轨道、真实速度波浪、悬停和当前位置恢复。
 
@@ -301,6 +301,8 @@
   页面测试：loading skeleton、正常 Track、空/公共精选、接口错误、纹理错误、Canvas 初始化失败 DOM 降级；首端/中间/尾端；滚轮、Pointer、键盘、触控替代；1440/768/390 Canvas 像素检查。
 
   验收：`HOME-AC-01..05` 和 `VIS-AC-05/06/21/28` 通过；封面只裁切不拉伸；首页视觉居中；专项 E2E/视觉回归与 `npm run check` 通过。
+
+  完成记录：主页 WebGL 已只接收内部 `Track[]`，封面缺失或纹理失败均使用内存方形占位纹理，首尾居中且有限不循环；Canvas 初始化失败时显示可键盘和触控操作的 DOM 歌曲列表。验证通过：unit 11 文件/67 项、component 7 文件/36 项、contract 6 文件/39 项、应用 E2E 13 项、基础组件视觉 E2E 2 项、播放器视觉 E2E 2 项；`npm.cmd run check` 通过（仅保留既有 2 条 `<img>` 优化 warning）。
 
 - [ ] **T013 歌曲预览舞台与自然退出**
 

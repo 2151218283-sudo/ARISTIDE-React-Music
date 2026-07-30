@@ -1,0 +1,40 @@
+.metadata {
+  position: absolute;
+  bottom: calc(var(--ef-space-6) + env(safe-area-inset-bottom));
+  left: clamp(var(--ef-space-4), 4vw, var(--ef-space-12));
+  z-index: var(--ef-z-hud);
+  display: grid;
+  max-width: min(22rem, calc(100% - var(--ef-space-8)));
+  gap: var(--ef-space-1);
+  color: var(--ef-text-primary);
+  pointer-events: none;
+}
+
+.index,
+.title,
+.artist {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.index {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-medium) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.title {
+  font: var(--ef-weight-semibold) var(--ef-type-title-sm) var(--ef-font-display);
+}
+
+.artist {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body);
+}
+
+@media (max-width: 699px) {
+  .metadata {
+    bottom: calc(var(--ef-space-4) + env(safe-area-inset-bottom));
+    left: var(--ef-space-4);
+    max-width: calc(100% - var(--ef-space-8));
+  }
+}

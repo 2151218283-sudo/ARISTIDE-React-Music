@@ -65,6 +65,19 @@ normalized `{ mode, user }` public session state using `no-store`.
 
 ## Client Contract
 
+### Shared homepage state
+
+- `DailyRecommendationsProvider` is mounted once by `HomeExperience` and owns
+  the existing session-aware read hook.
+- `DailyRecommendationStatus` and the Track gallery consume this one state;
+  mounting the homepage issues at most one daily-read request per scope and
+  retry version.
+- The provider exposes only normalized recommendations, sanitized error data,
+  retry, mode, and normalized public user state. It never exposes an upstream
+  cookie, QR key, raw response, or provider implementation.
+- A mode or identity change aborts the old request before a new Track gallery
+  can render. A Track gallery may retain only a Track from the active scope.
+
 ### AuthProvider mode state
 
 - `AuthProvider` restores and exposes `mode`, `modeChanging`, and

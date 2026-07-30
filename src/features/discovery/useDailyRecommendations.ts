@@ -41,13 +41,17 @@ export interface DailyRecommendationState {
   status: "loading" | "ready" | "error";
 }
 
+export type DailyRecommendationController = DailyRecommendationState & {
+  retry(): void;
+};
+
 function scopeFor(options: UseDailyRecommendationsOptions): string {
   return `${options.mode}:${options.userId ?? "guest"}`;
 }
 
 export function useDailyRecommendations(
   options: UseDailyRecommendationsOptions,
-): DailyRecommendationState & { retry(): void } {
+): DailyRecommendationController {
   const [requestVersion, setRequestVersion] = useState(0);
   const scope = scopeFor(options);
   const scopeRef = useRef(scope);

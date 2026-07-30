@@ -1,15 +1,14 @@
 import * as THREE from "three";
 
-import { getProjectAccent } from "@/data/projectColors";
-import type { Project } from "@/types/project";
+import type { Track } from "@/lib/music/models";
+
 import { GalleryHud } from "./galleryHud";
 import {
   filmstripFragmentShader,
   filmstripVertexShader,
 } from "./filmstripShaders";
 
-const BACKGROUND_COLOR = 0x141414;
-const DETAILS_BACKGROUND_COLOR = 0x4c5156;
+const BACKGROUND_COLOR = 0x0c0d0d;
 const INACTIVE_BRIGHTNESS = 0.55;
 const HOVER_BRIGHTNESS = 0.9;
 const WHEEL_DAMPING = 0.08;
@@ -26,9 +25,9 @@ interface FilmItem {
   brightness: number;
   material: THREE.ShaderMaterial;
   mesh: FilmMesh;
-  project: Project;
   saturation: number;
   texture: THREE.Texture;
+  track: Track;
 }
 
 interface GalleryLayout {
@@ -46,8 +45,10 @@ interface GalleryLayout {
 interface FilmstripSceneOptions {
   canvas: HTMLCanvasElement;
   hudCanvas: HTMLCanvasElement;
-  projects: Project[];
-  onSelect: (project: Project) => void;
+  onCurrentTrackChange: (track: Track) => void;
+  onSelect: (track: Track) => void;
+  onTextureError: (track: Track) => void;
+  tracks: readonly Track[];
 }
 
 function frameDamping(amountAtSixtyFps: number, deltaSeconds: number): number {
@@ -74,13 +75,13 @@ function calculateLayout(width: number, height: number, itemCount: number): Gall
   return {
     gap,
     height,
-    originLeft: width * 0.71,
+    originLeft: (width - planeWidth) * 0.5,
     planeHeight,
     planeWidth,
     stride,
     totalWidth: stride * itemCount,
     width,
-    worldCenterY: height * -0.25,
+    worldCenterY: 0,
   };
 }
 
@@ -100,10 +101,40 @@ function getWheelPixels(event: WheelEvent, viewportHeight: number): number {
   return primaryDelta;
 }
 
+function trackInitials(track: Track): string {
+  const source = track.name.trim() || track.artists[0]?.name.trim() || "E";
+  return Array.from(source).slice(0, 2).join("").toUpperCase();
+}
+
+function createFallbackTexture(track: Track): THREE.Texture {
+  const artwork = document.createElement("canvas");
+  artwork.width = 512;
+  artwork.height = 512;
+  const context = artwork.getContext("2d");
+
+  if (!context) {
+    const pixels = new Uint8Array([36, 39, 37, 255]);
+    const texture = new THREE.DataTexture(pixels, 1, 1, THREE.RGBAFormat);
+    texture.needsUpdate = true;
+    return texture;
+  }
+
+  context.fillStyle = "rgb(36, 39, 37)";
+  context.fillRect(0, 0, artwork.width, artwork.height);
+  context.strokeStyle = "rgb(142, 145, 139)";
+  context.lineWidth = 2;
+  context.strokeRect(32, 32, artwork.width - 64, artwork.height - 64);
+  context.fillStyle = "rgb(218, 220, 214)";
+  context.font = "600 150px Arial, sans-serif";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(trackInitials(track), artwork.width / 2, artwork.height / 2);
+
+  return new THREE.CanvasTexture(artwork);
+}
+
 export class FilmstripScene {
-  private readonly backgroundCurrent = new THREE.Color(BACKGROUND_COLOR);
-  private readonly backgroundDetails = new THREE.Color(DETAILS_BACKGROUND_COLOR);
-  private readonly backgroundHome = new THREE.Color(BACKGROUND_COLOR);
+  private readonly background = new THREE.Color(BACKGROUND_COLOR);
   private readonly camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 2000);
   private readonly canvas: HTMLCanvasElement;
   private readonly filmGroup = new THREE.Group();
@@ -116,13 +147,12 @@ export class FilmstripScene {
   private readonly renderer: THREE.WebGLRenderer;
   private readonly scene = new THREE.Scene();
   private readonly textureLoader = new THREE.TextureLoader();
-  private activeIndex: number | null = null;
   private animationFrame = 0;
   private currentOffset = 0;
   private currentPlaneHeight = 1;
   private currentStride = 1;
+  private currentTrackIndex = -1;
   private currentTotalWidth = 1;
-  private detailsProgress = 0;
   private destroyed = false;
   private films: FilmItem[] = [];
   private hoveredIndex: number | null = null;
@@ -130,17 +160,25 @@ export class FilmstripScene {
   private isPointerInside = false;
   private lastFrameTime = 0;
   private layout = calculateLayout(1, 1, 0);
-  private onSelect: (project: Project) => void;
-  private overview = false;
-  private overviewProgress = 0;
+  private onCurrentTrackChange: (track: Track) => void;
+  private onSelect: (track: Track) => void;
+  private onTextureError: (track: Track) => void;
   private reducedMotion = false;
   private scrollVelocity = 0;
   private targetOffset = 0;
-  private transitionIndex: number | null = null;
 
-  constructor({ canvas, hudCanvas, projects, onSelect }: FilmstripSceneOptions) {
+  constructor({
+    canvas,
+    hudCanvas,
+    onCurrentTrackChange,
+    onSelect,
+    onTextureError,
+    tracks,
+  }: FilmstripSceneOptions) {
     this.canvas = canvas;
+    this.onCurrentTrackChange = onCurrentTrackChange;
     this.onSelect = onSelect;
+    this.onTextureError = onTextureError;
     this.hud = new GalleryHud(hudCanvas);
     this.renderer = new THREE.WebGLRenderer({
       alpha: false,
@@ -151,31 +189,15 @@ export class FilmstripScene {
 
     this.renderer.setClearColor(BACKGROUND_COLOR, 1);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.scene.background = this.backgroundCurrent;
+    this.scene.background = this.background;
     this.scene.add(this.filmGroup);
     this.camera.position.z = 1000;
     this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    this.createFilms(projects);
+    this.createFilms(tracks);
     this.resize();
     this.addEventListeners();
     this.animationFrame = window.requestAnimationFrame(this.animate);
-  }
-
-  setActiveProject(project: Project | null): void {
-    const nextIndex = project
-      ? this.films.findIndex((film) => film.project.slug === project.slug)
-      : null;
-
-    this.activeIndex = nextIndex === -1 ? null : nextIndex;
-
-    if (this.activeIndex !== null) {
-      this.transitionIndex = this.activeIndex;
-    }
-  }
-
-  setOverview(overview: boolean): void {
-    this.overview = overview;
   }
 
   setInteractive(interactive: boolean): void {
@@ -188,7 +210,11 @@ export class FilmstripScene {
     }
   }
 
-  setOnSelect(onSelect: (project: Project) => void): void {
+  setOnCurrentTrackChange(onCurrentTrackChange: (track: Track) => void): void {
+    this.onCurrentTrackChange = onCurrentTrackChange;
+  }
+
+  setOnSelect(onSelect: (track: Track) => void): void {
     this.onSelect = onSelect;
   }
 
@@ -221,62 +247,26 @@ export class FilmstripScene {
       ? 1 / 60
       : Math.min((time - this.lastFrameTime) / 1000, 1 / 15);
     this.lastFrameTime = time;
-    const wheelDamping = frameDamping(WHEEL_DAMPING, deltaSeconds);
-    const pointerDamping = frameDamping(0.1, deltaSeconds);
     const previousOffset = this.currentOffset;
     const minOffset = this.getMinOffset();
 
-    this.targetOffset = THREE.MathUtils.clamp(
-      this.targetOffset,
-      minOffset,
-      0,
-    );
-
+    this.targetOffset = THREE.MathUtils.clamp(this.targetOffset, minOffset, 0);
     this.currentOffset = THREE.MathUtils.lerp(
       this.currentOffset,
       this.targetOffset,
-      wheelDamping,
+      frameDamping(WHEEL_DAMPING, deltaSeconds),
     );
 
     if (Math.abs(this.currentOffset - this.targetOffset) < OFFSET_EPSILON) {
       this.currentOffset = this.targetOffset;
     }
 
-    this.currentOffset = THREE.MathUtils.clamp(
-      this.currentOffset,
-      minOffset,
-      0,
-    );
-    const actualVelocity = (this.currentOffset - previousOffset) / deltaSeconds;
-    const boundaryLocked = (
-      Math.abs(this.currentOffset) < OFFSET_EPSILON
-      && Math.abs(this.targetOffset) < OFFSET_EPSILON
-    ) || (
-      Math.abs(this.currentOffset - minOffset) < OFFSET_EPSILON
-      && Math.abs(this.targetOffset - minOffset) < OFFSET_EPSILON
-    );
-
-    if (boundaryLocked) {
-      this.scrollVelocity = 0;
-    } else {
-      const velocityDamping = frameDamping(
-        Math.abs(actualVelocity) > 1 ? 0.18 : 0.08,
-        deltaSeconds,
-      );
-      this.scrollVelocity = THREE.MathUtils.lerp(
-        this.scrollVelocity,
-        actualVelocity,
-        velocityDamping,
-      );
-
-      if (Math.abs(this.scrollVelocity) < 0.1) {
-        this.scrollVelocity = 0;
-      }
-    }
-
-    this.pointerCurrent.lerp(this.pointerTarget, pointerDamping);
+    this.currentOffset = THREE.MathUtils.clamp(this.currentOffset, minOffset, 0);
+    this.updateScrollVelocity(previousOffset, deltaSeconds, minOffset);
+    this.pointerCurrent.lerp(this.pointerTarget, frameDamping(0.1, deltaSeconds));
     this.updateFilms(deltaSeconds);
     this.updateHover();
+    this.updateCurrentTrack();
     this.drawHud();
     this.renderer.render(this.scene, this.camera);
     this.animationFrame = window.requestAnimationFrame(this.animate);
@@ -286,12 +276,13 @@ export class FilmstripScene {
     window.addEventListener("resize", this.handleResize);
     window.addEventListener("wheel", this.handleWheel, { passive: false });
     this.canvas.addEventListener("click", this.handleClick);
+    this.canvas.addEventListener("keydown", this.handleKeyDown);
     this.canvas.addEventListener("pointerleave", this.handlePointerLeave);
     this.canvas.addEventListener("pointermove", this.handlePointerMove);
   }
 
-  private createFilms(projects: Project[]): void {
-    this.films = projects.map((project, index) => {
+  private createFilms(tracks: readonly Track[]): void {
+    this.films = tracks.map((track, index) => {
       const material = new THREE.ShaderMaterial({
         depthTest: false,
         depthWrite: false,
@@ -306,50 +297,41 @@ export class FilmstripScene {
         vertexShader: filmstripVertexShader,
       });
       const mesh: FilmMesh = new THREE.Mesh(this.geometry, material);
-      const texture = this.textureLoader.load(project.image, (loadedTexture) => {
-        if (this.destroyed) {
-          return;
-        }
-
-        const image = loadedTexture.image as { height?: number; width?: number };
-        const imageWidth = image.width ?? 1;
-        const imageHeight = image.height ?? 1;
-        const imageSize = material.uniforms.uImageSize.value as THREE.Vector2;
-        imageSize.set(imageWidth, imageHeight);
-      });
-
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = Math.min(this.renderer.capabilities.getMaxAnisotropy(), 8);
-      material.uniforms.uTexture.value = texture;
+      const fallbackTexture = createFallbackTexture(track);
+      fallbackTexture.colorSpace = THREE.SRGBColorSpace;
+      fallbackTexture.anisotropy = Math.min(this.renderer.capabilities.getMaxAnisotropy(), 8);
+      material.uniforms.uTexture.value = fallbackTexture;
       mesh.renderOrder = index;
       this.filmGroup.add(mesh);
 
-      return {
+      const film: FilmItem = {
         brightness: INACTIVE_BRIGHTNESS,
         material,
         mesh,
-        project,
         saturation: 0,
-        texture,
+        texture: fallbackTexture,
+        track,
       };
+
+      if (track.artworkUrl) {
+        const remoteTexture = this.textureLoader.load(
+          track.artworkUrl,
+          (loadedTexture) => this.replaceArtworkTexture(film, loadedTexture),
+          undefined,
+          () => {
+            remoteTexture.dispose();
+            this.onTextureError(track);
+          },
+        );
+      }
+
+      return film;
     });
   }
 
   private drawHud(): void {
-    if (this.films.length === 0 || this.currentStride === 0) {
-      this.hud.draw(0, undefined, this.overviewProgress);
-      return;
-    }
-
-    const projectProgress = THREE.MathUtils.clamp(
-      Math.round(-this.currentOffset / this.currentStride),
-      0,
-      this.films.length - 1,
-    );
-    const color = this.activeIndex === null
-      ? "rgb(186, 196, 184)"
-      : getProjectAccent(this.activeIndex);
-    this.hud.draw(projectProgress, color, this.overviewProgress);
+    const activeIndex = this.getCurrentTrackIndex();
+    this.hud.draw(activeIndex, this.films.length);
   }
 
   private readonly handleClick = (event: MouseEvent): void => {
@@ -360,42 +342,33 @@ export class FilmstripScene {
     this.updatePointer(event.clientX, event.clientY);
     this.updateHover();
 
-    if (!this.overview) {
-      const entryProject = this.hoveredIndex === null
-        ? this.films[0]?.project
-        : this.films[this.hoveredIndex].project;
+    const track = this.hoveredIndex === null
+      ? this.getNearestTrack(event.clientX, event.clientY)
+      : this.films[this.hoveredIndex]?.track;
 
-      if (entryProject) {
-        this.onSelect(entryProject);
-      }
+    if (track) {
+      this.onSelect(track);
+    }
+  };
 
+  private readonly handleKeyDown = (event: KeyboardEvent): void => {
+    if (!this.interactive || this.films.length === 0) {
       return;
     }
 
-    if (this.hoveredIndex !== null) {
-      this.onSelect(this.films[this.hoveredIndex].project);
-      return;
-    }
-
-    const worldX = (event.clientX / this.layout.width - 0.5) * this.layout.width;
-    const worldY = (0.5 - event.clientY / this.layout.height) * this.layout.height;
-    const nearestFilm = this.films.reduce<FilmItem | null>((nearest, film) => {
-      if (!nearest) {
-        return film;
-      }
-
-      return Math.abs(film.mesh.position.x - worldX)
-        < Math.abs(nearest.mesh.position.x - worldX)
-        ? film
-        : nearest;
-    }, null);
-
-    if (
-      nearestFilm
-      && Math.abs(nearestFilm.mesh.position.x - worldX) <= this.currentStride * 0.5
-      && Math.abs(nearestFilm.mesh.position.y - worldY) <= this.currentPlaneHeight * 0.5
-    ) {
-      this.onSelect(nearestFilm.project);
+    const currentIndex = this.getCurrentTrackIndex();
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      this.moveToTrack(currentIndex - 1);
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      this.moveToTrack(currentIndex + 1);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      this.moveToTrack(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      this.moveToTrack(this.films.length - 1);
     }
   };
 
@@ -417,12 +390,11 @@ export class FilmstripScene {
   };
 
   private readonly handleWheel = (event: WheelEvent): void => {
-    event.preventDefault();
-
     if (!this.interactive || this.currentTotalWidth === 0) {
       return;
     }
 
+    event.preventDefault();
     const wheelPixels = getWheelPixels(event, this.layout.height);
     const contribution = THREE.MathUtils.clamp(
       wheelPixels,
@@ -436,20 +408,105 @@ export class FilmstripScene {
     );
   };
 
+  private getNearestTrack(clientX: number, clientY: number): Track | undefined {
+    const worldX = (clientX / this.layout.width - 0.5) * this.layout.width;
+    const worldY = (0.5 - clientY / this.layout.height) * this.layout.height;
+    const nearestFilm = this.films.reduce<FilmItem | null>((nearest, film) => {
+      if (!nearest) {
+        return film;
+      }
+
+      return Math.abs(film.mesh.position.x - worldX)
+        < Math.abs(nearest.mesh.position.x - worldX)
+        ? film
+        : nearest;
+    }, null);
+
+    if (
+      nearestFilm
+      && Math.abs(nearestFilm.mesh.position.x - worldX) <= this.currentStride * 0.5
+      && Math.abs(nearestFilm.mesh.position.y - worldY) <= this.currentPlaneHeight * 0.5
+    ) {
+      return nearestFilm.track;
+    }
+
+    return undefined;
+  }
+
+  private getCurrentTrackIndex(): number {
+    if (this.films.length === 0 || this.currentStride === 0) {
+      return 0;
+    }
+
+    return THREE.MathUtils.clamp(
+      Math.round(-this.currentOffset / this.currentStride),
+      0,
+      this.films.length - 1,
+    );
+  }
+
+  private getMinOffset(stride = this.currentStride): number {
+    return -Math.max(this.films.length - 1, 0) * Math.max(stride, 0);
+  }
+
+  private moveToTrack(index: number): void {
+    const nextIndex = THREE.MathUtils.clamp(index, 0, this.films.length - 1);
+    this.targetOffset = THREE.MathUtils.clamp(
+      -nextIndex * this.currentStride,
+      this.getMinOffset(),
+      0,
+    );
+  }
+
   private removeEventListeners(): void {
     window.removeEventListener("resize", this.handleResize);
     window.removeEventListener("wheel", this.handleWheel);
     this.canvas.removeEventListener("click", this.handleClick);
+    this.canvas.removeEventListener("keydown", this.handleKeyDown);
     this.canvas.removeEventListener("pointerleave", this.handlePointerLeave);
     this.canvas.removeEventListener("pointermove", this.handlePointerMove);
+  }
+
+  private replaceArtworkTexture(film: FilmItem, loadedTexture: THREE.Texture): void {
+    if (this.destroyed) {
+      loadedTexture.dispose();
+      return;
+    }
+
+    const image = loadedTexture.image as { height?: number; width?: number };
+    const imageWidth = image.width ?? 1;
+    const imageHeight = image.height ?? 1;
+    loadedTexture.colorSpace = THREE.SRGBColorSpace;
+    loadedTexture.anisotropy = Math.min(this.renderer.capabilities.getMaxAnisotropy(), 8);
+    const previousTexture = film.texture;
+    film.texture = loadedTexture;
+    film.material.uniforms.uTexture.value = loadedTexture;
+    (film.material.uniforms.uImageSize.value as THREE.Vector2).set(imageWidth, imageHeight);
+    previousTexture.dispose();
   }
 
   private resize(): void {
     const width = Math.max(1, window.innerWidth);
     const height = Math.max(1, window.innerHeight);
     const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const previousStride = this.currentStride;
 
     this.layout = calculateLayout(width, height, this.films.length);
+    this.currentStride = this.layout.stride;
+    this.currentTotalWidth = this.layout.totalWidth;
+
+    if (previousStride > 0 && this.currentStride > 0) {
+      this.currentOffset = THREE.MathUtils.clamp(
+        this.currentOffset / previousStride * this.currentStride,
+        this.getMinOffset(),
+        0,
+      );
+      this.targetOffset = THREE.MathUtils.clamp(
+        this.targetOffset / previousStride * this.currentStride,
+        this.getMinOffset(),
+        0,
+      );
+    }
 
     this.camera.left = width * -0.5;
     this.camera.right = width * 0.5;
@@ -461,213 +518,66 @@ export class FilmstripScene {
     this.hud.resize(width, height, pixelRatio);
   }
 
+  private updateCurrentTrack(): void {
+    const index = this.getCurrentTrackIndex();
+    if (index === this.currentTrackIndex || !this.films[index]) {
+      return;
+    }
+
+    this.currentTrackIndex = index;
+    this.onCurrentTrackChange(this.films[index].track);
+  }
+
   private updateFilms(deltaSeconds: number): void {
     if (this.films.length === 0 || this.layout.totalWidth === 0) {
       return;
     }
 
-    const modeDamping = frameDamping(0.08, deltaSeconds);
     const brightnessDamping = frameDamping(0.12, deltaSeconds);
-    const hasActiveProject = this.activeIndex !== null;
-    const widthRatio = this.layout.width / 1920;
-    const overviewWidth = this.layout.width < 700
-      ? 35
-      : 100 * widthRatio;
-    const overviewHeight = this.layout.width < 700
-      ? this.layout.height * 0.162
-      : 370 * widthRatio;
-    const overviewGap = this.layout.width < 700 ? 7 : 20 * widthRatio;
-
-    this.overviewProgress = THREE.MathUtils.lerp(
-      this.overviewProgress,
-      this.overview ? 1 : 0,
-      modeDamping,
-    );
-    this.detailsProgress = THREE.MathUtils.lerp(
-      this.detailsProgress,
-      hasActiveProject ? 1 : 0,
-      modeDamping,
-    );
-
-    if (!hasActiveProject && this.detailsProgress < 0.001) {
-      this.detailsProgress = 0;
-      this.transitionIndex = null;
-    }
-
-    const browseWidth = THREE.MathUtils.lerp(
-      this.layout.planeWidth,
-      overviewWidth,
-      this.overviewProgress,
-    );
-    const browseHeight = THREE.MathUtils.lerp(
-      this.layout.planeHeight,
-      overviewHeight,
-      this.overviewProgress,
-    );
-    const browseGap = THREE.MathUtils.lerp(
-      this.layout.gap,
-      overviewGap,
-      this.overviewProgress,
-    );
-    const detailsWidth = this.layout.width < 700
-      ? this.layout.width * 0.86
-      : 1054 * widthRatio;
-    const detailsHeight = this.layout.width < 700
-      ? this.layout.height * 0.5
-      : 602 * widthRatio;
-    const detailsGap = this.layout.width < 700
-      ? this.layout.width * 0.12
-      : 152 * widthRatio;
-    const browseStride = browseWidth + browseGap;
-    const detailsNeighborWidth = Math.max(
-      detailsWidth * 0.5,
-      (this.layout.width - detailsWidth - detailsGap * 2) * 0.5,
-    );
-    const overviewOriginLeft = (this.layout.width - overviewWidth) * 0.5;
-    const originLeft = THREE.MathUtils.lerp(
-      this.layout.originLeft,
-      overviewOriginLeft,
-      this.overviewProgress,
-    );
-    const worldCenterY = THREE.MathUtils.lerp(
-      this.layout.worldCenterY,
-      0,
-      this.overviewProgress,
-    );
-
-    const previousStride = this.currentStride;
-
-    if (
-      previousStride > 0
-      && Math.abs(previousStride - browseStride) > Number.EPSILON
-    ) {
-      const minOffset = this.getMinOffset(browseStride);
-      this.currentOffset = THREE.MathUtils.clamp(
-        this.currentOffset / previousStride * browseStride,
-        minOffset,
-        0,
-      );
-      this.targetOffset = THREE.MathUtils.clamp(
-        this.targetOffset / previousStride * browseStride,
-        minOffset,
-        0,
-      );
-    }
-
-    this.currentStride = browseStride;
-    this.currentTotalWidth = browseStride * this.films.length;
     const waveStrength = this.reducedMotion || !this.interactive
       ? 0
-      : THREE.MathUtils.clamp(
-        Math.abs(this.scrollVelocity) / WAVE_FULL_SPEED,
-        0,
-        1,
-      ) * this.overviewProgress * (1 - this.detailsProgress);
+      : THREE.MathUtils.clamp(Math.abs(this.scrollVelocity) / WAVE_FULL_SPEED, 0, 1);
     const waveDirection = Math.sign(this.scrollVelocity) || 1;
-
-    this.currentPlaneHeight = THREE.MathUtils.lerp(
-      browseHeight,
-      detailsHeight,
-      this.detailsProgress,
-    )
+    this.currentPlaneHeight = this.layout.planeHeight
       * (1 + WAVE_SCALE_AMPLITUDE * waveStrength);
 
-    this.backgroundCurrent.lerp(
-      hasActiveProject ? this.backgroundDetails : this.backgroundHome,
-      modeDamping,
-    );
-
     this.films.forEach((film, index) => {
-      const planeLeft = originLeft + index * browseStride + this.currentOffset;
-
-      const filmX = planeLeft + browseWidth * 0.5 - this.layout.width * 0.5;
-      let detailsX = filmX;
-      let detailsTargetWidth = browseWidth;
-
-      if (this.transitionIndex !== null) {
-        const relativeIndex = index - this.transitionIndex;
-        const distance = Math.abs(relativeIndex);
-        const direction = Math.sign(relativeIndex);
-
-        if (distance === 0) {
-          detailsTargetWidth = detailsWidth;
-          detailsX = 0;
-        } else if (distance === 1) {
-          detailsTargetWidth = detailsNeighborWidth;
-          detailsX = direction * (
-            detailsWidth * 0.5
-            + detailsGap
-            + detailsNeighborWidth * 0.5
-          );
-        } else {
-          const farDistance = (
-            detailsWidth * 0.5
-            + detailsGap
-            + detailsNeighborWidth
-            + detailsGap
-            + (browseWidth + detailsGap) * (distance - 2)
-            + detailsGap * (distance - 1) ** 2 * 0.1
-            + browseWidth * 0.5
-          );
-          detailsX = direction * farDistance;
-        }
-      }
-
-      const displayWidth = THREE.MathUtils.lerp(
-        browseWidth,
-        detailsTargetWidth,
-        this.detailsProgress,
-      );
-      const displayHeight = THREE.MathUtils.lerp(
-        browseHeight,
-        detailsHeight,
-        this.detailsProgress,
-      );
-      const x = THREE.MathUtils.lerp(filmX, detailsX, this.detailsProgress);
-      const y = THREE.MathUtils.lerp(worldCenterY, 0, this.detailsProgress);
+      const planeLeft = this.layout.originLeft + index * this.currentStride + this.currentOffset;
+      const x = planeLeft + this.layout.planeWidth * 0.5 - this.layout.width * 0.5;
       const wavePhase = x / Math.max(this.layout.width, 1) * Math.PI * 2.4;
       const wave = Math.sin(wavePhase);
       const waveSlope = Math.cos(wavePhase);
       const verticalScale = 1 + wave * WAVE_SCALE_AMPLITUDE * waveStrength;
       const verticalOffset = wave * WAVE_VERTICAL_TRAVEL * waveStrength;
       const relativeIndex = index / Math.max(this.films.length - 1, 1) - 0.5;
-      const isActive = index === this.activeIndex;
-      const isTransitionProject = index === this.transitionIndex;
-      const targetBrightness = hasActiveProject
-        ? isActive ? 1 : 0.3
-        : index === this.hoveredIndex ? HOVER_BRIGHTNESS : INACTIVE_BRIGHTNESS;
-      const targetSaturation = isTransitionProject ? this.detailsProgress : 0;
+      const targetBrightness = index === this.hoveredIndex
+        ? HOVER_BRIGHTNESS
+        : INACTIVE_BRIGHTNESS;
 
       film.brightness = THREE.MathUtils.lerp(
         film.brightness,
         targetBrightness,
         brightnessDamping,
       );
-      film.saturation = THREE.MathUtils.lerp(
-        film.saturation,
-        targetSaturation,
-        brightnessDamping,
-      );
+      film.saturation = THREE.MathUtils.lerp(film.saturation, 0, brightnessDamping);
       film.mesh.position.set(
         x,
-        y + verticalOffset,
-        isActive ? 32 : relativeIndex * this.pointerCurrent.x * 18,
+        this.layout.worldCenterY + verticalOffset,
+        relativeIndex * this.pointerCurrent.x * 18,
       );
-      film.mesh.rotation.y = relativeIndex
-        * this.pointerCurrent.x
-        * 0.025
-        * (1 - this.detailsProgress);
-      film.mesh.rotation.z = -waveDirection
-        * waveSlope
-        * WAVE_ROTATION
-        * waveStrength;
-      film.mesh.scale.set(displayWidth, displayHeight * verticalScale, 1);
-      film.mesh.renderOrder = isActive ? this.films.length + 1 : index;
+      film.mesh.rotation.y = relativeIndex * this.pointerCurrent.x * 0.025;
+      film.mesh.rotation.z = -waveDirection * waveSlope * WAVE_ROTATION * waveStrength;
+      film.mesh.scale.set(
+        this.layout.planeWidth,
+        this.layout.planeHeight * verticalScale,
+        1,
+      );
+      film.mesh.renderOrder = index;
       film.material.uniforms.uBrightness.value = film.brightness;
       film.material.uniforms.uSaturation.value = film.saturation;
       (film.material.uniforms.uPlaneSize.value as THREE.Vector2).set(
-        displayWidth,
-        displayHeight * verticalScale,
+        this.layout.planeWidth,
+        this.layout.planeHeight * verticalScale,
       );
     });
 
@@ -693,14 +603,10 @@ export class FilmstripScene {
       false,
     );
     const intersectedMesh = intersections[0]?.object;
-    this.hoveredIndex = intersectedMesh
+    const index = intersectedMesh
       ? this.films.findIndex((film) => film.mesh === intersectedMesh)
-      : null;
-
-    if (this.hoveredIndex === -1) {
-      this.hoveredIndex = null;
-    }
-
+      : -1;
+    this.hoveredIndex = index === -1 ? null : index;
     this.canvas.style.cursor = this.hoveredIndex === null ? "default" : "pointer";
   }
 
@@ -716,7 +622,33 @@ export class FilmstripScene {
     }
   }
 
-  private getMinOffset(stride = this.currentStride): number {
-    return -Math.max(this.films.length - 1, 0) * Math.max(stride, 0);
+  private updateScrollVelocity(
+    previousOffset: number,
+    deltaSeconds: number,
+    minOffset: number,
+  ): void {
+    const actualVelocity = (this.currentOffset - previousOffset) / deltaSeconds;
+    const boundaryLocked = (
+      Math.abs(this.currentOffset) < OFFSET_EPSILON
+      && Math.abs(this.targetOffset) < OFFSET_EPSILON
+    ) || (
+      Math.abs(this.currentOffset - minOffset) < OFFSET_EPSILON
+      && Math.abs(this.targetOffset - minOffset) < OFFSET_EPSILON
+    );
+
+    if (boundaryLocked) {
+      this.scrollVelocity = 0;
+      return;
+    }
+
+    this.scrollVelocity = THREE.MathUtils.lerp(
+      this.scrollVelocity,
+      actualVelocity,
+      frameDamping(Math.abs(actualVelocity) > 1 ? 0.18 : 0.08, deltaSeconds),
+    );
+
+    if (Math.abs(this.scrollVelocity) < 0.1) {
+      this.scrollVelocity = 0;
+    }
   }
 }

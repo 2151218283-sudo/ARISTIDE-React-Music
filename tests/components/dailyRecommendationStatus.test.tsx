@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { DailyRecommendationStatus } from "../../src/features/discovery/DailyRecommendationStatus";
+import { DailyRecommendationsProvider } from "../../src/features/discovery/DailyRecommendationsProvider";
 import { AuthProvider, useAuth } from "../../src/features/auth/AuthProvider";
 import {
   PlayerRuntimeContext,
@@ -60,8 +61,10 @@ function renderStatus() {
   return render(
     <PlayerRuntimeContext.Provider value={playerRuntime}>
       <AuthProvider>
-        <DailyRecommendationStatus />
-        <AuthProbe />
+        <DailyRecommendationsProvider>
+          <DailyRecommendationStatus />
+          <AuthProbe />
+        </DailyRecommendationsProvider>
       </AuthProvider>
     </PlayerRuntimeContext.Provider>,
   );

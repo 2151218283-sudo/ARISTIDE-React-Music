@@ -5,7 +5,7 @@
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background: #141414;
+  background: var(--ef-surface-canvas);
   touch-action: manipulation;
 }
 
@@ -19,17 +19,131 @@
 }
 
 .webglCanvas {
-  z-index: 0;
+  z-index: var(--ef-z-canvas);
   outline: none;
 }
 
 .hudCanvas {
-  z-index: 1;
+  z-index: var(--ef-z-hud);
   pointer-events: none;
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ef-z-canvas);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(var(--ef-space-2), 1.6vw, var(--ef-space-6));
+}
+
+.skeletonSlice {
+  width: clamp(35px, 7.8vw, 112px);
+  height: clamp(136px, 46.3vh, 417px);
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ef-z-canvas);
+  display: grid;
+  place-items: center;
+  padding: var(--ef-space-8);
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body);
+  text-align: center;
+}
+
+.empty p,
+.fallbackLabel,
+.trackName {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.fallback {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ef-z-scene);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--ef-space-4);
+  padding: max(288px, calc(var(--ef-space-12) + env(safe-area-inset-top)))
+    clamp(var(--ef-space-4), 5vw, var(--ef-space-16))
+    max(var(--ef-space-8), calc(var(--ef-space-8) + env(safe-area-inset-bottom)));
+  outline: none;
+}
+
+.fallback:focus-visible {
+  outline: 2px solid var(--ef-focus-ring);
+  outline-offset: -4px;
+}
+
+.fallbackHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ef-space-4);
+}
+
+.fallbackLabel {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-medium) var(--ef-type-label) var(--ef-font-body);
+}
+
+.fallbackControls {
+  display: flex;
+  gap: var(--ef-space-2);
+}
+
+.trackList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 112px));
+  align-content: center;
+  justify-content: center;
+  gap: var(--ef-space-4);
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.trackItem {
+  display: grid;
+  gap: var(--ef-space-2);
+  min-width: 0;
+}
+
+.trackItem :global([data-status]) {
+  width: 100%;
+  min-width: 44px;
+  height: clamp(164px, 38vh, 320px);
+}
+
+.trackName {
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-medium) var(--ef-type-caption) var(--ef-font-body);
+  text-align: center;
 }
 
 @media (max-width: 699px) {
   .hudCanvas {
     display: none;
+  }
+
+  .fallbackHeader {
+    align-items: flex-start;
+  }
+
+  .trackList {
+    grid-template-columns: repeat(3, minmax(72px, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton :global([data-variant="block"]) {
+    animation: none;
   }
 }
