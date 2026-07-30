@@ -8,6 +8,12 @@ interface GalleryTrackMetadataProps {
   track: Track | null;
 }
 
+function titleScript(name: string): "cjk" | "latin" {
+  return /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/.test(name)
+    ? "cjk"
+    : "latin";
+}
+
 export function GalleryTrackMetadata({
   index,
   total,
@@ -24,7 +30,7 @@ export function GalleryTrackMetadata({
       data-track-id={track.id}
     >
       <p className={styles.index}>{String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</p>
-      <h2 className={styles.title}>{track.name}</h2>
+      <h2 className={styles.title} data-script={titleScript(track.name)}>{track.name}</h2>
       <p className={styles.artist}>{track.artists.map((artist) => artist.name).join(" / ")}</p>
     </aside>
   );

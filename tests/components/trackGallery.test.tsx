@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FilmstripGallery } from "../../src/components/FilmstripGallery";
+import { GalleryTrackMetadata } from "../../src/features/discovery/GalleryTrackMetadata";
 import { AuthProvider } from "../../src/features/auth/AuthProvider";
 import {
   DailyRecommendationsProvider,
@@ -184,5 +185,23 @@ describe("Track gallery", () => {
       />,
     );
     expect(screen.getByText("当前没有可展示的歌曲。")).toBeVisible();
+  });
+
+  it("keeps CJK display type while using readable body type for Latin titles", () => {
+    const { rerender } = render(
+      <GalleryTrackMetadata index={0} total={1} track={tracks[0]} />,
+    );
+    expect(screen.getByRole("heading", { name: "First Signal" }))
+      .toHaveAttribute("data-script", "latin");
+
+    rerender(
+      <GalleryTrackMetadata
+        index={0}
+        total={1}
+        track={{ ...tracks[0], name: "中文推荐歌曲" }}
+      />,
+    );
+    expect(screen.getByRole("heading", { name: "中文推荐歌曲" }))
+      .toHaveAttribute("data-script", "cjk");
   });
 });

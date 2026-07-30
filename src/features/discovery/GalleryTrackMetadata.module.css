@@ -26,6 +26,10 @@
   font: var(--ef-weight-semibold) var(--ef-type-title-sm) var(--ef-font-display);
 }
 
+.title[data-script="latin"] {
+  font-family: var(--ef-font-body);
+}
+
 .artist {
   color: var(--ef-text-secondary);
   font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body);
