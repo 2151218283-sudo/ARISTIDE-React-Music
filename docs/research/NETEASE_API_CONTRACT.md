@@ -118,6 +118,17 @@ Standalone 构建中无法正确打包，再评估受限 sidecar；该变更必�
 - T008 Adapter 是 T009/T010 的 server-only 基础，不提前实现 BFF、Session 或完整登录
   生命周期；这些任务不能因离线字段契约通过而标记完成。
 
+### 2.5 T010 实现记录（2026-07-30）
+
+- 已补齐 Legacy Adapter 的二维码 key/create/check、登录状态和登出最小服务端能力，并由
+  进程内 ECHOFORM Session Store 持有上游 Cookie 与 QR key。
+- 已实现同源 Session、二维码创建、状态轮询和登出 BFF；浏览器只接收 ECHOFORM `sid`、
+  不透明 `challengeId`、二维码图片和白名单 `UserProfile`。
+- 默认测试均为离线脱敏测试：不写入 QR key、二维码正文、Cookie、真实用户资料或原始上游
+  Response。802/803 仅覆盖映射与 UI 状态，不能视为登录态实测。
+- 实现不改变第 4 节运行证据：801 保持 `RUNTIME_ANON`；802/803、成功 Cookie、账号验证与
+  上游登出仍为 `PENDING_AUTH`，须使用专用测试账号按第 11 节单独验收。
+
 ## 3. 核验等级
 
 | 等级 | 含义 | 能否据此实现 |
@@ -470,6 +481,31 @@ type SetDataModeResponse = {
   用户资料与 Demo 数据混用；模式切换是用户主动的上下文重置。
 
 ### 7.2 QR
+
+`GET /api/auth/session`
+
+```ts
+type SessionResponse = {
+  mode: "real" | "demo";
+  user: UserProfile | null;
+};
+```
+
+没有有效 `sid` 时，BFF 创建新的 Real Mode Session 并仅以 `HttpOnly` Cookie 写回新的
+ECHOFORM `sid`。响应使用 `no-store`，且正文不包含 session ID、上游 Cookie、QR key 或原始
+账号 Response。
+
+`POST /api/auth/logout`
+
+```ts
+type LogoutResponse = {
+  mode: "real";
+  user: null;
+};
+```
+
+服务端先尝试上游登出，再无条件销毁本地 Session 并过期浏览器 `sid` Cookie。上游失败不向
+浏览器暴露原始错误或阻止本地登出。
 
 `POST /api/auth/qr`
 

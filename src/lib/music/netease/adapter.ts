@@ -23,8 +23,10 @@ import {
   mapCommentPage,
   mapLyrics,
   mapPlaybackSource,
+  mapQrChallenge,
   mapQrPollResult,
   mapSearchPage,
+  mapSessionUser,
   mapTrackDetail,
   unwrapLegacyBody,
   unwrapLegacyQrBody,
@@ -33,6 +35,7 @@ import type {
   LegacyAdapterOptions,
   LegacyApiMethod,
   LegacyNeteaseApi,
+  LegacyQrChallenge,
   LegacyQrPollResult,
 } from "./types";
 
@@ -289,11 +292,50 @@ export class LegacyNeteaseAdapter {
     return mapCommentPage(unwrapLegacyBody(response), page.limit, page.offset);
   }
 
+  async startQrLogin(): Promise<LegacyQrChallenge> {
+    const keyResponse = await this.invoke(this.api.login_qr_key, {});
+    const keyBody = unwrapLegacyBody(keyResponse);
+    const keyData = keyBody.data;
+    if (!keyData || typeof keyData !== "object" || Array.isArray(keyData)) {
+      throw new AppError("UPSTREAM_UNAVAILABLE", "二维码暂时无法生成。", {
+        retryable: true,
+      });
+    }
+    const key = (keyData as Record<string, unknown>).unikey;
+    if (typeof key !== "string" || !key.trim() || key.length > 256) {
+      throw new AppError("UPSTREAM_UNAVAILABLE", "二维码暂时无法生成。", {
+        retryable: true,
+      });
+    }
+    const imageResponse = await this.invoke(this.api.login_qr_create, {
+      key,
+      qrimg: true,
+    });
+    return mapQrChallenge(keyBody, unwrapLegacyBody(imageResponse));
+  }
+
   async pollQrCode(key: string): Promise<LegacyQrPollResult> {
     if (!key || key.length > 256) {
       throw validationError("二维码凭据格式无效。");
     }
     const response = await this.invoke(this.api.login_qr_check, { key });
     return mapQrPollResult(unwrapLegacyQrBody(response));
+  }
+
+  async getSessionUser(upstreamCookie: string) {
+    if (!upstreamCookie) {
+      return null;
+    }
+    const response = await this.invoke(this.api.login_status, {
+      cookie: upstreamCookie,
+    });
+    return mapSessionUser(response);
+  }
+
+  async logout(upstreamCookie: string): Promise<void> {
+    if (!upstreamCookie) {
+      return;
+    }
+    await this.invoke(this.api.logout, { cookie: upstreamCookie });
   }
 }

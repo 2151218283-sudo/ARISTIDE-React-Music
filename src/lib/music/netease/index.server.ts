@@ -11,5 +11,6 @@ export function createLegacyNeteaseAdapter(
 export { LegacyNeteaseAdapter } from "./adapter";
 export type {
   LegacyAdapterOptions,
+  LegacyQrChallenge,
   LegacyQrPollResult,
 } from "./types";

@@ -8,8 +8,12 @@ import type {
 const requiredMethods = [
   "check_music",
   "comment_music",
+  "login_qr_create",
   "login_qr_check",
+  "login_qr_key",
+  "login_status",
   "lyric_new",
+  "logout",
   "search",
   "song_detail",
   "song_url_v1",

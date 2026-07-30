@@ -63,7 +63,7 @@ test("keeps navigation clear, reachable, and non-overlapping at three viewports"
     await expect(topNavigation).toBeVisible();
     await expect(heading).toBeVisible();
     await expect(page.getByRole("link", { name: "搜索" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "账号与设置" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "使用网易云音乐登录" })).toBeVisible();
     await expect(page.getByRole("link", { name: "发现" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "音乐库" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "ECHOFORM 移动端主导航" })).toHaveCount(0);
@@ -77,7 +77,7 @@ test("keeps navigation clear, reachable, and non-overlapping at three viewports"
 
     const visibleNavigationLinks = page.locator("nav a:visible");
     const linkCount = await visibleNavigationLinks.count();
-    expect(linkCount).toBe(3);
+    expect(linkCount).toBe(2);
 
     for (let index = 0; index < linkCount; index += 1) {
       const box = await visibleNavigationLinks.nth(index).boundingBox();
@@ -136,12 +136,6 @@ test("keeps one persistent audio node across client-side product routes", async 
 
   await page.getByRole("link", { name: "搜索" }).click();
   await expect(page).toHaveURL(/\/search$/);
-  expect(await audio.evaluate((element) => (
-    (window as Window & { __echoformAudio?: Element }).__echoformAudio === element
-  ))).toBe(true);
-
-  await page.getByRole("link", { name: "账号与设置" }).click();
-  await expect(page).toHaveURL(/\/settings$/);
   expect(await audio.evaluate((element) => (
     (window as Window & { __echoformAudio?: Element }).__echoformAudio === element
   ))).toBe(true);

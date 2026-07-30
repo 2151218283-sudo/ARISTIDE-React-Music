@@ -124,10 +124,10 @@
 ## 4. 当前执行卡
 
 - 当前任务：`T010 进程内 Session 与二维码登录`
-- 状态：未开始；T009 已验收并在本次提交中完成。
-- 上一任务完成记录：`T009` 已实现同源 `/api/search`、歌曲详情、音源、歌词和评论公共读取 Route Handlers，以及统一参数校验、超时、一次读取重试、Cache-Control、requestId 和错误 envelope。Legacy CommonJS 包已明确为 Node 服务端外部依赖，避免 Turbopack 打包其动态模块发现；E2E 支持显式复用本地服务地址。复用本地 `3001` 服务的 `npm.cmd run test` 全部通过，其中 unit 51 项、component 26 项、contract 28 项、E2E 10 项；`npm.cmd run check` 也通过，首页 1440/768/390 三张 Canvas 截图均通过非空像素检查。页面级 loading/empty/error 不适用于本任务新增的纯 BFF 路由，已由离线 Route Handler 成功、空结果、参数错误、429、超时、502、部分成功、不可播放和缓存契约覆盖。
-- 下轮修改目标：实现随机 `sid`、仅服务端 Session Store、QR Challenge 及其状态轮询，并接入导航账号入口。
-- 允许修改：Auth 规格；`src/lib/session/**`、`src/features/auth/**`、`src/app/api/auth/**`、导航账号入口和测试。可更新 API 契约中的实际验证等级。
+- 状态：待确认提交 T010；实现与验收已完成，未提交、未推送。
+- 本轮完成记录：`T010` 已实现 256-bit 随机 `sid`、进程内 server-only Session Store、二维码 Challenge 生命周期、2 秒可见页轮询、801/802/803/800 映射、刷新恢复、BrandMark 到头像替换、账户菜单登出，以及关闭、Escape、过期、刷新和网络错误状态。二维码 key、上游 Cookie 和原始账号 Response 始终留在服务端；802/803 只完成离线契约/UI 验证，未宣称真实账号实测。复用本地 `3001` 服务的完整 `npm.cmd run test` 通过，其中 unit 57 项、component 29 项、contract 32 项、E2E 12 项；`npm.cmd run check` 通过，包含 production build。lint 保留两条动态头像/二维码 Data URL 的静态图片优化警告，无 lint error。敏感字段扫描和 `git diff --check` 均通过。
+- 下轮修改目标：确认提交 T010 后，进入 `T011 每日推荐数据层与显式 Demo 降级`。
+- 允许修改：Auth 规格；`src/lib/session/**`、`src/features/auth/**`、`src/app/api/auth/**`、导航账号入口和测试。可修补 `src/lib/music/netease/**` 中仅用于二维码创建、账号状态和登出的服务端适配器能力。可更新 API 契约中的实际验证等级。
 - 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史；不得伪造 Demo 登录。
 - 不允许破坏：上游 Cookie/QR key 不得到浏览器；Session 重启后明确回游客；关闭/过期/成功必须停止轮询；未使用专用账号前不得宣称 802/803 已实测。
 - 验收标准：QR Dialog 外框稳定；成功后 1 秒内头像替换；焦点闭环正确；刷新恢复有效本地 Session；敏感信息扫描通过；专项 tests 与 `npm run check` 通过。
@@ -268,7 +268,7 @@
 
   目标：实现随机 `sid`、server-only Session Store、QR Challenge、2 秒可见页轮询、801/802/803/800、登录状态恢复、头像替换和登出。
 
-  允许修改：Auth 规格；`src/lib/session/**`、`src/features/auth/**`、`src/app/api/auth/**`、导航账号入口和测试。可更新 API 契约中的实际验证等级。
+  允许修改：Auth 规格；`src/lib/session/**`、`src/features/auth/**`、`src/app/api/auth/**`、导航账号入口和测试。可修补 `src/lib/music/netease/**` 中仅用于二维码创建、账号状态和登出的服务端适配器能力。可更新 API 契约中的实际验证等级。
 
   不允许破坏：上游 Cookie/QR key 不得到浏览器；Session 重启后明确回游客；关闭/过期/成功必须停止轮询；不修改 `.env`；不伪造 Demo 登录；未使用专用账号前不得宣称 802/803 已实测。
 

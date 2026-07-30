@@ -15,6 +15,7 @@ import type {
 } from "../models";
 import type {
   LegacyApiResponse,
+  LegacyQrChallenge,
   LegacyQrPollResult,
 } from "./types";
 
@@ -257,6 +258,55 @@ export function unwrapLegacyQrBody(response: LegacyApiResponse): UnknownRecord {
     throw upstreamError("二维码状态暂时无法获取。");
   }
   return body;
+}
+
+export function mapQrChallenge(
+  keyBody: UnknownRecord,
+  imageBody: UnknownRecord,
+): LegacyQrChallenge {
+  const keyData = childRecord(keyBody, "data");
+  const imageData = childRecord(imageBody, "data");
+  const key = keyData ? text(keyData.unikey) : null;
+  const qrImageDataUrl = imageData ? text(imageData.qrimg) : null;
+  if (!key || key.length > 256 || !qrImageDataUrl?.startsWith("data:image/")) {
+    throw upstreamError("二维码暂时无法生成。");
+  }
+  return { key, qrImageDataUrl };
+}
+
+export function mapSessionUser(response: LegacyApiResponse): UserProfile | null {
+  const status = finiteNumber(response.status);
+  const body = asRecord(response.body);
+  if (!body || status === null || status < 200 || status >= 300) {
+    throw upstreamError("登录状态暂时无法获取。");
+  }
+  const data = childRecord(body, "data");
+  if (!data) {
+    throw upstreamError("登录状态暂时无法识别。");
+  }
+  const code = finiteNumber(data.code);
+  if (code === 301) {
+    return null;
+  }
+  if (code !== 200) {
+    throw upstreamError("登录状态暂时无法识别。");
+  }
+  const account = childRecord(data, "account");
+  const profile = childRecord(data, "profile");
+  if (!account || !profile) {
+    return null;
+  }
+  const id = entityId(account.id) ?? entityId(profile.userId);
+  const nickname = text(profile.nickname);
+  if (!id || !nickname) {
+    return null;
+  }
+  return {
+    id,
+    nickname,
+    avatarUrl: publicMediaUrl(profile.avatarUrl),
+    signature: text(profile.signature),
+  };
 }
 
 export function mapSearchPage(

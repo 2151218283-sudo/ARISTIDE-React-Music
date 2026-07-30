@@ -1,0 +1,82 @@
+.button {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--ef-text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--ef-duration-standard) var(--ef-ease-standard),
+    background-color var(--ef-duration-standard) var(--ef-ease-standard);
+}
+
+.button:disabled {
+  cursor: wait;
+}
+
+.mark {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.mark > span {
+  display: block;
+  width: 4px;
+  border-radius: var(--ef-radius-xs);
+  background: currentColor;
+}
+
+.mark > span:nth-child(1) {
+  height: 10px;
+}
+
+.mark > span:nth-child(2) {
+  height: 20px;
+}
+
+.mark > span:nth-child(3) {
+  height: 14px;
+}
+
+.button[data-loading="true"] .mark > span:nth-child(2) {
+  animation: pulse var(--ef-duration-standard) var(--ef-ease-standard) infinite alternate;
+}
+
+@media (hover: hover) {
+  .button:hover:not(:disabled) {
+    background: var(--ef-control-hover);
+    color: var(--ef-text-primary);
+  }
+}
+
+.button:active:not(:disabled) .mark {
+  transform: scale(0.97);
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.45;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .mark {
+    transition-duration: 0.01ms;
+  }
+
+  .button[data-loading="true"] .mark > span:nth-child(2) {
+    animation: none;
+  }
+}

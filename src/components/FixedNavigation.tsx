@@ -1,8 +1,10 @@
 "use client";
 
-import { Search, UserRound } from "lucide-react";
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+import { AuthAccountEntry } from "@/features/auth/AuthAccountEntry";
 
 import styles from "./FixedNavigation.module.css";
 
@@ -45,8 +47,6 @@ function currentAttribute(isCurrent: boolean): "page" | undefined {
 
 export function FixedNavigation() {
   const pathname = usePathname();
-  const accountIsCurrent = pathname === "/settings"
-    || pathname.startsWith("/profile/");
 
   return (
     <nav className={styles.navigation} aria-label="ECHOFORM 主导航">
@@ -74,16 +74,7 @@ export function FixedNavigation() {
         >
           <Search aria-hidden="true" strokeWidth={1.7} />
         </Link>
-        <Link
-          aria-current={currentAttribute(accountIsCurrent)}
-          aria-label="账号与设置"
-          className={styles.iconLink}
-          data-current={accountIsCurrent}
-          href="/settings"
-          title="账号与设置"
-        >
-          <UserRound aria-hidden="true" strokeWidth={1.7} />
-        </Link>
+        <AuthAccountEntry />
       </div>
     </nav>
   );

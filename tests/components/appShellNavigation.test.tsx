@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const navigationState = vi.hoisted(() => ({ pathname: "/" }));
@@ -14,6 +15,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { AppShell, getAppShellVariant } from "../../src/components/AppShell";
+import { AuthProvider } from "../../src/features/auth/AuthProvider";
 import {
   FixedNavigation,
   getNavigationContext,
@@ -24,6 +26,10 @@ afterEach(() => {
   cleanup();
   navigationState.pathname = "/";
 });
+
+function renderWithAuth(children: ReactNode) {
+  return render(<AuthProvider>{children}</AuthProvider>);
+}
 
 describe("AppShell route contract", () => {
   it("maps only known ECHOFORM routes and leaves legacy work routes alone", () => {
@@ -45,7 +51,7 @@ describe("AppShell route contract", () => {
     const user = userEvent.setup();
     navigationState.pathname = "/search";
 
-    render(
+    renderWithAuth(
       <AppShell>
         <h1 data-page-heading tabIndex={-1}>搜索</h1>
       </AppShell>,
@@ -62,7 +68,7 @@ describe("AppShell route contract", () => {
 
   it("moves focus to the destination heading after a client route change", () => {
     navigationState.pathname = "/search";
-    const { rerender } = render(
+    const { rerender } = renderWithAuth(
       <AppShell>
         <h1 data-page-heading tabIndex={-1}>搜索</h1>
       </AppShell>,
@@ -70,9 +76,11 @@ describe("AppShell route contract", () => {
 
     navigationState.pathname = "/library";
     rerender(
-      <AppShell>
-        <h1 data-page-heading tabIndex={-1}>音乐库</h1>
-      </AppShell>,
+      <AuthProvider>
+        <AppShell>
+          <h1 data-page-heading tabIndex={-1}>音乐库</h1>
+        </AppShell>
+      </AuthProvider>,
     );
 
     expect(screen.getByRole("heading", { level: 1, name: "音乐库" })).toHaveFocus();
@@ -80,7 +88,7 @@ describe("AppShell route contract", () => {
 
   it("leaves a legacy route unwrapped", () => {
     navigationState.pathname = "/lusion-v3";
-    render(
+    renderWithAuth(
       <AppShell>
         <main aria-label="Legacy project">Legacy content</main>
       </AppShell>,
@@ -107,10 +115,10 @@ describe("FixedNavigation contract", () => {
 
   it("keeps only brand, search, and account as local destinations", () => {
     navigationState.pathname = "/playlist/demo-playlist";
-    const { container } = render(<FixedNavigation />);
+    const { container } = renderWithAuth(<FixedNavigation />);
 
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(3);
+    expect(links).toHaveLength(2);
 
     for (const link of links) {
       expect(link.getAttribute("href")).toMatch(/^\//);
@@ -119,18 +127,18 @@ describe("FixedNavigation contract", () => {
     expect(screen.getByText("PLAYLIST")).not.toHaveAttribute("href");
     expect(screen.queryByRole("link", { name: "发现" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "音乐库" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "正在恢复登录状态" })).toBeInTheDocument();
     expect(container.innerHTML).not.toMatch(/aristidebenoist|href="(?:https?:|mailto:)/i);
   });
 
-  it("keeps search one interaction away and labels icon-only account links", () => {
+  it("keeps search one interaction away and labels the guest account action", () => {
     navigationState.pathname = "/settings";
-    render(<FixedNavigation />);
+    renderWithAuth(<FixedNavigation />);
 
     expect(screen.getByRole("link", { name: "搜索" })).toHaveAttribute("href", "/search");
-    const accountLink = screen.getByRole("link", { name: "账号与设置" });
-    expect(accountLink).toHaveAttribute("href", "/settings");
-    expect(accountLink).toHaveAttribute("aria-current", "page");
-    expect(accountLink).toHaveAttribute("title", "账号与设置");
+    const accountButton = screen.getByRole("button", { name: "正在恢复登录状态" });
+    expect(accountButton).toBeDisabled();
+    expect(accountButton).toHaveAttribute("title", "正在恢复登录状态");
   });
 
   it("uses a normal-width brand face and disables the local dev indicator", () => {

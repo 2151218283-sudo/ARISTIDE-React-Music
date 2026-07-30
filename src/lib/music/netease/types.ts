@@ -13,8 +13,12 @@ export type LegacyApiMethod = (
 export interface LegacyNeteaseApi {
   check_music: LegacyApiMethod;
   comment_music: LegacyApiMethod;
+  login_qr_create: LegacyApiMethod;
   login_qr_check: LegacyApiMethod;
+  login_qr_key: LegacyApiMethod;
+  login_status: LegacyApiMethod;
   lyric_new: LegacyApiMethod;
+  logout: LegacyApiMethod;
   search: LegacyApiMethod;
   song_detail: LegacyApiMethod;
   song_url_v1: LegacyApiMethod;
@@ -29,6 +33,11 @@ export type LegacyQrPollResult =
   | { status: "waiting" }
   | { status: "scanned" }
   | { status: "authorized"; upstreamCookie: string };
+
+export interface LegacyQrChallenge {
+  key: string;
+  qrImageDataUrl: string;
+}
 
 export interface LegacySearchFailure {
   code: AppErrorCode;

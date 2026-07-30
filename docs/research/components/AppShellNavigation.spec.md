@@ -49,7 +49,9 @@
 - Left: local `ECHOFORM` brand link to `/`.
 - Center: a non-interactive route context such as `DAILY SIGNAL`, `SEARCH`, or
   `NOW PLAYING`.
-- Right: Search icon link and account placeholder link to `/settings`.
+- Right: Search icon link and the account entry. Guests receive the ECHOFORM
+  `BrandMark` button that opens QR login; authenticated users receive a local
+  avatar link to `/profile/[id]` plus an adjacent account-menu control.
 - Search is always one interaction from every ECHOFORM route.
 
 ### Mobile
@@ -65,11 +67,15 @@
 
 - Every destination is local. No original-site URL, mail link, or social link
   belongs to the ECHOFORM navigation.
-- The brand, Search, and account destinations expose `aria-current="page"` when
-  they own the current route. Context text is never interactive.
+- The brand and Search destinations expose `aria-current="page"` when they own
+  the current route. The guest account entry is an action rather than a route;
+  the logged-in avatar is current only on its own `/profile/[id]` route. Context
+  text is never interactive.
 - Icon-only controls have Chinese accessible names and native tooltips.
-- The account placeholder leads to Settings. It does not open or imitate QR
-  login before the real login task.
+- The guest `BrandMark` opens only the real same-origin QR login dialog. It
+  never imitates a successful login or links to an external music website. The
+  logged-in account menu provides a local settings route and an explicit logout
+  action; the avatar itself links to the local user profile.
 - Focus-visible rings use shared semantic tokens. Reduced Motion removes
   navigation reveal and focus-entry scrolling without removing state changes.
 - The `ECHOFORM` wordmark uses the normal-width body typeface at a strong weight,

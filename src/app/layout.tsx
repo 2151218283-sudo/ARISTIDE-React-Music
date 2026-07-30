@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/AppShell";
+import { AuthProvider } from "@/features/auth/AuthProvider";
 import { PlayerProvider } from "@/features/player/PlayerProvider";
 
 import "./globals.css";
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="zh-CN">
       <body>
         <PlayerProvider>
-          <AppShell>{children}</AppShell>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
         </PlayerProvider>
       </body>
     </html>

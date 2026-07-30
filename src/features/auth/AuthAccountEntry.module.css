@@ -1,0 +1,57 @@
+.entry {
+  position: relative;
+  display: flex;
+  gap: var(--ef-space-2);
+  align-items: center;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + var(--ef-space-2));
+  right: 0;
+  display: grid;
+  width: 160px;
+  gap: var(--ef-space-1);
+  padding: var(--ef-space-2);
+  border: 1px solid var(--ef-border-strong);
+  border-radius: var(--ef-radius-md);
+  background: var(--ef-surface-raised);
+  box-shadow: var(--ef-shadow-float);
+}
+
+.menuItem {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: var(--ef-space-2);
+  padding: 0 var(--ef-space-3);
+  border: 0;
+  border-radius: var(--ef-radius-sm);
+  background: transparent;
+  color: var(--ef-text-primary);
+  cursor: pointer;
+  font: var(--ef-weight-medium) var(--ef-type-label) var(--ef-font-body);
+  text-align: left;
+}
+
+.menuItem > svg {
+  width: 18px;
+  height: 18px;
+}
+
+.menuItem:disabled {
+  color: var(--ef-text-disabled);
+  cursor: wait;
+}
+
+.menuItem:not(:disabled):hover,
+.menuItem:not(:disabled):focus-visible {
+  background: var(--ef-control-hover);
+}
+
+.menu p {
+  margin: 0;
+  padding: var(--ef-space-1) var(--ef-space-3);
+  color: var(--ef-status-error);
+  font: var(--ef-weight-regular) var(--ef-type-caption) var(--ef-font-body);
+}

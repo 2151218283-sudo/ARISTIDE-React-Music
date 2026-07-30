@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -30,12 +31,23 @@ function method(body: unknown): LegacyApiMethod {
   return async () => response(body);
 }
 
+function opaqueRuntimeValue(): string {
+  return randomBytes(32).toString("base64url");
+}
+
 function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
   return {
     check_music: method({ code: 200, success: true }),
     comment_music: method({ code: 200, comments: [], total: 0, more: false }),
+    login_qr_create: method({ code: 200, data: { qrimg: "data:image/png;base64,visual-stage-placeholder" } }),
     login_qr_check: method({ code: 801 }),
+    login_qr_key: async () => response({
+      code: 200,
+      data: { unikey: opaqueRuntimeValue() },
+    }),
+    login_status: method({ data: { code: 200, account: null, profile: null } }),
     lyric_new: method({ code: 200, lrc: { lyric: "" } }),
+    logout: method({ code: 200 }),
     search: method({ code: 200, result: { songs: [], songCount: 0 } }),
     song_detail: method({ code: 200, songs: [], privileges: [] }),
     song_url_v1: method({ code: 200, data: [] }),

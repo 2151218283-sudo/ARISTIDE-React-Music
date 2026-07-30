@@ -1,0 +1,42 @@
+.button {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  color: var(--ef-text-primary);
+}
+
+.image,
+.fallback {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: var(--ef-radius-full);
+}
+
+.image {
+  object-fit: cover;
+}
+
+.fallback {
+  background: var(--ef-surface-overlay);
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-semibold) var(--ef-type-caption) var(--ef-font-body);
+}
+
+@media (hover: hover) {
+  .button:hover .image,
+  .button:hover .fallback {
+    outline: 1px solid var(--ef-border-strong);
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 767px) {
+  .image,
+  .fallback {
+    width: 36px;
+    height: 36px;
+  }
+}
