@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/AppShell";
+import { PlayerProvider } from "@/features/player/PlayerProvider";
 
 import "./globals.css";
 
@@ -27,7 +28,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="zh-CN">
       <body>
-        <AppShell>{children}</AppShell>
+        <PlayerProvider>
+          <AppShell>{children}</AppShell>
+        </PlayerProvider>
       </body>
     </html>
   );

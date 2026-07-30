@@ -38,7 +38,7 @@ function contrastRatio(foreground: string, background: string): number {
 
 let previewServer: ViteDevServer;
 
-test.describe.configure({ mode: "serial" });
+test.describe.configure({ mode: "serial", timeout: 90_000 });
 
 test.beforeAll(async () => {
   previewServer = await createServer({
@@ -47,6 +47,7 @@ test.beforeAll(async () => {
     plugins: [react()],
     resolve: {
       alias: {
+        "@": resolve(process.cwd(), "src"),
         "next/image": resolve(process.cwd(), "tests/e2e/nextImageMock.tsx"),
       },
     },

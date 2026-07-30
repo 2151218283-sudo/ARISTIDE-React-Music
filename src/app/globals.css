@@ -129,6 +129,10 @@
   --ef-artwork-radius: var(--ef-radius-xs);
   --ef-status-view-max-width: 32rem;
   --ef-skeleton-duration: 1400ms;
+  --ef-player-bar-height-desktop: 104px;
+  --ef-player-bar-height-mobile: 104px;
+  --ef-player-progress-track: 2px;
+  --ef-player-volume-width: 96px;
 }
 
 :root,

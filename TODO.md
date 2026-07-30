@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-07-30
-> 当前任务：`T007`（待确认启动）
+> 当前任务：`T008`（待确认，未开始）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,14 +123,14 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T007 唯一 AudioController 与持久播放器 UI`
-- 状态：待用户确认启动；尚未进行 T007 规格或代码修改。
-- 上一任务完成记录：`T006` 已建立无 React、无 DOM 依赖的播放器 reducer/controller core、有限顺序/随机/单曲循环队列、revision 与 pending play 竞争保护、一次音源刷新/受控 reload、有限自动跳过、Sleep Timer 纯状态，以及 LRC/翻译/YRC 解析与二分定位。unit 46、component 19、contract 6、E2E 7 与 `npm run check` 全部通过，生产构建 37 个页面；页面 loading/empty/error 对纯核心不适用，由完整 unit matrix 验收。
-- 下轮修改目标：在根布局建立唯一 `PlayerProvider`/`AudioController` 与持久 Player Bar，把 T006 核心接到真实 media event，并实现播放、暂停、上下曲、进度、缓冲、音量、静音、模式与错误恢复 UI。
-- 允许修改：Player 组件规格、`src/app/layout.tsx`、`src/features/player/**`、`src/lib/player/**`、必要公共组件和对应测试。
-- 不允许修改：`.env*`、CI/CD、生产部署配置、真实 Provider、数据库、Session、Git 历史。
-- 不允许破坏：全应用唯一 Audio；路由切换、预览退出和 EXPLORE 不得重建或中断 Audio；页面不能直接操作 Audio；音源 URL 不进入日志或持久化；现有有限画廊仍可浏览。
-- 验收标准：idle/loading/ready/playing/paused/buffering/stalled/autoplay blocked/empty queue/unavailable/error 与 Retry/Next 完整测试；真实 media event 决定状态；Seek 可键盘操作；三视口无底栏遮挡；专项 unit/component/E2E 与 `npm run check` 通过。
+- 当前任务：`T008 Legacy Netease Adapter 与匿名契约`
+- 状态：待用户确认，尚未开始；不得提前安装 Provider 或实现 BFF。
+- 上一任务完成记录：`T007` 已在根布局建立唯一 `PlayerProvider`、唯一 Audio host 和持久 Player Bar，接通 T006 controller 与真实 media event；完成播放/暂停、有限上下曲、进度预览与键盘/Pointer Seek、缓冲/停滞恢复、桌面音量/静音、三种模式、自动播放受阻和错误 Retry/Next。unit 50、component 26、contract 6、E2E 10 与 `npm run check` 全部通过，生产构建 37 个页面；三视口、200% 等效缩放、Reduced Motion、fixed 主区避让和跨路由同一 Audio DOM 节点均已验收。T007 未接入或伪造真实音源，默认 resolver 仅指向未来同源 BFF。
+- 下轮修改目标：精确安装 `NeteaseCloudMusicApi@4.32.0`，只在 server-only Adapter 中调用；完成匿名搜索、详情、音源、歌词、评论和 QR 801 字段归一化。
+- 允许修改：`package*.json`、`src/lib/music/netease/**`、必要类型声明、脱敏 fixtures、contract tests 和 API 契约文档的实测记录。
+- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Session、客户端播放器 UI、Git 历史。
+- 不允许破坏：不得安装 Enhanced 4.38.0 作为当前 Provider；不得使用 `^`/`~`；不得启动上游 Express；不得调用解灰、代理或匹配音源；不得输出上游原始 Body、URL、Cookie 或 QR key。
+- 验收标准：lockfile integrity 匹配契约；根 code 200 + 行 code 404/null URL 正确失败；`yrc` 缺失自然降级；异常形状映射统一错误；离线 fixtures 默认通过；Live 匿名 probe 仅手动运行并脱敏。页面状态测试不适用。
 
 ## 5. 开发清单
 
@@ -218,7 +218,7 @@
 
   验收：状态机文档第 22.1 节全部有测试；快速 A/B/C 只让 C 生效；Pause 覆盖 pending play；不可播自动跳过最多一轮；歌词降级正常；`npm run check` 通过。页面状态测试不适用，以完整状态机 unit matrix 为门槛。
 
-- [ ] **T007 唯一 AudioController 与持久播放器 UI**
+- [x] **T007 唯一 AudioController 与持久播放器 UI**
 
   目标：在根布局挂载唯一 `PlayerProvider`/`AudioController` 和持久 Player Bar，实现播放、暂停、上下曲、进度、缓冲、音量、静音、三种模式、错误恢复。
 

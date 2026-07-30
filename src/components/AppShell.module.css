@@ -58,7 +58,33 @@
   padding: 96px var(--ef-space-8) var(--ef-space-12);
 }
 
+:global(body:has([data-player-visible="true"])) .root {
+  min-height: calc(
+    100dvh - var(--ef-player-bar-height-desktop) - env(safe-area-inset-bottom)
+  );
+}
+
+:global(body:has([data-player-visible="true"])) .immersiveMain {
+  height: calc(
+    100dvh - var(--ef-player-bar-height-desktop) - env(safe-area-inset-bottom)
+  );
+}
+
 @media (max-width: 767px) {
+  :global(body:has([data-player-visible="true"])) .root,
+  :global(body:has([data-player-visible="true"])) .immersiveMain {
+    height: auto;
+    min-height: calc(
+      100dvh - var(--ef-player-bar-height-mobile) - env(safe-area-inset-bottom)
+    );
+  }
+
+  :global(body:has([data-player-visible="true"])) .immersiveMain {
+    height: calc(
+      100dvh - var(--ef-player-bar-height-mobile) - env(safe-area-inset-bottom)
+    );
+  }
+
   .root[data-shell="player-immersive"] .immersiveMain,
   .contentMain {
     padding: calc(80px + env(safe-area-inset-top)) var(--ef-space-4)

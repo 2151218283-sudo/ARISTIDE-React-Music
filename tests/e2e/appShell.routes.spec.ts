@@ -124,6 +124,36 @@ test("supports skip navigation and focuses headings after local navigation", asy
   await expect(page.getByRole("heading", { level: 1, name: "搜索" })).toBeFocused();
 });
 
+test("keeps one persistent audio node across client-side product routes", async ({ page }) => {
+  await page.setViewportSize(viewports[0]);
+  await page.goto("/");
+
+  const audio = page.locator("[data-echoform-audio]");
+  await expect(audio).toHaveCount(1);
+  await audio.evaluate((element) => {
+    (window as Window & { __echoformAudio?: Element }).__echoformAudio = element;
+  });
+
+  await page.getByRole("link", { name: "搜索" }).click();
+  await expect(page).toHaveURL(/\/search$/);
+  expect(await audio.evaluate((element) => (
+    (window as Window & { __echoformAudio?: Element }).__echoformAudio === element
+  ))).toBe(true);
+
+  await page.getByRole("link", { name: "账号与设置" }).click();
+  await expect(page).toHaveURL(/\/settings$/);
+  expect(await audio.evaluate((element) => (
+    (window as Window & { __echoformAudio?: Element }).__echoformAudio === element
+  ))).toBe(true);
+
+  await page.getByRole("link", { name: "ECHOFORM 首页" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  expect(await audio.evaluate((element) => (
+    (window as Window & { __echoformAudio?: Element }).__echoformAudio === element
+  ))).toBe(true);
+  await expect(page.locator("[data-player-visible='false']")).toBeHidden();
+});
+
 test("keeps the shell usable at 200 percent equivalent zoom and reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 720, height: 450 });

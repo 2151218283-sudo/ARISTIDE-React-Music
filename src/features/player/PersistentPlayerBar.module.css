@@ -1,0 +1,337 @@
+.spacer {
+  height: calc(var(--ef-player-bar-height-desktop) + env(safe-area-inset-bottom));
+}
+
+.bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--ef-z-player);
+  min-width: 0;
+  min-height: calc(var(--ef-player-bar-height-desktop) + env(safe-area-inset-bottom));
+  padding: var(--ef-space-2) var(--ef-space-8)
+    calc(var(--ef-space-2) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--ef-border-subtle);
+  background: var(--ef-surface-canvas);
+  color: var(--ef-text-primary);
+  animation: player-enter var(--ef-duration-player-enter) var(--ef-ease-enter) both;
+}
+
+.bar[hidden] {
+  display: none;
+}
+
+.inner {
+  display: grid;
+  width: 100%;
+  max-width: 1600px;
+  min-width: 0;
+  margin: 0 auto;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+  grid-template-areas:
+    "identity transport volume"
+    "progress progress progress";
+  align-items: center;
+  gap: 0 var(--ef-space-6);
+}
+
+.identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--ef-space-3);
+  grid-area: identity;
+}
+
+.trackText {
+  min-width: 0;
+}
+
+.trackName,
+.trackMeta,
+.errorText {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trackName {
+  font: var(--ef-weight-semibold) var(--ef-type-label) var(--ef-font-body);
+}
+
+.trackMeta,
+.errorText {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.errorText {
+  color: var(--ef-status-error);
+}
+
+.retryButton {
+  flex: 0 0 auto;
+  padding-right: var(--ef-space-2);
+  padding-left: var(--ef-space-2);
+}
+
+.transport {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--ef-space-2);
+  grid-area: transport;
+}
+
+.playButton {
+  position: relative;
+  display: inline-grid;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  padding: 0;
+  border: 1px solid var(--ef-border-strong);
+  border-radius: var(--ef-radius-full);
+  background: var(--ef-action-primary);
+  color: var(--ef-text-on-action);
+  cursor: pointer;
+  place-items: center;
+  transition:
+    box-shadow var(--ef-duration-fast) var(--ef-ease-standard),
+    transform var(--ef-duration-feedback) var(--ef-ease-standard);
+}
+
+.playButton > svg {
+  width: 21px;
+  height: 21px;
+  fill: currentcolor;
+  stroke-width: 1.6;
+}
+
+.playButton:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 999px var(--ef-control-hover);
+}
+
+.playButton:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.playButton:focus-visible {
+  outline: 2px solid var(--ef-focus-ring);
+  outline-offset: 3px;
+}
+
+.playButton:disabled {
+  background: var(--ef-surface-raised);
+  color: var(--ef-text-disabled);
+  cursor: not-allowed;
+}
+
+.busyRing {
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--ef-border-subtle);
+  border-top-color: var(--ef-action-playing);
+  border-radius: var(--ef-radius-full);
+  animation: player-busy 800ms var(--ef-ease-linear) infinite;
+}
+
+.volume {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--ef-space-2);
+  grid-area: volume;
+  justify-self: end;
+}
+
+.volumeRange {
+  width: var(--ef-player-volume-width);
+  height: 44px;
+  margin: 0;
+  accent-color: var(--ef-action-playing);
+  cursor: pointer;
+}
+
+.progress {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: var(--ef-space-3);
+  grid-area: progress;
+}
+
+.time {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-medium) var(--ef-type-caption) var(--ef-font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.time:last-child {
+  text-align: right;
+}
+
+.rail {
+  position: relative;
+  display: grid;
+  height: 28px;
+  min-width: 0;
+  align-items: center;
+}
+
+.railBase,
+.railBuffered,
+.railPlayed {
+  position: absolute;
+  left: 0;
+  height: var(--ef-player-progress-track);
+  pointer-events: none;
+}
+
+.railBase {
+  right: 0;
+  background: var(--ef-border-subtle);
+}
+
+.railBuffered {
+  width: var(--buffered-ratio);
+  background: var(--ef-border-strong);
+}
+
+.railPlayed {
+  width: var(--played-ratio);
+  background: var(--ef-action-playing);
+}
+
+.range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.range:disabled {
+  cursor: not-allowed;
+}
+
+.range:focus-visible {
+  outline: 2px solid var(--ef-focus-ring);
+  outline-offset: 2px;
+  opacity: 0.08;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes player-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes player-busy {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (max-width: 767px) {
+  .spacer {
+    height: calc(var(--ef-player-bar-height-mobile) + env(safe-area-inset-bottom));
+  }
+
+  .bar {
+    min-height: calc(var(--ef-player-bar-height-mobile) + env(safe-area-inset-bottom));
+    padding: 0 var(--ef-space-4) env(safe-area-inset-bottom);
+  }
+
+  .inner {
+    min-height: var(--ef-player-bar-height-mobile);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "progress progress"
+      "identity transport";
+    gap: 0 var(--ef-space-2);
+  }
+
+  .identity {
+    gap: var(--ef-space-2);
+  }
+
+  .identity > :first-child {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .trackName {
+    font: var(--ef-weight-semibold) var(--ef-type-caption) var(--ef-font-body);
+  }
+
+  .retryButton,
+  .modeButton,
+  .volume {
+    display: none;
+  }
+
+  .transport {
+    gap: 0;
+  }
+
+  .playButton {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+
+  .progress {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .progress .time {
+    display: none;
+  }
+
+  .rail,
+  .range {
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    animation-duration: 0.01ms;
+  }
+
+  .playButton {
+    transition-duration: 0.01ms;
+  }
+
+  .playButton:active:not(:disabled) {
+    transform: none;
+  }
+
+  .busyRing {
+    animation: none;
+  }
+}
