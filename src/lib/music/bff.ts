@@ -1,0 +1,424 @@
+import { randomUUID } from "node:crypto";
+
+import {
+  createApiFailure,
+  createApiSuccess,
+  type ApiResult,
+} from "./apiResult";
+import { AppError, isAppError, type AppErrorCode } from "./errors";
+import type {
+  AudioQuality,
+  CommentPage,
+  LyricDocument,
+  PageQuery,
+  PlaybackSource,
+  SearchQuery,
+  SearchResponse,
+  Track,
+} from "./models";
+
+const trackIdPattern = /^\d{1,20}$/;
+const searchTypes = ["all", "track", "album", "artist"] as const;
+const audioQualities = ["standard", "exhigh", "lossless", "hires"] as const;
+const publicMetadataCacheControl = "public, max-age=300, s-maxage=300";
+const commentCacheControl = "public, max-age=30, s-maxage=30";
+const noStoreCacheControl = "no-store";
+
+type SearchType = (typeof searchTypes)[number];
+
+export interface PublicReadProvider {
+  search(query: SearchQuery): Promise<SearchResponse>;
+  getTrack(trackId: string): Promise<Track>;
+  getPlaybackSource(
+    trackId: string,
+    quality: AudioQuality,
+  ): Promise<PlaybackSource>;
+  getLyrics(trackId: string): Promise<LyricDocument>;
+  getComments(trackId: string, page: PageQuery): Promise<CommentPage>;
+}
+
+export interface PublicReadRouteHandlers {
+  search(request: Request): Promise<Response>;
+  track(request: Request, trackId: string): Promise<Response>;
+  source(request: Request, trackId: string): Promise<Response>;
+  lyrics(request: Request, trackId: string): Promise<Response>;
+  comments(request: Request, trackId: string): Promise<Response>;
+}
+
+export interface PublicReadRouteDependencies {
+  createProvider: () => PublicReadProvider;
+  createRequestId?: () => string;
+  now?: () => number;
+  retryDelay?: (delayMs: number) => Promise<void>;
+  random?: () => number;
+  timeoutMs?: {
+    default: number;
+    source: number;
+  };
+}
+
+interface ResolvedDependencies {
+  createProvider: () => PublicReadProvider;
+  createRequestId: () => string;
+  now: () => number;
+  retryDelay: (delayMs: number) => Promise<void>;
+  random: () => number;
+  timeoutMs: {
+    default: number;
+    source: number;
+  };
+}
+
+interface ReadRouteOptions<T> {
+  cacheControl: string;
+  requestId: string;
+  timeoutMs: number;
+  dependencies: ResolvedDependencies;
+  execute: (signal: AbortSignal) => Promise<T>;
+}
+
+function defaultRetryDelay(delayMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, delayMs);
+  });
+}
+
+function validationError(message: string): AppError {
+  return new AppError("VALIDATION_ERROR", message);
+}
+
+function parseNonNegativeInteger(
+  value: string | null,
+  defaultValue: number,
+  maximum: number,
+  name: string,
+): number {
+  if (value === null) {
+    return defaultValue;
+  }
+  if (!/^\d+$/.test(value)) {
+    throw validationError(`${name} 必须是整数。`);
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed > maximum) {
+    throw validationError(`${name} 超出允许范围。`);
+  }
+  return parsed;
+}
+
+function parsePositiveInteger(
+  value: string | null,
+  defaultValue: number,
+  maximum: number,
+  name: string,
+): number {
+  const parsed = parseNonNegativeInteger(value, defaultValue, maximum, name);
+  if (parsed < 1) {
+    throw validationError(`${name} 必须大于零。`);
+  }
+  return parsed;
+}
+
+function parseTrackId(trackId: string): string {
+  const normalized = trackId.trim();
+  if (!trackIdPattern.test(normalized)) {
+    throw validationError("歌曲 ID 格式无效。");
+  }
+  return normalized;
+}
+
+function parseSearchQuery(request: Request): SearchQuery {
+  const params = new URL(request.url).searchParams;
+  const text = params.get("q")?.trim() ?? "";
+  const type = params.get("type") ?? "all";
+  if (text.length < 1 || text.length > 100) {
+    throw validationError("搜索关键词长度必须是 1 至 100 个字符。");
+  }
+  if (!searchTypes.includes(type as SearchType)) {
+    throw validationError("搜索类型无效。");
+  }
+
+  return {
+    text,
+    type: type as SearchType,
+    limit: parsePositiveInteger(params.get("limit"), 20, 30, "limit"),
+    offset: parseNonNegativeInteger(params.get("offset"), 0, Number.MAX_SAFE_INTEGER, "offset"),
+  };
+}
+
+function parseCommentsPage(request: Request): PageQuery {
+  const params = new URL(request.url).searchParams;
+  return {
+    limit: parsePositiveInteger(params.get("limit"), 20, 100, "limit"),
+    offset: parseNonNegativeInteger(params.get("offset"), 0, Number.MAX_SAFE_INTEGER, "offset"),
+  };
+}
+
+function parseAudioQuality(request: Request): AudioQuality {
+  const quality = new URL(request.url).searchParams.get("quality") ?? "standard";
+  if (!audioQualities.includes(quality as AudioQuality)) {
+    throw validationError("音质参数无效。");
+  }
+  return quality as AudioQuality;
+}
+
+function isRetryableReadError(error: AppError): boolean {
+  return error.code === "RATE_LIMITED"
+    || error.code === "UPSTREAM_TIMEOUT"
+    || error.code === "NETWORK_ERROR";
+}
+
+function toAppError(error: unknown): AppError {
+  if (isAppError(error)) {
+    return error;
+  }
+  return new AppError(
+    "UNKNOWN_ERROR",
+    "请求未能完成，请稍后重试。",
+    { retryable: true },
+  );
+}
+
+function statusForError(code: AppErrorCode): number {
+  switch (code) {
+    case "VALIDATION_ERROR":
+      return 400;
+    case "AUTH_REQUIRED":
+    case "SESSION_EXPIRED":
+      return 401;
+    case "VIP_REQUIRED":
+      return 403;
+    case "TRACK_UNAVAILABLE":
+    case "SOURCE_EXPIRED":
+      return 409;
+    case "QR_EXPIRED":
+      return 410;
+    case "REGION_RESTRICTED":
+      return 451;
+    case "RATE_LIMITED":
+      return 429;
+    case "UPSTREAM_TIMEOUT":
+      return 504;
+    case "UPSTREAM_UNAVAILABLE":
+    case "NETWORK_ERROR":
+      return 502;
+    case "UNKNOWN_ERROR":
+      return 500;
+  }
+}
+
+async function withTimeout<T>(
+  execute: (signal: AbortSignal) => Promise<T>,
+  timeoutMs: number,
+): Promise<T> {
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+  const timeoutResult = new Promise<never>((_, reject) => {
+    controller.signal.addEventListener("abort", () => {
+      reject(new AppError(
+        "UPSTREAM_TIMEOUT",
+        "上游响应超时，请稍后重试。",
+        { retryable: true },
+      ));
+    }, { once: true });
+  });
+
+  try {
+    return await Promise.race([execute(controller.signal), timeoutResult]);
+  } catch (error) {
+    if (timedOut) {
+      throw new AppError(
+        "UPSTREAM_TIMEOUT",
+        "上游响应超时，请稍后重试。",
+        { retryable: true },
+      );
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function executeRead<T>(options: ReadRouteOptions<T>): Promise<T> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      return await withTimeout(options.execute, options.timeoutMs);
+    } catch (error) {
+      const appError = toAppError(error);
+      if (attempt === 1 || !isRetryableReadError(appError)) {
+        throw appError;
+      }
+      const delayMs = 100 + Math.floor(options.dependencies.random() * 201);
+      await options.dependencies.retryDelay(delayMs);
+    }
+  }
+
+  throw new AppError("UNKNOWN_ERROR", "请求未能完成，请稍后重试。");
+}
+
+function jsonResponse<T>(
+  body: ApiResult<T>,
+  status: number,
+  cacheControl: string,
+): Response {
+  return Response.json(body, {
+    status,
+    headers: {
+      "Cache-Control": cacheControl,
+      "X-Request-Id": body.ok ? body.meta?.requestId ?? "" : body.error.requestId,
+    },
+  });
+}
+
+async function respondToRead<T>(options: ReadRouteOptions<T>): Promise<Response> {
+  try {
+    const data = await executeRead(options);
+    return jsonResponse(createApiSuccess(data, {
+      requestId: options.requestId,
+      mode: "real",
+      fetchedAt: new Date(options.dependencies.now()).toISOString(),
+    }), 200, options.cacheControl);
+  } catch (error) {
+    const appError = toAppError(error);
+    return jsonResponse(
+      createApiFailure(appError, options.requestId),
+      statusForError(appError.code),
+      noStoreCacheControl,
+    );
+  }
+}
+
+function resolveDependencies(
+  dependencies: PublicReadRouteDependencies,
+): ResolvedDependencies {
+  return {
+    createProvider: dependencies.createProvider,
+    createRequestId: dependencies.createRequestId ?? randomUUID,
+    now: dependencies.now ?? Date.now,
+    retryDelay: dependencies.retryDelay ?? defaultRetryDelay,
+    random: dependencies.random ?? Math.random,
+    timeoutMs: dependencies.timeoutMs ?? {
+      default: 10_000,
+      source: 15_000,
+    },
+  };
+}
+
+export function createPublicReadRouteHandlers(
+  inputDependencies: PublicReadRouteDependencies,
+): PublicReadRouteHandlers {
+  const dependencies = resolveDependencies(inputDependencies);
+
+  return {
+    async search(request) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const query = parseSearchQuery(request);
+        return await respondToRead({
+          cacheControl: publicMetadataCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs.default,
+          dependencies,
+          execute: () => dependencies.createProvider().search(query),
+        });
+      } catch (error) {
+        const appError = toAppError(error);
+        return jsonResponse(
+          createApiFailure(appError, requestId),
+          statusForError(appError.code),
+          noStoreCacheControl,
+        );
+      }
+    },
+
+    async track(_request, trackId) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const id = parseTrackId(trackId);
+        return await respondToRead({
+          cacheControl: publicMetadataCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs.default,
+          dependencies,
+          execute: () => dependencies.createProvider().getTrack(id),
+        });
+      } catch (error) {
+        const appError = toAppError(error);
+        return jsonResponse(
+          createApiFailure(appError, requestId),
+          statusForError(appError.code),
+          noStoreCacheControl,
+        );
+      }
+    },
+
+    async source(request, trackId) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const id = parseTrackId(trackId);
+        const quality = parseAudioQuality(request);
+        return await respondToRead({
+          cacheControl: noStoreCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs.source,
+          dependencies,
+          execute: () => dependencies.createProvider().getPlaybackSource(id, quality),
+        });
+      } catch (error) {
+        const appError = toAppError(error);
+        return jsonResponse(
+          createApiFailure(appError, requestId),
+          statusForError(appError.code),
+          noStoreCacheControl,
+        );
+      }
+    },
+
+    async lyrics(_request, trackId) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const id = parseTrackId(trackId);
+        return await respondToRead({
+          cacheControl: publicMetadataCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs.default,
+          dependencies,
+          execute: () => dependencies.createProvider().getLyrics(id),
+        });
+      } catch (error) {
+        const appError = toAppError(error);
+        return jsonResponse(
+          createApiFailure(appError, requestId),
+          statusForError(appError.code),
+          noStoreCacheControl,
+        );
+      }
+    },
+
+    async comments(request, trackId) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const id = parseTrackId(trackId);
+        const page = parseCommentsPage(request);
+        return await respondToRead({
+          cacheControl: commentCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs.default,
+          dependencies,
+          execute: () => dependencies.createProvider().getComments(id, page),
+        });
+      } catch (error) {
+        const appError = toAppError(error);
+        return jsonResponse(
+          createApiFailure(appError, requestId),
+          statusForError(appError.code),
+          noStoreCacheControl,
+        );
+      }
+    },
+  };
+}

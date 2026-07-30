@@ -123,14 +123,14 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T009 BFF 公共读取路由与统一错误边界`
-- 状态：未开始；T008R 已通过验收，等待用户确认后进入同源 BFF Route Handler 开发。
-- 上一任务完成记录：`T008` 已精确安装 `NeteaseCloudMusicApi@4.32.0`，仅在 `src/lib/music/netease/legacyApi.server.ts` 延迟加载真实 CommonJS 包；完成匿名搜索、详情、可用性预检、音源、歌词、评论和 QR 801 的归一化 Adapter。通用歌词解析器已迁到 `src/lib/music/lyricParser.ts`，`src/lib/player/lyrics.ts` 保持兼容重导出。`npm run test:contract` 19 项、`npm run test:unit` 50 项和 `npm run check` 全部通过；页面状态测试不适用，因为本任务不新增或修改页面/BFF 路由；Live 匿名 probe 未运行，未保存 QR key、Cookie、用户资料或音源 URL。
-- 下轮修改目标：实现同源 `/api/search`、track、source、lyrics、comments 等公共读取 Route Handlers，统一校验、超时、Cache-Control、requestId 和错误 envelope。
-- 允许修改：BFF 规格；`src/app/api/**`、`src/lib/music/**`、contract/component tests。
-- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史；不得实现登录态写操作或 Session 持久化变更。
-- 不允许破坏：浏览器不得直连上游；私有数据和音源 `no-store`；读取最多重试一次；错误 details 不含输入正文、音源 URL、Cookie、QR key 或原始上游 Body。
-- 验收标准：Route Handler 契约与文档一致；客户端 bundle 不含上游包；所有错误有稳定 code/retryable/requestId；成功、loading 不适用说明、empty、参数错误、超时/上游错误、不可播放和部分成功均有契约或页面级测试覆盖；contract/E2E 与 `npm run check` 通过。
+- 当前任务：`T010 进程内 Session 与二维码登录`
+- 状态：未开始；T009 已验收并在本次提交中完成。
+- 上一任务完成记录：`T009` 已实现同源 `/api/search`、歌曲详情、音源、歌词和评论公共读取 Route Handlers，以及统一参数校验、超时、一次读取重试、Cache-Control、requestId 和错误 envelope。Legacy CommonJS 包已明确为 Node 服务端外部依赖，避免 Turbopack 打包其动态模块发现；E2E 支持显式复用本地服务地址。复用本地 `3001` 服务的 `npm.cmd run test` 全部通过，其中 unit 51 项、component 26 项、contract 28 项、E2E 10 项；`npm.cmd run check` 也通过，首页 1440/768/390 三张 Canvas 截图均通过非空像素检查。页面级 loading/empty/error 不适用于本任务新增的纯 BFF 路由，已由离线 Route Handler 成功、空结果、参数错误、429、超时、502、部分成功、不可播放和缓存契约覆盖。
+- 下轮修改目标：实现随机 `sid`、仅服务端 Session Store、QR Challenge 及其状态轮询，并接入导航账号入口。
+- 允许修改：Auth 规格；`src/lib/session/**`、`src/features/auth/**`、`src/app/api/auth/**`、导航账号入口和测试。可更新 API 契约中的实际验证等级。
+- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史；不得伪造 Demo 登录。
+- 不允许破坏：上游 Cookie/QR key 不得到浏览器；Session 重启后明确回游客；关闭/过期/成功必须停止轮询；未使用专用账号前不得宣称 802/803 已实测。
+- 验收标准：QR Dialog 外框稳定；成功后 1 秒内头像替换；焦点闭环正确；刷新恢复有效本地 Session；敏感信息扫描通过；专项 tests 与 `npm run check` 通过。
 
 ## 5. 开发清单
 
@@ -252,7 +252,7 @@
 
   验收：A/B/C 快速切歌会实际 abort A/B 请求且只接受 C；同源 source fetch 接收 signal；现有播放、错误恢复和三视口测试均通过。`npm run test:unit` 51 项、`npm run test:component` 26 项、`npm run test:contract` 19 项、`npm run test:e2e` 10 项和 `npm run check` 均通过。
 
-- [ ] **T009 BFF 公共读取路由与统一错误边界**
+- [x] **T009 BFF 公共读取路由与统一错误边界**
 
   目标：实现同源 `/api/search`、track、source、lyrics、comments 等公共读取 Route Handlers，统一校验、超时、Cache-Control、requestId 和错误 envelope。
 

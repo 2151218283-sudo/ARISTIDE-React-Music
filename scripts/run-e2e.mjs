@@ -10,7 +10,8 @@ import { hasVisibleCanvasContent } from "./canvas-visual-check.mjs";
 
 const host = "127.0.0.1";
 const port = 3100;
-const serverUrl = `http://${host}:${port}`;
+const configuredBaseUrl = process.env.ECHOFORM_E2E_BASE_URL;
+const serverUrl = configuredBaseUrl ?? `http://${host}:${port}`;
 const startupTimeoutMs = 120_000;
 const shutdownTimeoutMs = 10_000;
 const screenshotDirectory = "tests/artifacts/playwright";
@@ -81,7 +82,7 @@ async function waitForServer(server) {
   const deadline = Date.now() + startupTimeoutMs;
 
   while (Date.now() < deadline) {
-    if (server.exitCode !== null) {
+    if (server && server.exitCode !== null) {
       throw new Error(`The local E2E server exited with code ${server.exitCode}.`);
     }
 
@@ -120,17 +121,21 @@ let exitCode = 1;
 let server;
 
 try {
-  await assertPortAvailable();
-  server = spawn(
-    process.execPath,
-    ["node_modules/next/dist/bin/next", "dev", "--hostname", host, "--port", String(port)],
-    {
-      cwd: process.cwd(),
-      stdio: "inherit",
-      windowsHide: true,
-    },
-  );
-  await waitForServer(server);
+  if (configuredBaseUrl) {
+    await waitForServer(undefined);
+  } else {
+    await assertPortAvailable();
+    server = spawn(
+      process.execPath,
+      ["node_modules/next/dist/bin/next", "dev", "--hostname", host, "--port", String(port)],
+      {
+        cwd: process.cwd(),
+        stdio: "inherit",
+        windowsHide: true,
+      },
+    );
+    await waitForServer(server);
+  }
 
   const testRunner = spawn(
     process.execPath,
