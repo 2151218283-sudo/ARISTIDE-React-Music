@@ -13,7 +13,7 @@ test("renders the local homepage without horizontal overflow", async ({ page }, 
     await page.setViewportSize(viewport);
     await page.goto("/");
 
-    const main = page.getByRole("main", { name: "Aristide Benoist portfolio" });
+    const main = page.getByRole("main", { name: "ECHOFORM 主内容" });
     const gallery = page.getByRole("region", { name: "Project filmstrip" });
     const canvas = page.getByLabel("Interactive project gallery");
 

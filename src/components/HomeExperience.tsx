@@ -7,7 +7,6 @@ import { projects } from "@/data/projects";
 import type { Project } from "@/types/project";
 import { AboutPanel } from "./AboutPanel";
 import { FilmstripGallery } from "./FilmstripGallery";
-import { FixedNavigation } from "./FixedNavigation";
 import {
   ProjectDetailsOverlay,
   type ProjectDetailsPhase,
@@ -53,15 +52,6 @@ export function HomeExperience({ initialAbout = false }: HomeExperienceProps) {
     setRenderedProject(null);
     updateProjectPhase("hidden");
   }, [clearProjectTimer, updateProjectPhase]);
-
-  const openAbout = useCallback(() => {
-    clearProjectImmediately();
-    setIsAbout(true);
-
-    if (window.location.pathname !== "/about") {
-      window.history.pushState({ page: "about" }, "", "/about");
-    }
-  }, [clearProjectImmediately]);
 
   const closeAbout = useCallback(() => {
     setIsAbout(false);
@@ -189,7 +179,7 @@ export function HomeExperience({ initialAbout = false }: HomeExperienceProps) {
     : undefined;
 
   return (
-    <main className="app-shell" aria-label="Aristide Benoist portfolio">
+    <>
       <FilmstripGallery
         projects={projects}
         activeProject={sceneProject}
@@ -204,12 +194,6 @@ export function HomeExperience({ initialAbout = false }: HomeExperienceProps) {
         onClose={closeProject}
       />
       <AboutPanel isOpen={isAbout} />
-      <FixedNavigation
-        accent={accent}
-        isAbout={isAbout}
-        onAbout={openAbout}
-        onClose={closeAbout}
-      />
-    </main>
+    </>
   );
 }

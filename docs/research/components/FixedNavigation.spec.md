@@ -1,8 +1,12 @@
 # FixedNavigation Specification
 
+> Status: original-site reconstruction research record. T005 replaced the
+> runtime component contract with `AppShellNavigation.spec.md`; the dimensions
+> below remain evidence for the pre-ECHOFORM navigation only.
+
 ## Overview
 
-- Target: `src/components/FixedNavigation.tsx`
+- Historical target: the pre-T005 `src/components/FixedNavigation.tsx`
 - Screenshot: `docs/design-references/original-home-1440.png`
 - Interaction model: click and hover driven.
 
@@ -54,4 +58,3 @@
 
 - The four 38/50px offsets remain unchanged at 1440, 768, and 390 widths.
 - Text sizes remain fixed, not viewport-scaled.
-

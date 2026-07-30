@@ -1,126 +1,89 @@
 "use client";
 
+import { Search, UserRound } from "lucide-react";
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { usePathname } from "next/navigation";
 
 import styles from "./FixedNavigation.module.css";
 
-const BRAND_LETTERS = Array.from("ARISTIDE");
-
-const SOCIAL_LINKS = [
-  {
-    label: "EMAIL",
-    href: "mailto:aristide.benoist@gmail.com",
-    ariaLabel: "Email Aristide Benoist",
-  },
-  {
-    label: "INSTAGRAM",
-    href: "https://www.instagram.com/aristidebenoist",
-    ariaLabel: "Aristide Benoist on Instagram (opens in a new tab)",
-  },
-  {
-    label: "TWITTER",
-    href: "https://twitter.com/AristideBenoist",
-    ariaLabel: "Aristide Benoist on Twitter (opens in a new tab)",
-  },
+const ROUTE_CONTEXTS = [
+  { label: "NOW PLAYING", pattern: /^\/track\/[^/]+\/?$/ },
+  { label: "ALBUM", pattern: /^\/album\/[^/]+\/?$/ },
+  { label: "ARTIST", pattern: /^\/artist\/[^/]+\/?$/ },
+  { label: "PLAYLIST", pattern: /^\/playlist\/[^/]+\/?$/ },
+  { label: "PROFILE", pattern: /^\/profile\/[^/]+\/?$/ },
 ] as const;
 
-export interface FixedNavigationProps {
-  accent?: string;
-  isAbout: boolean;
-  onAbout(): void;
-  onClose(): void;
+export function getNavigationContext(pathname: string): string {
+  if (pathname === "/") {
+    return "DAILY SIGNAL";
+  }
+
+  if (pathname === "/about") {
+    return "ABOUT";
+  }
+
+  if (pathname === "/search") {
+    return "SEARCH";
+  }
+
+  if (pathname === "/library") {
+    return "LIBRARY";
+  }
+
+  if (pathname === "/settings") {
+    return "SETTINGS";
+  }
+
+  return ROUTE_CONTEXTS.find(({ pattern }) => pattern.test(pathname))?.label
+    ?? "ECHOFORM";
 }
 
-export function FixedNavigation({
-  accent,
-  isAbout,
-  onAbout,
-  onClose,
-}: FixedNavigationProps) {
-  const navigationStyle = accent
-    ? ({ "--navigation-color": accent } as CSSProperties)
-    : undefined;
+function currentAttribute(isCurrent: boolean): "page" | undefined {
+  return isCurrent ? "page" : undefined;
+}
+
+export function FixedNavigation() {
+  const pathname = usePathname();
+  const accountIsCurrent = pathname === "/settings"
+    || pathname.startsWith("/profile/");
 
   return (
-    <nav
-      className={styles.navigation}
-      data-about={isAbout}
-      style={navigationStyle}
-      aria-label="Primary navigation"
-    >
-      <Link className={styles.brand} href="/" aria-label="Aristide Benoist home">
-        {BRAND_LETTERS.map((letter, index) => (
-          <span className={styles.brandLetterClip} aria-hidden="true" key={`${letter}-${index}`}>
-            <span className={styles.brandLetter}>{letter}</span>
-          </span>
-        ))}
+    <nav className={styles.navigation} aria-label="ECHOFORM 主导航">
+      <Link
+        aria-current={currentAttribute(pathname === "/" || pathname === "/about")}
+        aria-label="ECHOFORM 首页"
+        className={styles.brand}
+        href="/"
+      >
+        ECHOFORM
       </Link>
 
-      <div className={styles.modeSwitch} role="group" aria-label="About panel controls">
-        <button
-          className={`${styles.modeButton} ${
-            isAbout ? styles.aboutInactive : styles.modeActive
-          }`}
-          type="button"
-          onClick={onAbout}
-          disabled={isAbout}
-          aria-hidden={isAbout}
-          aria-label="Open about panel"
+      <p className={styles.context} data-route-context>
+        {getNavigationContext(pathname)}
+      </p>
+
+      <div className={styles.actions}>
+        <Link
+          aria-current={currentAttribute(pathname === "/search")}
+          aria-label="搜索"
+          className={styles.iconLink}
+          data-current={pathname === "/search"}
+          href="/search"
+          title="搜索"
         >
-          <span className={styles.linkReveal}>ABOUT</span>
-        </button>
-        <button
-          className={`${styles.modeButton} ${
-            isAbout ? styles.modeActive : styles.closeInactive
-          }`}
-          type="button"
-          onClick={onClose}
-          disabled={!isAbout}
-          aria-hidden={!isAbout}
-          aria-label="Close about panel"
+          <Search aria-hidden="true" strokeWidth={1.7} />
+        </Link>
+        <Link
+          aria-current={currentAttribute(accountIsCurrent)}
+          aria-label="账号与设置"
+          className={styles.iconLink}
+          data-current={accountIsCurrent}
+          href="/settings"
+          title="账号与设置"
         >
-          <span className={styles.linkReveal}>CLOSE</span>
-        </button>
-      </div>
-
-      <a
-        className={styles.availability}
-        href="mailto:aristide.benoist@gmail.com"
-        aria-label="Email Aristide Benoist, independent developer, available April 2023"
-      >
-        <span className={styles.availabilityLineClip}>
-          <span className={styles.linkReveal}>INDEPENDENT DEVELOPER</span>
-        </span>
-        <span className={styles.availabilityLineClip}>
-          <span className={styles.linkReveal}>AVAILABLE APR. 2023</span>
-        </span>
-      </a>
-
-      <div className={styles.socialLinks} role="group" aria-label="Social links">
-        {SOCIAL_LINKS.map((link) => {
-          const isExternal = link.href.startsWith("https://");
-
-          return (
-            <a
-              className={styles.socialLink}
-              href={link.href}
-              aria-label={link.ariaLabel}
-              key={link.label}
-              rel={isExternal ? "noreferrer" : undefined}
-              target={isExternal ? "_blank" : undefined}
-            >
-              <span className={styles.socialLineClip}>
-                <span className={`${styles.linkReveal} ${styles.socialRow}`}>
-                  <span className={styles.socialArrow} aria-hidden="true">
-                    {"\u2197"}
-                  </span>
-                  <span>{link.label}</span>
-                </span>
-              </span>
-            </a>
-          );
-        })}
+          <UserRound aria-hidden="true" strokeWidth={1.7} />
+        </Link>
       </div>
     </nav>
   );

@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-07-30
-> 当前任务：`T005`（待确认启动）
+> 当前任务：`T006`（待确认启动）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,14 +123,14 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T005 AppShell、ECHOFORM 导航与路由骨架`
-- 状态：待用户确认启动；尚未进行 T005 代码修改。
-- 上一任务完成记录：`T004` 已完成三层 Token、INK/PAPER/ARTWORK 映射骨架与 5 个基础组件；unit 17、component 10、contract 6、E2E 3 通过；三主题三视口、200% 等效缩放、44px 移动端命中、Reduced Motion、旧首页回归与 `npm run check` 全部通过，lint 0 warning，生产构建 34 个静态页面。
-- 下轮修改目标：建立三种 AppShell 模式、Skip Link、ECHOFORM Metadata、中文页面语言、桌面/移动一级导航与产品路由占位边界。
-- 允许修改：AppShell/Navigation 规格、`src/app/layout.tsx`、T005 列明的新路由、`src/components/AppShell*`、`FixedNavigation*` 和基础路由测试。
-- 不允许修改：`.env*`、CI/CD、生产部署配置、真实 Provider、播放器状态机、Git 历史。
-- 不允许破坏：首页现有画廊、首尾边界、预览退出；尚未批准前不删除 `/about`、`/[slug]` 或旧组件；不得创建第二个 AppShell；不得禁用浏览器缩放。
-- 验收标准：所有本地路由可达且不命中原站；导航三视口无重叠；键盘焦点可达主内容；占位页使用 `StatusView`；路由 E2E 与 `npm run check` 通过。
+- 当前任务：`T006 纯播放器状态机、队列与 LRC 解析`
+- 状态：待用户确认启动；尚未进行 T006 规格或代码修改。
+- 上一任务完成记录：`T005R` 已删除常驻“发现 / 搜索 / 音乐库”和移动端底栏，恢复桌面/平板只读页面上下文；右上统一搜索与账号，音乐库降为二级入口；ECHOFORM 改用正常宽度字形且无负字距/缩放；本地 Next.js 开发指示器已关闭。unit 17、component 19、contract 6、E2E 7 通过；1440/768/390、44px 命中、200% 等效缩放、Reduced Motion、路由焦点、旧首页非空 Canvas、截图人工复核与 `npm run check` 全部通过，生产构建 37 个页面。
+- 下轮修改目标：按 `PLAYER_STATE_MACHINE.md` 建立无 React、无 DOM 依赖的播放器 reducer/controller core、有限队列、三种播放模式、revision 竞争保护与 LRC 解析。
+- 允许修改：播放器行为规格、`src/lib/player/**` 和对应 unit tests。
+- 不允许修改：`.env*`、CI/CD、生产部署配置、React PlayerProvider、Audio DOM 控制、页面 UI、真实 Provider、Git 历史。
+- 不允许破坏：唯一时间源必须来自后续 Audio `currentTime`；不得用单一 `isPlaying` Boolean 代替状态机；顺序与随机模式不得隐式无限循环；不得让写操作或上游字段进入播放器核心。
+- 验收标准：状态机文档第 22.1 节矩阵完整通过；快速 A/B/C 只让 C 生效；Pause 覆盖 pending play；不可播自动跳过最多一轮；歌词解析与降级可确定复现；unit tests 与 `npm run check` 通过。页面 loading/empty/error 在纯核心任务中不适用，以状态机 unit matrix 为门槛。
 
 ## 5. 开发清单
 
@@ -188,7 +188,7 @@
 
   验收：每个异步组件含 default/loading/empty/error/disabled/focus 状态；外框尺寸不因状态变化；对比度、44px 命中、200% 缩放和 Reduced Motion 通过；旧首页仍可用；专项组件测试与 `npm run check` 通过。
 
-- [ ] **T005 AppShell、ECHOFORM 导航与路由骨架**
+- [x] **T005 AppShell、ECHOFORM 导航与路由骨架**
 
   目标：建立三种 AppShell 模式、Skip Link、ECHOFORM Metadata、中文页面语言、桌面/移动一级导航，以及 `/search`、`/track/[id]`、`/album/[id]`、`/artist/[id]`、`/library`、`/playlist/[id]`、`/profile/[id]`、`/settings` 的可访问占位边界。
 
@@ -197,6 +197,16 @@
   不允许破坏：首页现有画廊、首尾边界、预览退出；尚未批准前不删除 `/about`、`/[slug]` 或旧组件；不得创建第二个 AppShell；不得禁用浏览器缩放。
 
   验收：所有本地路由可达且不命中原站；导航 1440/768/390 无重叠；键盘焦点进入主标题并可返回；占位页使用 StatusView，不伪装功能已完成；加载/空/错误不适用的静态壳状态有记录；E2E 路由 smoke 与 `npm run check` 通过。
+
+- [x] **T005R 导航层级、品牌字形与开发指示器修正**
+
+  目标：删除常驻“发现 / 搜索 / 音乐库”与移动端底栏；恢复桌面只读上下文；右上统一搜索与账号；音乐库降为个人空间二级入口；修正 ECHOFORM 压缩字形并关闭本地 Next.js 开发指示器。
+
+  允许修改：PRD、Design、AppShell Navigation 规格、`TODO.md`、`FixedNavigation*`、必要 AppShell 间距、`next.config.ts` 和对应测试。
+
+  不允许破坏：全部本地路由、Skip Link、路由焦点、首页 Canvas/有限画廊/波浪/预览退出、旧 `/<slug>` 页面和 44px 可访问触控边界。
+
+  验收：1440/768/390 无重复导航、无底栏、无重叠；页面上下文正确；品牌正常字宽且字距为 0；开发预览无左下 `N`；专项测试、完整测试与 `npm run check` 通过。
 
 - [ ] **T006 纯播放器状态机、队列与 LRC 解析**
 

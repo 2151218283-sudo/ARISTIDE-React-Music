@@ -1,0 +1,73 @@
+.root {
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: var(--ef-surface-canvas);
+  color: var(--ef-text-primary);
+  isolation: isolate;
+}
+
+.skipLink {
+  position: fixed;
+  top: var(--ef-space-2);
+  left: var(--ef-space-2);
+  z-index: var(--ef-z-tooltip);
+  min-height: 44px;
+  padding: var(--ef-space-3) var(--ef-space-4);
+  transform: translateY(calc(-100% - var(--ef-space-4)));
+  border: 1px solid var(--ef-border-strong);
+  border-radius: var(--ef-radius-sm);
+  background: var(--ef-surface-overlay);
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-semibold) var(--ef-type-label) var(--ef-font-body);
+}
+
+.skipLink:focus-visible {
+  transform: translateY(0);
+}
+
+.immersiveMain,
+.contentMain {
+  min-width: 0;
+  outline: none;
+}
+
+.immersiveMain {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ef-z-canvas);
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  user-select: none;
+  background: var(--canvas);
+  color: var(--foreground);
+}
+
+.root[data-shell="player-immersive"] .immersiveMain {
+  padding: 96px var(--ef-space-8) var(--ef-space-12);
+  background: var(--ef-surface-canvas);
+  color: var(--ef-text-primary);
+  user-select: auto;
+}
+
+.contentMain {
+  position: relative;
+  z-index: var(--ef-z-scene);
+  min-height: 100dvh;
+  padding: 96px var(--ef-space-8) var(--ef-space-12);
+}
+
+@media (max-width: 767px) {
+  .root[data-shell="player-immersive"] .immersiveMain,
+  .contentMain {
+    padding: calc(80px + env(safe-area-inset-top)) var(--ef-space-4)
+      calc(var(--ef-space-8) + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skipLink {
+    transition: none;
+  }
+}

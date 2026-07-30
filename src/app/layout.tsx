@@ -1,21 +1,22 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+
+import { AppShell } from "@/components/AppShell";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Aristide Benoist - Independent developer",
-  description: "Independent developer specializing in motion and interaction.",
-  icons: {
-    icon: "/assets/favicons/fav.ico",
+  title: {
+    default: "ECHOFORM | 声形",
+    template: "%s | ECHOFORM",
   },
+  description: "ECHOFORM 声形，以每日推荐为入口的沉浸式在线音乐播放器。",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: "#141414",
+  themeColor: "#0C0D0D",
 };
 
 interface RootLayoutProps {
@@ -24,9 +25,10 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="zh-CN">
+      <body>
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }
-
