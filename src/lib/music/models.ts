@@ -59,6 +59,14 @@ export interface Track {
   privilege: TrackPrivilege;
 }
 
+export type DailyRecommendationSource = "personal" | "public" | "demo";
+
+export interface DailyRecommendations {
+  date: string;
+  source: DailyRecommendationSource;
+  tracks: Track[];
+}
+
 export interface UserProfile {
   id: string;
   nickname: string;

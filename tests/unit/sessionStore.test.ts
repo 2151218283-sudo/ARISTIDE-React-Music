@@ -83,6 +83,36 @@ describe("InMemorySessionStore", () => {
     expect(JSON.stringify(store.getPublicState(session.id))).not.toContain(firstKey);
     expect(JSON.stringify(store.getPublicState(session.id))).not.toContain(secondKey);
   });
+
+  it("isolates the public user in demo mode and clears daily cache on context changes", () => {
+    const store = createStore(() => 1_000);
+    const session = store.create();
+    const key = createOpaqueServerValue();
+    const challenge = store.beginQrChallenge(session.id, key);
+    if (!challenge) {
+      throw new Error("Expected a server QR challenge.");
+    }
+    store.authorizeQrChallenge(session.id, challenge.challengeId, createOpaqueServerValue());
+    store.setAuthenticatedUser(session.id, user);
+    store.setDailyRecommendations(session.id, "personal:9001:2026-07-30", {
+      date: "2026-07-30",
+      source: "personal",
+      tracks: [],
+    });
+
+    expect(store.getDailyRecommendations(
+      session.id,
+      "personal:9001:2026-07-30",
+    )).not.toBeNull();
+    expect(store.setMode(session.id, "demo")).toBe(true);
+    expect(store.getPublicState(session.id)).toEqual({ mode: "demo", user: null });
+    expect(store.getDailyRecommendations(
+      session.id,
+      "personal:9001:2026-07-30",
+    )).toBeNull();
+    expect(store.setMode(session.id, "real")).toBe(true);
+    expect(store.getPublicState(session.id)).toEqual({ mode: "real", user });
+  });
 });
 
 describe("SessionAuthService", () => {

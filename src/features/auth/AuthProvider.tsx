@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import type { UserProfile } from "@/lib/music/models";
+import { PlayerRuntimeContext } from "@/features/player/playerContext";
 
 type AuthStatus = "loading" | "ready";
 
@@ -34,12 +35,15 @@ interface SessionResponse {
 interface AuthContextValue {
   status: AuthStatus;
   user: UserProfile | null;
+  mode: "real" | "demo";
+  modeChanging: boolean;
   loginOpen: boolean;
   logoutLoading: boolean;
   openLogin(): void;
   closeLogin(): void;
   completeLogin(user: UserProfile): void;
   logout(): Promise<boolean>;
+  setMode(mode: "real" | "demo"): Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -68,8 +72,11 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const playerRuntime = useContext(PlayerRuntimeContext);
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [mode, setModeState] = useState<"real" | "demo">("real");
+  const [modeChanging, setModeChanging] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
 
@@ -78,10 +85,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const session = await requestApi<SessionResponse>("/api/auth/session", { signal });
       if (!signal.aborted) {
         setUser(session.user);
+        setModeState(session.mode);
       }
     } catch {
       if (!signal.aborted) {
         setUser(null);
+        setModeState("real");
       }
     } finally {
       if (!signal.aborted) {
@@ -123,6 +132,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await requestApi<SessionResponse>("/api/auth/logout", { method: "POST" });
       setUser(null);
+      setModeState("real");
       return true;
     } catch {
       return false;
@@ -131,23 +141,55 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [logoutLoading]);
 
+  const setMode = useCallback(async (nextMode: "real" | "demo"): Promise<boolean> => {
+    if (modeChanging) {
+      return false;
+    }
+    if (mode === nextMode) {
+      return true;
+    }
+
+    playerRuntime?.dispatch({ type: "UNLOAD" });
+    setModeChanging(true);
+    try {
+      const session = await requestApi<SessionResponse>("/api/mode", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: nextMode }),
+      });
+      setModeState(session.mode);
+      setUser(session.user);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setModeChanging(false);
+    }
+  }, [mode, modeChanging, playerRuntime]);
+
   const value = useMemo<AuthContextValue>(() => ({
     status,
     user,
+    mode,
+    modeChanging,
     loginOpen,
     logoutLoading,
     openLogin,
     closeLogin,
     completeLogin,
     logout,
+    setMode,
   }), [
     closeLogin,
     completeLogin,
     loginOpen,
     logout,
     logoutLoading,
+    mode,
+    modeChanging,
     openLogin,
     status,
+    setMode,
     user,
   ]);
 

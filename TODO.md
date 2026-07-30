@@ -123,14 +123,14 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T010R 二维码上游连通性与画廊视觉验收修复`
-- 状态：`T010` 已在本地提交 `8db41df`；`T010R` 实现与验收完成，待确认提交，未推送。
-- 本轮完成记录：`T010` 已实现 256-bit 随机 `sid`、进程内 server-only Session Store、二维码 Challenge 生命周期、2 秒可见页轮询、801/802/803/800 映射、刷新恢复、BrandMark 到头像替换、账户菜单登出，以及关闭、Escape、过期、刷新和网络错误状态。二维码 key、上游 Cookie 和原始账号 Response 始终留在服务端；802/803 只完成离线契约/UI 验证，未宣称真实账号实测。`T010R` 为开发机直连受阻增加了严格限定的 server-only loopback HTTP transport proxy，并确认真实 Legacy QR key 可创建；同时修复了移动端 WebGL 首帧尚未绘制时被过早截图的 E2E 假阴性，截图前必须读取到非背景像素。`.env.local` 仅保存忽略的本地代理地址，不进 Git。复用本地 `3001` 服务的完整 `npm.cmd run test` 通过，其中 unit 66 项、component 29 项、contract 33 项、E2E 12 项；`npm.cmd run check` 通过，包含 production build。lint 保留两条动态头像/二维码 Data URL 的静态图片优化警告，无 lint error。敏感字段扫描和 `git diff --check` 均通过。
-- 下轮修改目标：确认提交 `T010R` 后，进入 `T011 每日推荐数据层与显式 Demo 降级`。
-- 允许修改：Auth 规格；`src/lib/session/**`、`src/features/auth/**`、`src/app/api/auth/**`、导航账号入口和测试。可修补 `src/lib/music/netease/**` 中仅用于二维码创建、账号状态和登出的服务端适配器能力。可更新 API 契约中的实际验证等级。
-- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史；不得伪造 Demo 登录。
-- 不允许破坏：上游 Cookie/QR key 不得到浏览器；Session 重启后明确回游客；关闭/过期/成功必须停止轮询；未使用专用账号前不得宣称 802/803 已实测。
-- 验收标准：QR Dialog 外框稳定；成功后 1 秒内头像替换；焦点闭环正确；刷新恢复有效本地 Session；敏感信息扫描通过；专项 tests 与 `npm run check` 通过。
+- 当前任务：`T012 将项目画廊迁移为 Track 画廊`
+- 状态：待确认，未开始。`T011` 已通过实现与验收，等待本次提交；不得提前修改 T012 范围内的代码。
+- 上轮完成记录：`T011` 已实现 `/api/recommendations/daily` 与 `/api/mode`，Real 游客公共精选、Real 已登录个人日推及空个人结果的公开回退；日推缓存仅位于进程内并在认证/模式变化时清空。Real 读取失败保持 Real，Demo 只由可见操作显式切换，进入/退出模式会卸载播放器上下文并中止旧日推请求。首页新增固定尺寸的状态覆盖层，不改变 Three.js 画廊几何或 Canvas 尺寸。验收通过：unit 11 文件/67 项、component 6 文件/33 项、contract 6 文件/39 项；应用 E2E 12 项与基础组件视觉 E2E 2 项、播放器视觉 E2E 2 项均通过。复用用户本地 `3001` 预览时，日推 E2E 的等待竞争已修复；播放器和基础组件视觉测试改为独立临时本机预览以避免端口竞争。`npm.cmd run check` 通过；仅保留未修改 `AvatarButton.tsx` 与 `QrLoginDialog.tsx` 的两条 `<img>` 优化 warning，无 error。
+- 修改目标：让 WebGL 接收内部 `Track[]`，将方形专辑封面裁为 film slice，保留有限轨道、真实速度波浪、悬停和当前位置恢复。
+- 允许修改：Filmstrip/Home 组件规格；`HomeExperience*`、`FilmstripGallery*`、`src/lib/webgl/**`、Discovery 组件和测试。
+- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史、上游 API 契约；不新增外部写操作。
+- 不允许破坏：首尾不循环；边界外输入不累积且不产生波浪；第一/最后封面可居中；波浪来自实际帧速度；Canvas 资源释放；不得把上游字段传入 WebGL。
+- 验收标准：loading、正常 Track、空/公共精选、接口错误、纹理错误、Canvas 初始化失败 DOM 降级；首端/中间/尾端、滚轮、Pointer、键盘、触控替代及 1440/768/390 Canvas 像素检查均有测试；`HOME-AC-01..05`、`VIS-AC-05/06/21/28`、专项 E2E/视觉回归与 `npm run check` 通过。
 
 ## 5. 开发清单
 
@@ -278,7 +278,7 @@
 
 ### Phase 3：每日推荐、有限画廊与歌曲空间
 
-- [ ] **T011 每日推荐数据层与显式 Demo 降级**
+- [x] **T011 每日推荐数据层与显式 Demo 降级**
 
   目标：实现 `/api/recommendations/daily`、用户+日期缓存语义、游客公共精选和错误后由用户显式选择 Demo 数据的流程。
 

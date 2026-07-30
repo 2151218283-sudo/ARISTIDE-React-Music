@@ -20,8 +20,10 @@ export interface LegacyNeteaseApi {
   lyric_new: LegacyApiMethod;
   logout: LegacyApiMethod;
   search: LegacyApiMethod;
+  recommend_songs: LegacyApiMethod;
   song_detail: LegacyApiMethod;
   song_url_v1: LegacyApiMethod;
+  top_song: LegacyApiMethod;
 }
 
 export interface LegacyAdapterOptions {

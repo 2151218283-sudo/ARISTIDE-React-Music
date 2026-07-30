@@ -14,9 +14,11 @@ const requiredMethods = [
   "login_status",
   "lyric_new",
   "logout",
+  "recommend_songs",
   "search",
   "song_detail",
   "song_url_v1",
+  "top_song",
 ] as const satisfies readonly (keyof LegacyNeteaseApi)[];
 
 let cachedApi: LegacyNeteaseApi | null = null;

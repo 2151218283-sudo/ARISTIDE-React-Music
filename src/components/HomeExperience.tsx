@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getProjectAccent } from "@/data/projectColors";
 import { projects } from "@/data/projects";
+import { DailyRecommendationStatus } from "@/features/discovery/DailyRecommendationStatus";
 import type { Project } from "@/types/project";
 import { AboutPanel } from "./AboutPanel";
 import { FilmstripGallery } from "./FilmstripGallery";
@@ -187,6 +188,7 @@ export function HomeExperience({ initialAbout = false }: HomeExperienceProps) {
         isOverview={isOverview}
         onSelect={selectProject}
       />
+      <DailyRecommendationStatus />
       <ProjectDetailsOverlay
         project={renderedProject}
         phase={projectPhase}

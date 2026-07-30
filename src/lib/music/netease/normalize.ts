@@ -231,6 +231,10 @@ function mapRows<T>(
   return mapped;
 }
 
+export function mapTracks(value: unknown): Track[] {
+  return mapRows(value, (row) => mapTrack(row));
+}
+
 function hasMore(total: number | null, offset: number, count: number, limit: number) {
   return total !== null ? offset + count < total : count === limit;
 }
@@ -340,7 +344,7 @@ export function mapSearchPage(
   }
 
   if (type === "track") {
-    const items = mapRows(result.songs ?? [], (row) => mapTrack(row));
+    const items = mapTracks(result.songs ?? []);
     const total = nonNegativeNumber(result.songCount);
     return {
       type,

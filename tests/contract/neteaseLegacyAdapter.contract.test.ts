@@ -48,9 +48,11 @@ function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
     login_status: method({ data: { code: 200, account: null, profile: null } }),
     lyric_new: method({ code: 200, lrc: { lyric: "" } }),
     logout: method({ code: 200 }),
+    recommend_songs: method({ code: 200, data: { dailySongs: [] } }),
     search: method({ code: 200, result: { songs: [], songCount: 0 } }),
     song_detail: method({ code: 200, songs: [], privileges: [] }),
     song_url_v1: method({ code: 200, data: [] }),
+    top_song: method({ code: 200, data: [] }),
     ...overrides,
   };
 }
@@ -135,6 +137,47 @@ describe("Legacy package boundary", () => {
 });
 
 describe("Legacy anonymous reads", () => {
+  it("normalizes public and authenticated daily recommendation shapes", async () => {
+    const personal = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      data: { dailySongs: [syntheticTrack(101)] },
+    }));
+    const publicSelection = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      data: [{
+        id: 102,
+        name: "Public Signal",
+        artists: [{ id: 202, name: "Public Artist" }],
+        album: {
+          id: 302,
+          name: "Public Album",
+          picUrl: "https://example.invalid/public-artwork",
+        },
+        duration: 181_000,
+        alias: ["Public Alias"],
+      }],
+    }));
+    const adapter = new LegacyNeteaseAdapter(makeApi({
+      recommend_songs: personal,
+      top_song: publicSelection,
+    }));
+
+    const personalTracks = await adapter.getPersonalDailyRecommendations("server-cookie");
+    const publicTracks = await adapter.getPublicRecommendations();
+
+    expect(personal).toHaveBeenCalledWith({ cookie: "server-cookie" });
+    expect(publicSelection).toHaveBeenCalledWith({ type: 0 });
+    expect(personalTracks[0]).toMatchObject({ id: "101", name: "Synthetic Signal" });
+    expect(publicTracks[0]).toMatchObject({
+      id: "102",
+      name: "Public Signal",
+      durationMs: 181_000,
+      aliases: ["Public Alias"],
+    });
+    expect(personalTracks[0]).not.toHaveProperty("ar");
+    expect(publicTracks[0]).not.toHaveProperty("artistsRaw");
+  });
+
   it("normalizes track search and detail without leaking upstream field names", async () => {
     const search = vi.fn<LegacyApiMethod>(async (params) => {
       if (params.type !== 1) {

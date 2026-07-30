@@ -1,6 +1,10 @@
 import { randomBytes } from "node:crypto";
 
-import type { DataMode, UserProfile } from "@/lib/music/models";
+import type {
+  DailyRecommendations,
+  DataMode,
+  UserProfile,
+} from "@/lib/music/models";
 
 export const SESSION_COOKIE_NAME = "echoform.sid";
 export const SESSION_IDLE_TTL_MS = 12 * 60 * 60 * 1_000;
@@ -23,6 +27,7 @@ export interface ServerSession {
   user: UserProfile | null;
   upstreamCookie: string | null;
   qr: ServerQrChallenge | null;
+  dailyRecommendations: Map<string, DailyRecommendations>;
 }
 
 export interface PublicSessionState {
@@ -70,6 +75,7 @@ export class InMemorySessionStore {
       user: null,
       upstreamCookie: null,
       qr: null,
+      dailyRecommendations: new Map(),
     };
     this.sessions.set(session.id, session);
     return session;
@@ -98,7 +104,10 @@ export class InMemorySessionStore {
     if (!session) {
       return null;
     }
-    return { mode: session.mode, user: session.user };
+    return {
+      mode: session.mode,
+      user: session.mode === "demo" ? null : session.user,
+    };
   }
 
   beginQrChallenge(sessionId: string, key: string): ServerQrChallenge | null {
@@ -172,6 +181,7 @@ export class InMemorySessionStore {
     }
     session.upstreamCookie = upstreamCookie;
     session.qr = null;
+    session.dailyRecommendations.clear();
     return true;
   }
 
@@ -181,6 +191,7 @@ export class InMemorySessionStore {
       return false;
     }
     session.user = user;
+    session.dailyRecommendations.clear();
     return true;
   }
 
@@ -191,6 +202,49 @@ export class InMemorySessionStore {
     }
     session.user = null;
     session.upstreamCookie = null;
+    session.dailyRecommendations.clear();
+    return true;
+  }
+
+  setMode(sessionId: string, mode: DataMode): boolean {
+    const session = this.get(sessionId);
+    if (!session) {
+      return false;
+    }
+    if (session.mode !== mode) {
+      session.mode = mode;
+      session.dailyRecommendations.clear();
+    }
+    return true;
+  }
+
+  getDailyRecommendations(
+    sessionId: string,
+    cacheKey: string,
+  ): DailyRecommendations | null {
+    const session = this.get(sessionId);
+    return session?.dailyRecommendations.get(cacheKey) ?? null;
+  }
+
+  setDailyRecommendations(
+    sessionId: string,
+    cacheKey: string,
+    recommendations: DailyRecommendations,
+  ): boolean {
+    const session = this.get(sessionId);
+    if (!session) {
+      return false;
+    }
+    session.dailyRecommendations.set(cacheKey, recommendations);
+    return true;
+  }
+
+  clearDailyRecommendations(sessionId: string): boolean {
+    const session = this.get(sessionId);
+    if (!session) {
+      return false;
+    }
+    session.dailyRecommendations.clear();
     return true;
   }
 

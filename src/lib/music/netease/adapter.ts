@@ -27,7 +27,9 @@ import {
   mapQrPollResult,
   mapSearchPage,
   mapSessionUser,
+  mapTracks,
   mapTrackDetail,
+  asRecord,
   unwrapLegacyBody,
   unwrapLegacyQrBody,
 } from "./normalize";
@@ -237,6 +239,26 @@ export class LegacyNeteaseAdapter {
       partialErrors,
     };
     return response;
+  }
+
+  async getPersonalDailyRecommendations(upstreamCookie: string): Promise<Track[]> {
+    if (!upstreamCookie) {
+      throw new AppError("AUTH_REQUIRED", "请先完成扫码登录后再查看个人日推。", {
+        retryable: false,
+      });
+    }
+    const response = await this.invoke(this.api.recommend_songs, {
+      cookie: upstreamCookie,
+    });
+    const body = unwrapLegacyBody(response);
+    const data = asRecord(body.data);
+    return mapTracks(data?.dailySongs ?? data?.recommend ?? body.recommend ?? []);
+  }
+
+  async getPublicRecommendations(): Promise<Track[]> {
+    const response = await this.invoke(this.api.top_song, { type: 0 });
+    const body = unwrapLegacyBody(response);
+    return mapTracks(body.data ?? []);
   }
 
   async getTrack(trackId: string, cookie?: string): Promise<Track> {
