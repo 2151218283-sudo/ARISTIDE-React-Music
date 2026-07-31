@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 import styles from "./TextButton.module.css";
 
@@ -13,7 +13,7 @@ export interface TextButtonProps extends Omit<
   variant?: TextButtonVariant;
 }
 
-export function TextButton({
+export const TextButton = forwardRef<HTMLButtonElement, TextButtonProps>(function TextButton({
   children,
   className,
   disabled = false,
@@ -21,7 +21,7 @@ export function TextButton({
   type = "button",
   variant = "primary",
   ...buttonProps
-}: TextButtonProps) {
+}, ref) {
   const classes = [styles.button, styles[variant], className]
     .filter(Boolean)
     .join(" ");
@@ -33,6 +33,7 @@ export function TextButton({
       className={classes}
       data-loading={loading || undefined}
       disabled={disabled || loading}
+      ref={ref}
       type={type}
     >
       <span className={styles.leadingSlot} aria-hidden="true">
@@ -42,4 +43,4 @@ export function TextButton({
       <span className={styles.trailingSlot} aria-hidden="true" />
     </button>
   );
-}
+});

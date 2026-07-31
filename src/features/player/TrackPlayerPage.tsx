@@ -17,6 +17,7 @@ import { TextButton } from "@/components/TextButton";
 import type { Track, TrackAvailability } from "@/lib/music/models";
 
 import { LyricsViewport } from "./LyricsViewport";
+import { CommentsQueuePanel } from "./CommentsQueuePanel";
 import { usePlayerDispatch, usePlayerSelector } from "./playerContext";
 import { formatPlayerTime, playerStatusLabel } from "./playerView";
 import styles from "./TrackPlayerPage.module.css";
@@ -260,6 +261,7 @@ export function TrackPlayerPage({ trackId }: TrackPlayerPageProps) {
             </div>
           </dl>
           <TrackPagePlayback track={track} />
+          <CommentsQueuePanel trackId={track.id} />
         </section>
         <LyricsViewport lyrics={details.lyrics} />
       </div>

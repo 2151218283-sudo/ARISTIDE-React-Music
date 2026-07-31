@@ -123,13 +123,13 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T014 完整播放页与同步歌词`
-- 状态：已完成，待提交。`T013` 已完成、提交 `d1a1964` 并推送至 `origin/main`；首页预览到本地 `/track/[id]` 的导航与浏览器返回时的画廊恢复已保持有效；T015 尚未开始。
-- 修改目标：实现 `/track/[id]` 的封面/歌词主界面、共享封面承接、普通 LRC 高亮、逐字可选降级、翻译、点击 Seek 和 5 秒浏览锁。
-- 允许修改：Track/Lyrics 规格；`src/app/track/[id]/**`、`src/features/player/**`、歌词 parser/sync 的必要修正和测试。
-- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史、上游 API 契约、T015 评论/队列 Drawer/BottomSheet 实现；不新增外部写操作。
-- 不允许破坏：唯一 Audio、当前时间唯一真值；页面滚轮不得退出；无 yrc/无歌词是正常状态；Buffering 不造假进度；移动端控制不能覆盖歌词；路由往返不重建或暂停已有 Audio。
-- 验收标准：track loading、正常歌词、逐字、普通 LRC、纯文本、无歌词、歌词错误/重试、音源 loading/buffering/unavailable、Seek、手动浏览锁、路由往返持续播放；歌词误差目标 <=200ms；三视口与 200% 缩放无重叠；Reduced Motion 无强制平滑滚动；`PLAYER-AC-01..05` 和 `VIS-AC-09` 通过。
+- 当前任务：`T016 搜索页面与综合部分成功`（未开始，待 T015 提交）
+- 状态：T015 已完成实现与全部验收，待创建本地提交；T016 及以后仍未开始。
+- 修改目标：实现一级搜索入口、300ms 防抖、URL `q/type`、歌曲/歌手/专辑、综合 `allSettled` 部分成功、过期请求隔离和返回状态恢复。
+- 允许修改：Search 规格；`src/app/search/**`、`src/features/search/**`、TrackRow/Album/Artist 展示组件、BFF 搜索必要修正和测试。
+- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史、未经验证的上游搜索 all 类型、播放器核心状态机；不新增外部写操作。
+- 不允许破坏：旧结果在加载/错误时保留；输入可在展开动画结束前使用；任务页不运行 WebGL；搜索结果播放不离开页面；T015 评论与队列状态保持有效。
+- 验收标准：空查询、历史/热搜占位、loading、三类结果、综合部分失败、全部失败、空结果、快速输入、特殊字符、分页、播放、返回恢复；1440/768/390；`SEARCH-AC-01..05`、`API-AC-16`、`VIS-AC-12/13/29` 与专项 tests、`npm run check` 通过。
 
 ## 5. 开发清单
 
@@ -331,7 +331,7 @@
 
   完成记录：`/track/[id]` 已从占位路由替换为沉浸播放页，复用唯一 `PlayerProvider` 与持久 Audio。页面并发读取归一化歌曲和歌词，详情与歌词各自保留 loading/error/retry；普通 LRC、逐字、翻译、纯文本、纯音乐与无歌词均有真实显示状态。同步歌词只从 `currentTimeMs` 推导高亮，支持点击 Seek、5 秒手动浏览锁和 Reduced Motion 的即时回中；页面滚轮保持普通滚动，不复用首页退出手势。新增页面组件/E2E 验收，并更新已完成播放页对应的路由与登录测试选择器。验证通过：unit 11 文件/67 项、component 9 文件/46 项、contract 6 文件/39 项、应用 E2E 28 项、基础组件视觉 E2E 2 项，T014 专项 E2E 4 项；1440/768/390 截图和 200% 等效视口检查通过；`npm.cmd run check` 通过。默认 E2E 端口 3100 被已有进程占用时，完整浏览器回归改在隔离的 3203 当前生产构建上执行；仅保留既有 `AvatarButton.tsx` 与 `QrLoginDialog.tsx` 两条 `<img>` 优化 warning。
 
-- [ ] **T015 只读评论与队列 Drawer/BottomSheet**
+- [x] **T015 只读评论与队列 Drawer/BottomSheet**
 
   目标：完整播放页加入评论/队列共用容器；P0 先完成评论分页读取、排序、队列查看/切歌/移除及桌面 Drawer、移动 BottomSheet。
 
@@ -342,6 +342,8 @@
   页面测试：评论 loading/results/empty/error/pagination；队列正常/空/当前项/不可播/移除撤销；Drawer/Sheet 打开关闭、Escape、焦点返回、软键盘占位。
 
   验收：桌面 400-480px 且不超过 42vw；移动安全区正确；错误内联；队列与全局状态一致；专项测试与 `npm run check` 通过。
+
+  完成记录：`CommentsQueuePanel` 作为同一容器实现桌面右侧 Drawer 与移动 BottomSheet，通过 Portal 挂载到 `document.body`；仅一个面板可打开。评论按同源 `GET /api/tracks/:id/comments` 延迟读取，支持最新/最受欢迎排序、分页、初始错误重试、后续分页错误保留和只读未开放入口。队列复用 `PlayerProvider` 快照与命令，支持当前曲目、不可播说明、切歌、移除与 5 秒撤销；移除唯一歌曲进入安全空队列，撤销不伪造自动播放。实现 Escape/背景关闭、焦点归还、Tab 闭环、Reduced Motion 退化和移动安全区。公共按钮仅增加 `forwardRef` 以支持可访问性焦点管理。额外稳定了既有画廊的异步回退断言，并关闭持久播放器视觉测试的无关 HMR 连接。验证通过：unit 11 文件/67 项、component 10 文件/53 项、contract 6 文件/39 项、完整 E2E 应用 29 项与基础视觉 2 项、Canvas 非空像素 3/3；1440/768/390 及移动 Sheet 最终底边检查通过；`npm.cmd run check` 通过。仅保留既有 `AvatarButton.tsx` 与 `QrLoginDialog.tsx` 两条 `<img>` 优化 warning。
 
 ### Phase 4：搜索、专辑、歌手与发现
 

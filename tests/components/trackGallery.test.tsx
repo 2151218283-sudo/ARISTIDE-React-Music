@@ -154,7 +154,7 @@ describe("Track gallery", () => {
     renderGallery(undefined, onSelect, onCurrentTrackChange);
 
     const gallery = await screen.findByRole("region", { name: "Daily track gallery" });
-    expect(gallery).toHaveAttribute("data-renderer", "fallback");
+    await waitFor(() => expect(gallery).toHaveAttribute("data-renderer", "fallback"));
     expect(gallery).toHaveAttribute("data-artwork-fallback", "true");
     expect(screen.getByRole("button", { name: "上一首推荐歌曲" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "下一首推荐歌曲" })).toBeEnabled();

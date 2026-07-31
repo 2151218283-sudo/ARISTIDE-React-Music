@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 import styles from "./IconButton.module.css";
 
@@ -16,7 +16,7 @@ export interface IconButtonProps extends Omit<
   tooltip?: string;
 }
 
-export function IconButton({
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton({
   className,
   disabled = false,
   icon,
@@ -28,7 +28,7 @@ export function IconButton({
   tooltip,
   type = "button",
   ...buttonProps
-}: IconButtonProps) {
+}, ref) {
   const classes = [styles.button, styles[size], className]
     .filter(Boolean)
     .join(" ");
@@ -42,6 +42,7 @@ export function IconButton({
       className={classes}
       data-loading={loading || undefined}
       disabled={disabled || loading}
+      ref={ref}
       title={title ?? tooltip ?? label}
       type={type}
     >
@@ -50,4 +51,4 @@ export function IconButton({
       </span>
     </button>
   );
-}
+});

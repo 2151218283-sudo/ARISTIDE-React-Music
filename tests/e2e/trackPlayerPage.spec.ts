@@ -59,6 +59,8 @@ function failure(message: string): string {
 async function installTrackPageRoutes(
   page: Page,
   options: {
+    comments?: (offset: number) => unknown;
+    commentFailure?: boolean;
     lyrics?: unknown;
     lyricFailure?: boolean;
     sourceFailure?: boolean;
@@ -72,6 +74,30 @@ async function installTrackPageRoutes(
   });
   await page.route("**/api/tracks/**", async (route) => {
     const pathname = new URL(route.request().url()).pathname;
+    if (pathname.endsWith("/comments")) {
+      if (options.commentFailure) {
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: failure("评论服务暂时不可用。"),
+        });
+        return;
+      }
+
+      const offset = Number(new URL(route.request().url()).searchParams.get("offset") ?? "0");
+      await route.fulfill({
+        contentType: "application/json",
+        body: success(options.comments?.(offset) ?? {
+          items: [],
+          total: 0,
+          hasMore: false,
+          limit: 10,
+          offset,
+        }),
+      });
+      return;
+    }
+
     if (pathname.endsWith("/lyrics")) {
       if (options.lyricFailure) {
         await route.fulfill({
@@ -225,4 +251,80 @@ test("uses plain and unavailable lyric documents as normal states", async ({ pag
   await page.goto("/track/track-001");
   await expect(page.getByText("A plain lyric")).toBeVisible();
   await expect(page.locator("[data-lyrics-state='plain']")).toBeVisible();
+});
+
+test("uses a bounded comments drawer and safe queue sheet across desktop and mobile", async ({ page }, testInfo) => {
+  const firstComment = {
+    id: "comment-001",
+    author: { id: "author-001", nickname: "First Listener", avatarUrl: null, signature: null },
+    content: "First comment",
+    createdAt: 1_735_689_600_000,
+    likedCount: 1,
+    likedByCurrentUser: false,
+    replyTo: null,
+  };
+  const secondComment = {
+    ...firstComment,
+    id: "comment-002",
+    content: "Second comment",
+    likedCount: 4,
+  };
+  await installTrackPageRoutes(page, {
+    comments: (offset) => offset === 0 ? {
+      items: [firstComment],
+      total: 2,
+      hasMore: true,
+      limit: 10,
+      offset,
+    } : {
+      items: [secondComment],
+      total: 2,
+      hasMore: false,
+      limit: 10,
+      offset,
+    },
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/track/track-001");
+  await expect(page.getByRole("heading", { name: track.name })).toBeVisible();
+
+  await page.getByRole("button", { name: "评论" }).click();
+  const commentsPanel = page.getByRole("dialog", { name: "评论" });
+  await expect(commentsPanel).toBeVisible();
+  await expect(page.getByText("First comment")).toBeVisible();
+  const desktopBox = await commentsPanel.boundingBox();
+  expect(desktopBox?.width).toBeGreaterThanOrEqual(400);
+  expect(desktopBox?.width).toBeLessThanOrEqual(480.1);
+
+  await page.getByRole("button", { name: "加载更多" }).click();
+  await expect(page.getByText("Second comment")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(commentsPanel).toBeHidden();
+  await expect(page.getByRole("button", { name: "评论" })).toBeFocused();
+
+  await page.getByRole("button", { name: `播放 ${track.name}` }).click();
+  await page.getByRole("button", { name: "队列" }).click();
+  const queuePanel = page.getByRole("dialog", { name: "队列" });
+  await expect(queuePanel).toBeVisible();
+  await expect(page.getByRole("button", { name: `当前歌曲，${track.name}` }))
+    .toHaveAttribute("aria-current", "true");
+  await page.getByRole("button", { name: `从队列移除 ${track.name}` }).click();
+  await expect(page.getByText("队列中没有下一首")).toBeVisible();
+  await page.getByRole("button", { name: "撤销" }).click();
+  await expect(page.getByRole("button", { name: `当前歌曲，${track.name}` }))
+    .toHaveAttribute("aria-current", "true");
+
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "评论" }).click();
+  await expect(commentsPanel).toBeVisible();
+  const mobileBox = await commentsPanel.boundingBox();
+  expect(mobileBox?.width).toBe(390);
+  expect(mobileBox?.height).toBeLessThanOrEqual(659.1);
+  await expect.poll(async () => {
+    const box = await commentsPanel.boundingBox();
+    return (box?.y ?? 0) + (box?.height ?? 0);
+  }).toBeLessThanOrEqual(844.1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.screenshot({ path: testInfo.outputPath("track-page-comments-mobile.png") });
 });
