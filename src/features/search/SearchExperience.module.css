@@ -1,0 +1,315 @@
+.page {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding-bottom: calc(var(--ef-space-20) + env(safe-area-inset-bottom));
+  color: var(--ef-text-primary);
+}
+
+.header {
+  display: grid;
+  gap: var(--ef-space-4);
+  padding: var(--ef-space-10) 0 var(--ef-space-8);
+}
+
+.eyebrow,
+.resultHeading,
+.sectionHeader > span,
+.landingSecondary,
+.waiting {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-medium) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.eyebrow {
+  margin: 0;
+}
+
+.header h1 {
+  margin: 0;
+  font: var(--ef-weight-semibold) var(--ef-type-title) var(--ef-font-body);
+}
+
+.searchForm {
+  display: grid;
+  max-width: 760px;
+  gap: var(--ef-space-2);
+  margin-top: var(--ef-space-2);
+}
+
+.inputLabel {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-medium) var(--ef-type-label) var(--ef-font-body);
+}
+
+.inputFrame {
+  display: grid;
+  min-height: 52px;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--ef-space-3);
+  border-bottom: 1px solid var(--ef-border-strong);
+  transition: border-color var(--ef-duration-standard) var(--ef-ease-standard);
+}
+
+.inputFrame:focus-within {
+  border-color: var(--ef-focus-ring);
+}
+
+.searchIcon,
+.progress {
+  width: 20px;
+  height: 20px;
+  color: var(--ef-text-secondary);
+}
+
+.progress {
+  color: var(--ef-action-primary);
+  animation: search-progress 700ms var(--ef-ease-linear) infinite;
+}
+
+.inputFrame input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body);
+  letter-spacing: 0;
+}
+
+.inputFrame input::placeholder {
+  color: var(--ef-text-disabled);
+  opacity: 1;
+}
+
+.resultsArea {
+  display: grid;
+  gap: var(--ef-space-6);
+  animation: search-enter var(--ef-duration-search) var(--ef-ease-enter) both;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid var(--ef-border-subtle);
+}
+
+.tabs button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--ef-space-3) var(--ef-space-2);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ef-text-secondary);
+  cursor: pointer;
+  font: var(--ef-weight-semibold) var(--ef-type-label) var(--ef-font-body);
+  letter-spacing: 0;
+  text-align: left;
+  transition:
+    border-color var(--ef-duration-standard) var(--ef-ease-standard),
+    color var(--ef-duration-standard) var(--ef-ease-standard);
+}
+
+.tabs button[aria-selected="true"] {
+  border-color: var(--ef-action-primary);
+  color: var(--ef-text-primary);
+}
+
+.tabs button:hover {
+  color: var(--ef-text-primary);
+}
+
+.resultsPanel {
+  display: grid;
+  gap: var(--ef-space-6);
+}
+
+.resultHeading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--ef-space-3);
+  min-height: 16px;
+}
+
+.sectionStack,
+.section {
+  display: grid;
+  gap: var(--ef-space-4);
+}
+
+.sectionStack {
+  gap: var(--ef-space-10);
+}
+
+.sectionHeader {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: var(--ef-space-3);
+  border-bottom: 1px solid var(--ef-border-subtle);
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-semibold) var(--ef-type-title-sm) var(--ef-font-body);
+}
+
+.sectionHeader > span {
+  flex: 1 1 auto;
+}
+
+.trackList,
+.skeleton {
+  display: grid;
+}
+
+.entityGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ef-space-6);
+}
+
+.sectionEmpty,
+.waiting {
+  margin: 0;
+  padding: var(--ef-space-4) 0;
+}
+
+.sectionEmpty {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body);
+}
+
+.partialFailure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ef-space-2);
+  padding: var(--ef-space-3) 0;
+  border-bottom: 1px solid var(--ef-border-subtle);
+  color: var(--ef-status-error);
+  font: var(--ef-weight-medium) var(--ef-type-label) var(--ef-font-body);
+}
+
+.partialFailure > svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.partialFailure > button {
+  margin-left: auto;
+}
+
+.loadMore {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ef-space-3);
+  padding-top: var(--ef-space-2);
+}
+
+.landing {
+  display: grid;
+  max-width: 560px;
+  gap: var(--ef-space-4);
+  padding: var(--ef-space-8) 0;
+}
+
+.landing p {
+  margin: 0;
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-regular) var(--ef-type-body-lg) var(--ef-font-body);
+}
+
+.landingSecondary {
+  font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body) !important;
+}
+
+.landingDivider {
+  width: 100%;
+  height: 1px;
+  background: var(--ef-border-subtle);
+}
+
+.skeleton {
+  gap: var(--ef-space-3);
+}
+
+@keyframes search-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--ef-space-2));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes search-progress {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (max-width: 1023px) {
+  .entityGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding-bottom: calc(var(--ef-space-16) + env(safe-area-inset-bottom));
+  }
+
+  .header {
+    gap: var(--ef-space-3);
+    padding: var(--ef-space-4) 0 var(--ef-space-6);
+  }
+
+  .inputFrame {
+    min-height: 48px;
+  }
+
+  .tabs button {
+    padding-right: var(--ef-space-1);
+    padding-left: var(--ef-space-1);
+    text-align: center;
+  }
+
+  .entityGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--ef-space-4);
+  }
+
+  .sectionHeader {
+    flex-wrap: wrap;
+    padding-bottom: var(--ef-space-2);
+  }
+
+  .sectionHeader > button {
+    margin-left: auto;
+  }
+
+  .partialFailure > button {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inputFrame,
+  .tabs button,
+  .resultsArea {
+    animation: none;
+    transition-duration: 0.01ms;
+  }
+
+  .progress {
+    animation: none;
+  }
+}

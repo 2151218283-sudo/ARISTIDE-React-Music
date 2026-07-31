@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 const productRoutes = [
-  ["/search", "搜索", "SEARCH"],
   ["/album/demo-album", "专辑", "ALBUM"],
   ["/artist/demo-artist", "艺术家", "ARTIST"],
   ["/library", "音乐库", "LIBRARY"],
@@ -56,6 +55,12 @@ test("keeps every product route local and explicit", async ({ page }) => {
     await expect(page.getByRole("navigation", { name: "ECHOFORM 主导航" })).toBeVisible();
     await expect(page.locator("[data-route-context]")).toHaveText(context);
   }
+
+  const searchResponse = await page.goto("/search");
+  expect(searchResponse?.ok()).toBe(true);
+  await expect(page.getByRole("heading", { level: 1, name: "搜索" })).toBeVisible();
+  await expect(page.getByLabel("搜索歌曲、歌手或专辑")).toBeVisible();
+  await expect(page.getByText("搜索历史和热搜将在发现数据接入后显示。")).toBeVisible();
 
   const trackResponse = await page.goto("/track/demo-track");
   expect(trackResponse?.ok()).toBe(true);

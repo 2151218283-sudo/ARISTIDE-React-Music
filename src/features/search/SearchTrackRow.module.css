@@ -1,0 +1,108 @@
+.row {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ef-space-3);
+  border-top: 1px solid var(--ef-border-subtle);
+}
+
+.row:last-child {
+  border-bottom: 1px solid var(--ef-border-subtle);
+}
+
+.row[data-current="true"] {
+  border-color: var(--ef-border-strong);
+}
+
+.trackLink {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 48px minmax(0, 1fr) minmax(112px, 0.56fr) auto;
+  align-items: center;
+  gap: var(--ef-space-3);
+  min-height: 72px;
+  padding: var(--ef-space-3) 0;
+}
+
+.trackLink:hover .title,
+.trackLink:focus-visible .title {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.primaryCopy,
+.titleLine {
+  display: grid;
+  min-width: 0;
+}
+
+.titleLine {
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--ef-space-2);
+}
+
+.title,
+.artist,
+.album,
+.alias,
+.duration,
+.status {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.title {
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-semibold) var(--ef-type-body) var(--ef-font-body);
+}
+
+.alias,
+.artist,
+.album,
+.duration,
+.status {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-label) var(--ef-font-body);
+}
+
+.artist {
+  margin-top: var(--ef-space-1);
+}
+
+.playback {
+  display: flex;
+  min-width: 44px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ef-space-2);
+}
+
+.status {
+  max-width: 9rem;
+}
+
+@media (max-width: 767px) {
+  .trackLink {
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    min-height: 76px;
+  }
+
+  .album,
+  .status {
+    display: none;
+  }
+
+  .duration {
+    align-self: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trackLink {
+    transition: none;
+  }
+}
