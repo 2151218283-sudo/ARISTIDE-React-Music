@@ -1,0 +1,192 @@
+.viewport {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  min-height: min(520px, calc(100dvh - 216px));
+  grid-area: lyrics;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--ef-space-3);
+}
+
+.heading {
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ef-space-3);
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.heading p,
+.heading span,
+.browseStatus,
+.empty p,
+.plainLines p {
+  margin: 0;
+}
+
+.heading p {
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-semibold) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.lines {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: min(14vh, var(--ef-space-24)) 0;
+  scrollbar-color: var(--ef-border-strong) transparent;
+}
+
+.lines ol {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  display: grid;
+  width: 100%;
+  min-height: 56px;
+  padding: var(--ef-space-3) 0;
+  border: 0;
+  border-left: 1px solid transparent;
+  background: transparent;
+  color: var(--ef-text-secondary);
+  cursor: pointer;
+  font: var(--ef-weight-regular) var(--ef-type-body-lg) var(--ef-font-body);
+  letter-spacing: 0;
+  text-align: left;
+  transition:
+    border-color var(--ef-duration-lyrics) var(--ef-ease-standard),
+    color var(--ef-duration-lyrics) var(--ef-ease-standard),
+    opacity var(--ef-duration-lyrics) var(--ef-ease-standard),
+    padding-left var(--ef-duration-lyrics) var(--ef-ease-standard);
+}
+
+.line:hover:not(:disabled) {
+  color: var(--ef-text-primary);
+}
+
+.line:focus-visible {
+  outline: 2px solid var(--ef-focus-ring);
+  outline-offset: 2px;
+}
+
+.line:disabled {
+  cursor: default;
+}
+
+.line[data-active="true"] {
+  padding-left: var(--ef-space-3);
+  border-color: var(--ef-action-playing);
+  color: var(--ef-text-primary);
+}
+
+.lineText {
+  overflow-wrap: anywhere;
+}
+
+.word {
+  color: inherit;
+  transition: color var(--ef-duration-fast) var(--ef-ease-standard);
+}
+
+.word[data-complete="true"],
+.word[data-active="true"] {
+  color: var(--ef-text-primary);
+}
+
+.word[data-active="true"] {
+  text-decoration: underline;
+  text-decoration-color: var(--ef-action-playing);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.translation,
+.romanization {
+  display: block;
+  margin-top: var(--ef-space-1);
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-label) var(--ef-font-body);
+  overflow-wrap: anywhere;
+}
+
+.romanization {
+  color: var(--ef-text-tertiary, var(--ef-text-secondary));
+  font: var(--ef-weight-regular) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.browseStatus {
+  min-height: 18px;
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.returnButton {
+  min-height: 32px;
+  padding-right: var(--ef-space-2);
+  padding-left: var(--ef-space-2);
+}
+
+.returnButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.skeletonLines,
+.plainLines,
+.empty {
+  display: grid;
+  min-height: 0;
+  align-content: center;
+  gap: var(--ef-space-4);
+}
+
+.plainLines {
+  overflow-y: auto;
+  padding: var(--ef-space-6) 0;
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-regular) var(--ef-type-body-lg) var(--ef-font-body);
+  overflow-wrap: anywhere;
+}
+
+.plainLines p + p {
+  margin-top: var(--ef-space-3);
+}
+
+.empty {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body);
+}
+
+@media (min-width: 768px) and (max-width: 1149px) {
+  .viewport {
+    min-height: min(420px, calc(100dvh - 360px));
+  }
+}
+
+@media (max-width: 767px) {
+  .viewport {
+    min-height: min(360px, 52dvh);
+  }
+
+  .lines {
+    padding: var(--ef-space-12) 0;
+  }
+
+  .line {
+    min-height: 52px;
+    font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line,
+  .word {
+    transition-duration: 0.01ms;
+  }
+}

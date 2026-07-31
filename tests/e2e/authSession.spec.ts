@@ -146,7 +146,7 @@ test("renders recovery states, replaces the account entry after authorization, a
   await expect(dialog).toHaveAttribute("data-auth-phase", "error");
 
   auth.setStartFails(false);
-  await page.getByRole("button", { name: "重试" }).click();
+  await dialog.getByRole("button", { name: "重试" }).click();
   await expect(dialog).toHaveAttribute("data-auth-phase", "waiting");
 
   auth.setQrStatus("expired");

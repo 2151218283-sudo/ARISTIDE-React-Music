@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test";
 
 const productRoutes = [
   ["/search", "搜索", "SEARCH"],
-  ["/track/demo-track", "完整播放页", "NOW PLAYING"],
   ["/album/demo-album", "专辑", "ALBUM"],
   ["/artist/demo-artist", "艺术家", "ARTIST"],
   ["/library", "音乐库", "LIBRARY"],
@@ -10,6 +9,19 @@ const productRoutes = [
   ["/profile/demo-user", "用户主页", "PROFILE"],
   ["/settings", "设置", "SETTINGS"],
 ] as const;
+
+const routeTrack = {
+  id: "demo-track",
+  name: "Route Signal",
+  artists: [{ id: "route-artist", name: "Echo Form", avatarUrl: null }],
+  album: { id: "route-album", name: "Route Record", artworkUrl: null },
+  durationMs: 183_000,
+  artworkUrl: null,
+  aliases: [],
+  explicit: false,
+  availability: "playable",
+  privilege: { fee: 0, maxQuality: "standard" },
+};
 
 const viewports = [
   { name: "desktop", width: 1440, height: 900 },
@@ -19,8 +31,20 @@ const viewports = [
 
 test.describe.configure({ mode: "serial" });
 
-test("keeps every T005 product route local and explicit", async ({ page }) => {
+test("keeps every product route local and explicit", async ({ page }) => {
   await page.setViewportSize(viewports[0]);
+  await page.route("**/api/tracks/demo-track", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, data: routeTrack }),
+    });
+  });
+  await page.route("**/api/tracks/demo-track/lyrics", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, data: { kind: "unavailable", lines: [] } }),
+    });
+  });
 
   for (const [path, title, context] of productRoutes) {
     const response = await page.goto(path);
@@ -32,6 +56,14 @@ test("keeps every T005 product route local and explicit", async ({ page }) => {
     await expect(page.getByRole("navigation", { name: "ECHOFORM 主导航" })).toBeVisible();
     await expect(page.locator("[data-route-context]")).toHaveText(context);
   }
+
+  const trackResponse = await page.goto("/track/demo-track");
+  expect(trackResponse?.ok()).toBe(true);
+  await expect(page).toHaveURL(/\/track\/demo-track$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Route Signal" })).toBeVisible();
+  await expect(page.locator("[data-track-page-state='ready']")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "ECHOFORM 主导航" })).toBeVisible();
+  await expect(page.locator("[data-route-context]")).toHaveText("NOW PLAYING");
 
   const hasVisibleDevToolsButton = await page.locator("nextjs-portal").evaluateAll(
     (portals) => portals.some((portal) => {

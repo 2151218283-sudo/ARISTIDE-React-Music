@@ -123,14 +123,13 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T013 歌曲预览舞台与自然退出`
-- 状态：已完成，待提交。首页歌曲预览、自然退出、详情/歌词状态、播放入口、Canvas 降级和本地 `EXPLORE` 已通过验收；T014 尚未开始。
-- 上轮完成记录：`T012` 已将首页画廊迁移为内部 `Track[]`，保留有限轨道、真实速度波浪、缺图纹理和 Canvas DOM 降级；中英文标题分别使用适合的现有字体。验证通过：unit 67 项、component 37 项、contract 39 项、应用 E2E 13 项、基础组件视觉 2 项、播放器视觉 2 项，`npm.cmd run check` 通过；提交 `344b8d3` 与 `cb4fd7b` 已推送至 `origin/main`。
-- 修改目标：点击 Track 后以同一纹理和几何展开歌曲预览，接入详情状态、播放入口、喜欢占位、歌词摘要与本地 `EXPLORE`，并提供自然且可中断的退出。
-- 允许修改：Preview/Home/Filmstrip 规格；`HomeExperience*`、`FilmstripGallery*`、预览组件、`src/lib/webgl/**`、必要的 Discovery/Player 接线和测试。
-- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史、上游 API 契约、T014 完整播放页实现；不新增外部写操作。
-- 不允许破坏：首个非零滚轮只退出且不移动画廊；滚轮、Escape、计数器与返回按钮共用退出状态机；动画全程可中断；首尾邻项不循环；`EXPLORE` 只去 `/track/[id]`；已有播放不中断。
-- 验收标准：正常进入、进入中播放/退出、滚轮/Escape/按钮退出、首尾与快速连续选择、Track 详情 loading/error/unavailable、Canvas 降级；入场目标约 1100ms 且不超过 1600ms、退出约 500ms；共享封面无闪断，返回恢复轨道位置，`PREVIEW-AC-01..04`、`VIS-AC-05/07/08/10/21/23/28`、专项 E2E 与 `npm run check` 通过。
+- 当前任务：`T014 完整播放页与同步歌词`
+- 状态：已完成，待提交。`T013` 已完成、提交 `d1a1964` 并推送至 `origin/main`；首页预览到本地 `/track/[id]` 的导航与浏览器返回时的画廊恢复已保持有效；T015 尚未开始。
+- 修改目标：实现 `/track/[id]` 的封面/歌词主界面、共享封面承接、普通 LRC 高亮、逐字可选降级、翻译、点击 Seek 和 5 秒浏览锁。
+- 允许修改：Track/Lyrics 规格；`src/app/track/[id]/**`、`src/features/player/**`、歌词 parser/sync 的必要修正和测试。
+- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史、上游 API 契约、T015 评论/队列 Drawer/BottomSheet 实现；不新增外部写操作。
+- 不允许破坏：唯一 Audio、当前时间唯一真值；页面滚轮不得退出；无 yrc/无歌词是正常状态；Buffering 不造假进度；移动端控制不能覆盖歌词；路由往返不重建或暂停已有 Audio。
+- 验收标准：track loading、正常歌词、逐字、普通 LRC、纯文本、无歌词、歌词错误/重试、音源 loading/buffering/unavailable、Seek、手动浏览锁、路由往返持续播放；歌词误差目标 <=200ms；三视口与 200% 缩放无重叠；Reduced Motion 无强制平滑滚动；`PLAYER-AC-01..05` 和 `VIS-AC-09` 通过。
 
 ## 5. 开发清单
 
@@ -318,7 +317,7 @@
 
   完成记录：选中 Track 复用原 Three.js mesh、geometry、material 与 texture 展开为 1:1 封面，邻项只向真实方向退场，退出保持原 gallery offset；滚轮、Escape、顶部计数器和可见返回按钮共用可中断退出状态机。预览接入归一化 Track 详情、三行歌词摘要、不可用原因、播放/暂停、禁用喜欢占位与本地 `/track/[id]`，详情失败保留日推数据并支持重试；Canvas 失败使用 DOM 封面，`EXPLORE` 后浏览器 Back 恢复原 Track 与持续播放。验证通过：unit 11 文件/67 项、component 8 文件/42 项、contract 6 文件/39 项、应用 E2E 24 项、基础组件视觉 E2E 2 项，其中 T013 专项 9 项；1440/768/390 截图与 Canvas 非空像素检查通过，Reduced Motion 路径通过。`npm.cmd run check` 通过，仅保留既有 `AvatarButton.tsx` 与 `QrLoginDialog.tsx` 两条 `<img>` 优化 warning。既有 Vite 视觉预览改用系统动态端口，避免 Windows 保留端口导致假失败。
 
-- [ ] **T014 完整播放页与同步歌词**
+- [x] **T014 完整播放页与同步歌词**
 
   目标：实现 `/track/[id]` 的封面/歌词主界面、共享封面承接、普通 LRC 高亮、逐字可选降级、翻译、点击 Seek 和 5 秒浏览锁。
 
@@ -329,6 +328,8 @@
   页面测试：track loading、正常歌词、逐字、普通 LRC、纯文本、无歌词、歌词错误/重试、音源 loading/buffering/unavailable、Seek、手动浏览锁、路由往返持续播放。
 
   验收：歌词误差目标 <=200ms；三视口与 200% 缩放无重叠；Reduced Motion 无强制平滑滚动；`PLAYER-AC-01..05` 和 `VIS-AC-09` 通过。
+
+  完成记录：`/track/[id]` 已从占位路由替换为沉浸播放页，复用唯一 `PlayerProvider` 与持久 Audio。页面并发读取归一化歌曲和歌词，详情与歌词各自保留 loading/error/retry；普通 LRC、逐字、翻译、纯文本、纯音乐与无歌词均有真实显示状态。同步歌词只从 `currentTimeMs` 推导高亮，支持点击 Seek、5 秒手动浏览锁和 Reduced Motion 的即时回中；页面滚轮保持普通滚动，不复用首页退出手势。新增页面组件/E2E 验收，并更新已完成播放页对应的路由与登录测试选择器。验证通过：unit 11 文件/67 项、component 9 文件/46 项、contract 6 文件/39 项、应用 E2E 28 项、基础组件视觉 E2E 2 项，T014 专项 E2E 4 项；1440/768/390 截图和 200% 等效视口检查通过；`npm.cmd run check` 通过。默认 E2E 端口 3100 被已有进程占用时，完整浏览器回归改在隔离的 3203 当前生产构建上执行；仅保留既有 `AvatarButton.tsx` 与 `QrLoginDialog.tsx` 两条 `<img>` 优化 warning。
 
 - [ ] **T015 只读评论与队列 Drawer/BottomSheet**
 
