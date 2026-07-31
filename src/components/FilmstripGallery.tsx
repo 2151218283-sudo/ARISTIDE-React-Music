@@ -3,7 +3,9 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   type KeyboardEvent,
+  forwardRef,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
@@ -17,29 +19,46 @@ import { FilmstripScene } from "@/lib/webgl/filmstripScene";
 
 import styles from "./FilmstripGallery.module.css";
 
-type RendererState = "canvas" | "fallback";
+export type FilmstripRenderer = "canvas" | "fallback";
+type FilmstripPreviewPhase = "hidden" | "entering" | "visible" | "exiting";
+
+export interface FilmstripGalleryHandle {
+  focus(): void;
+}
 
 interface FilmstripGalleryProps {
   isInteractive: boolean;
   isLoading: boolean;
   onCurrentTrackChange: (track: Track) => void;
+  onRendererChange?: (renderer: FilmstripRenderer) => void;
   onSelect: (track: Track) => void;
+  previewPhase: FilmstripPreviewPhase;
+  previewTrackId: string | null;
+  restoreTrackId?: string | null;
   selectedTrackId: string | null;
   tracks: readonly Track[];
 }
 
-export function FilmstripGallery({
+export const FilmstripGallery = forwardRef<
+  FilmstripGalleryHandle,
+  FilmstripGalleryProps
+>(function FilmstripGallery({
   isInteractive,
   isLoading,
   onCurrentTrackChange,
+  onRendererChange,
   onSelect,
+  previewPhase,
+  previewTrackId,
+  restoreTrackId,
   selectedTrackId,
   tracks,
-}: FilmstripGalleryProps) {
+}, forwardedRef) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fallbackRef = useRef<HTMLDivElement>(null);
   const hudCanvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<FilmstripScene | null>(null);
-  const [renderer, setRenderer] = useState<RendererState>("canvas");
+  const [renderer, setRenderer] = useState<FilmstripRenderer>("canvas");
   const [failedArtworkTrackIds, setFailedArtworkTrackIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -48,6 +67,16 @@ export function FilmstripGallery({
   const hasTextureFallback = tracks.some((track) => (
     track.artworkUrl === null || failedArtworkTrackIds.has(track.id)
   ));
+
+  useImperativeHandle(forwardedRef, () => ({
+    focus(): void {
+      if (renderer === "canvas") {
+        canvasRef.current?.focus({ preventScroll: true });
+      } else {
+        fallbackRef.current?.focus({ preventScroll: true });
+      }
+    },
+  }), [renderer]);
 
   useEffect(() => {
     if (!hasTracks || showLoading || renderer === "fallback") {
@@ -95,7 +124,7 @@ export function FilmstripGallery({
 
   useEffect(() => {
     sceneRef.current?.setInteractive(isInteractive);
-  }, [isInteractive]);
+  }, [isInteractive, tracks]);
 
   useEffect(() => {
     sceneRef.current?.setOnCurrentTrackChange(onCurrentTrackChange);
@@ -105,12 +134,30 @@ export function FilmstripGallery({
     sceneRef.current?.setOnSelect(onSelect);
   }, [onSelect]);
 
+  useEffect(() => {
+    sceneRef.current?.setPreview(
+      previewTrackId,
+      previewPhase === "entering" || previewPhase === "visible",
+    );
+  }, [previewPhase, previewTrackId, tracks]);
+
+  useEffect(() => {
+    onRendererChange?.(renderer);
+  }, [onRendererChange, renderer]);
+
+  useEffect(() => {
+    if (restoreTrackId) {
+      sceneRef.current?.restoreTrack(restoreTrackId);
+    }
+  }, [restoreTrackId, tracks]);
+
   return (
     <section
       aria-label="Daily track gallery"
       className={styles.gallery}
       data-artwork-fallback={hasTextureFallback || undefined}
       data-interactive={isInteractive}
+      data-preview={previewPhase !== "hidden" || undefined}
       data-renderer={showLoading ? "loading" : renderer}
     >
       {showLoading ? <GallerySkeleton /> : null}
@@ -128,14 +175,17 @@ export function FilmstripGallery({
       ) : null}
       {!showLoading && hasTracks && renderer === "fallback" ? (
         <FallbackGallery
+          isInteractive={isInteractive}
+          onCurrentTrackChange={onCurrentTrackChange}
           onSelect={onSelect}
+          ref={fallbackRef}
           selectedTrackId={selectedTrackId}
           tracks={tracks}
         />
       ) : null}
     </section>
   );
-}
+});
 
 function GallerySkeleton() {
   return (
@@ -156,16 +206,20 @@ function EmptyGallery() {
 }
 
 interface FallbackGalleryProps {
+  isInteractive: boolean;
+  onCurrentTrackChange: (track: Track) => void;
   onSelect: (track: Track) => void;
   selectedTrackId: string | null;
   tracks: readonly Track[];
 }
 
-function FallbackGallery({
+const FallbackGallery = forwardRef<HTMLDivElement, FallbackGalleryProps>(function FallbackGallery({
+  isInteractive,
+  onCurrentTrackChange,
   onSelect,
   selectedTrackId,
   tracks,
-}: FallbackGalleryProps) {
+}, forwardedRef) {
   const selectedIndex = useMemo(() => {
     const index = tracks.findIndex((track) => track.id === selectedTrackId);
     return index === -1 ? 0 : index;
@@ -177,10 +231,14 @@ function FallbackGallery({
       Math.max(selectedIndex + delta, 0),
       tracks.length - 1,
     );
-    onSelect(tracks[nextIndex]);
+    onCurrentTrackChange(tracks[nextIndex]);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLElement>): void {
+    if (!isInteractive) {
+      return;
+    }
+
     if (event.key === "ArrowLeft") {
       event.preventDefault();
       selectRelative(-1);
@@ -189,10 +247,10 @@ function FallbackGallery({
       selectRelative(1);
     } else if (event.key === "Home") {
       event.preventDefault();
-      onSelect(tracks[0]);
+      onCurrentTrackChange(tracks[0]);
     } else if (event.key === "End") {
       event.preventDefault();
-      onSelect(tracks[tracks.length - 1]);
+      onCurrentTrackChange(tracks[tracks.length - 1]);
     }
   }
 
@@ -201,20 +259,21 @@ function FallbackGallery({
       aria-label="可操作的歌曲画廊降级列表"
       className={styles.fallback}
       onKeyDown={handleKeyDown}
-      tabIndex={0}
+      ref={forwardedRef}
+      tabIndex={isInteractive ? 0 : -1}
     >
       <div className={styles.fallbackHeader}>
         <p className={styles.fallbackLabel}>歌曲画廊已切换为兼容模式</p>
         <div className={styles.fallbackControls}>
           <IconButton
-            disabled={selectedIndex === 0}
+            disabled={!isInteractive || selectedIndex === 0}
             icon={<ChevronLeft aria-hidden="true" />}
             label="上一首推荐歌曲"
             onClick={() => selectRelative(-1)}
             tooltip="上一首推荐歌曲"
           />
           <IconButton
-            disabled={selectedIndex === tracks.length - 1}
+            disabled={!isInteractive || selectedIndex === tracks.length - 1}
             icon={<ChevronRight aria-hidden="true" />}
             label="下一首推荐歌曲"
             onClick={() => selectRelative(1)}
@@ -229,6 +288,7 @@ function FallbackGallery({
             <li className={styles.trackItem} key={track.id}>
               <AlbumArtwork
                 alt={`选择歌曲 ${track.name}`}
+                disabled={!isInteractive}
                 onClick={() => onSelect(track)}
                 selected={isSelected}
                 src={track.artworkUrl}
@@ -244,4 +304,4 @@ function FallbackGallery({
       </ol>
     </div>
   );
-}
+});

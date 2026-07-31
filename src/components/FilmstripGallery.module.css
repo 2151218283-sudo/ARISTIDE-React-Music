@@ -73,6 +73,12 @@
     clamp(var(--ef-space-4), 5vw, var(--ef-space-16))
     max(var(--ef-space-8), calc(var(--ef-space-8) + env(safe-area-inset-bottom)));
   outline: none;
+  transition: opacity var(--ef-duration-exit) var(--ef-ease-standard);
+}
+
+.gallery[data-preview] .fallback {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .fallback:focus-visible {

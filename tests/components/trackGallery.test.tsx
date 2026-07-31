@@ -25,9 +25,11 @@ vi.mock("../../src/lib/webgl/filmstripScene", () => ({
     }
 
     destroy() {}
+    restoreTrack() {}
     setInteractive() {}
     setOnCurrentTrackChange() {}
     setOnSelect() {}
+    setPreview() {}
   },
 }));
 
@@ -93,13 +95,16 @@ function renderDailyProvider() {
 function renderGallery(
   selectedTrackId = tracks[0].id,
   onSelect = vi.fn(),
+  onCurrentTrackChange = vi.fn(),
 ) {
   return render(
     <FilmstripGallery
       isInteractive
       isLoading={false}
-      onCurrentTrackChange={vi.fn()}
+      onCurrentTrackChange={onCurrentTrackChange}
       onSelect={onSelect}
+      previewPhase="hidden"
+      previewTrackId={null}
       selectedTrackId={selectedTrackId}
       tracks={tracks}
     />,
@@ -144,8 +149,9 @@ describe("Track gallery", () => {
   it("keeps a labelled, keyboard-operable fallback when WebGL initialization fails", async () => {
     sceneControl.shouldThrow = true;
     const onSelect = vi.fn();
+    const onCurrentTrackChange = vi.fn();
 
-    renderGallery(undefined, onSelect);
+    renderGallery(undefined, onSelect, onCurrentTrackChange);
 
     const gallery = await screen.findByRole("region", { name: "Daily track gallery" });
     expect(gallery).toHaveAttribute("data-renderer", "fallback");
@@ -155,9 +161,9 @@ describe("Track gallery", () => {
 
     const fallback = screen.getByLabelText("可操作的歌曲画廊降级列表");
     fireEvent.keyDown(fallback, { key: "ArrowRight" });
-    expect(onSelect).toHaveBeenLastCalledWith(tracks[1]);
+    expect(onCurrentTrackChange).toHaveBeenLastCalledWith(tracks[1]);
     fireEvent.keyDown(fallback, { key: "End" });
-    expect(onSelect).toHaveBeenLastCalledWith(tracks[2]);
+    expect(onCurrentTrackChange).toHaveBeenLastCalledWith(tracks[2]);
   });
 
   it("reserves gallery space for the loading and empty states", () => {
@@ -168,6 +174,8 @@ describe("Track gallery", () => {
         isLoading
         onCurrentTrackChange={vi.fn()}
         onSelect={onSelect}
+        previewPhase="hidden"
+        previewTrackId={null}
         selectedTrackId={null}
         tracks={[]}
       />,
@@ -180,6 +188,8 @@ describe("Track gallery", () => {
         isLoading={false}
         onCurrentTrackChange={vi.fn()}
         onSelect={onSelect}
+        previewPhase="hidden"
+        previewTrackId={null}
         selectedTrackId={null}
         tracks={[]}
       />,

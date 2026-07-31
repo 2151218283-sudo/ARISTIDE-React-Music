@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-07-30
-> 当前任务：`T009`（未开始，等待确认）
+> 当前任务：`T013`（已完成，待提交）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,14 +123,14 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T012 将项目画廊迁移为 Track 画廊`
-- 状态：已完成，待提交。Track 画廊已通过加载、正常、空、接口错误、纹理错误与 Canvas 初始化失败降级验收；T013 尚未开始。
-- 上轮完成记录：`T011` 已实现 `/api/recommendations/daily` 与 `/api/mode`，Real 游客公共精选、Real 已登录个人日推及空个人结果的公开回退；日推缓存仅位于进程内并在认证/模式变化时清空。Real 读取失败保持 Real，Demo 只由可见操作显式切换，进入/退出模式会卸载播放器上下文并中止旧日推请求。首页新增固定尺寸的状态覆盖层，不改变 Three.js 画廊几何或 Canvas 尺寸。验收通过：unit 11 文件/67 项、component 6 文件/33 项、contract 6 文件/39 项；应用 E2E 12 项与基础组件视觉 E2E 2 项、播放器视觉 E2E 2 项均通过。复用用户本地 `3001` 预览时，日推 E2E 的等待竞争已修复；播放器和基础组件视觉测试改为独立临时本机预览以避免端口竞争。`npm.cmd run check` 通过；仅保留未修改 `AvatarButton.tsx` 与 `QrLoginDialog.tsx` 的两条 `<img>` 优化 warning，无 error。
-- 修改目标：让 WebGL 接收内部 `Track[]`，将方形专辑封面裁为 film slice，保留有限轨道、真实速度波浪、悬停和当前位置恢复。
-- 允许修改：Filmstrip/Home 组件规格；`HomeExperience*`、`FilmstripGallery*`、`src/lib/webgl/**`、Discovery 组件和测试。
-- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史、上游 API 契约；不新增外部写操作。
-- 不允许破坏：首尾不循环；边界外输入不累积且不产生波浪；第一/最后封面可居中；波浪来自实际帧速度；Canvas 资源释放；不得把上游字段传入 WebGL。
-- 验收标准：loading、正常 Track、空/公共精选、接口错误、纹理错误、Canvas 初始化失败 DOM 降级；首端/中间/尾端、滚轮、Pointer、键盘、触控替代及 1440/768/390 Canvas 像素检查均有测试；`HOME-AC-01..05`、`VIS-AC-05/06/21/28`、专项 E2E/视觉回归与 `npm run check` 通过。
+- 当前任务：`T013 歌曲预览舞台与自然退出`
+- 状态：已完成，待提交。首页歌曲预览、自然退出、详情/歌词状态、播放入口、Canvas 降级和本地 `EXPLORE` 已通过验收；T014 尚未开始。
+- 上轮完成记录：`T012` 已将首页画廊迁移为内部 `Track[]`，保留有限轨道、真实速度波浪、缺图纹理和 Canvas DOM 降级；中英文标题分别使用适合的现有字体。验证通过：unit 67 项、component 37 项、contract 39 项、应用 E2E 13 项、基础组件视觉 2 项、播放器视觉 2 项，`npm.cmd run check` 通过；提交 `344b8d3` 与 `cb4fd7b` 已推送至 `origin/main`。
+- 修改目标：点击 Track 后以同一纹理和几何展开歌曲预览，接入详情状态、播放入口、喜欢占位、歌词摘要与本地 `EXPLORE`，并提供自然且可中断的退出。
+- 允许修改：Preview/Home/Filmstrip 规格；`HomeExperience*`、`FilmstripGallery*`、预览组件、`src/lib/webgl/**`、必要的 Discovery/Player 接线和测试。
+- 不允许修改：`.env*`、CI/CD、生产部署配置、数据库、Git 历史、上游 API 契约、T014 完整播放页实现；不新增外部写操作。
+- 不允许破坏：首个非零滚轮只退出且不移动画廊；滚轮、Escape、计数器与返回按钮共用退出状态机；动画全程可中断；首尾邻项不循环；`EXPLORE` 只去 `/track/[id]`；已有播放不中断。
+- 验收标准：正常进入、进入中播放/退出、滚轮/Escape/按钮退出、首尾与快速连续选择、Track 详情 loading/error/unavailable、Canvas 降级；入场目标约 1100ms 且不超过 1600ms、退出约 500ms；共享封面无闪断，返回恢复轨道位置，`PREVIEW-AC-01..04`、`VIS-AC-05/07/08/10/21/23/28`、专项 E2E 与 `npm run check` 通过。
 
 ## 5. 开发清单
 
@@ -304,7 +304,7 @@
 
   完成记录：主页 WebGL 已只接收内部 `Track[]`，封面缺失或纹理失败均使用内存方形占位纹理，首尾居中且有限不循环；Canvas 初始化失败时显示可键盘和触控操作的 DOM 歌曲列表。验证通过：unit 11 文件/67 项、component 7 文件/36 项、contract 6 文件/39 项、应用 E2E 13 项、基础组件视觉 E2E 2 项、播放器视觉 E2E 2 项；`npm.cmd run check` 通过（仅保留既有 2 条 `<img>` 优化 warning）。
 
-- [ ] **T013 歌曲预览舞台与自然退出**
+- [x] **T013 歌曲预览舞台与自然退出**
 
   目标：把 Project Details 改为歌曲预览，使用同一封面几何完成展开/收缩；提供歌名、艺人、专辑、时长、播放、喜欢占位、歌词摘要和本地 `EXPLORE`。
 
@@ -315,6 +315,8 @@
   页面测试：正常进入、进入中点击播放、进入中退出、滚轮退出、Escape、按钮返回、首/尾歌曲、Track 详情 loading/error/unavailable、快速连续选择。
 
   验收：目标入场约 1100ms、上限 1600ms，退出约 500ms；共享封面无先消失后重现；返回恢复轨道位置；`PREVIEW-AC-01..04` 与相关视觉验收通过。
+
+  完成记录：选中 Track 复用原 Three.js mesh、geometry、material 与 texture 展开为 1:1 封面，邻项只向真实方向退场，退出保持原 gallery offset；滚轮、Escape、顶部计数器和可见返回按钮共用可中断退出状态机。预览接入归一化 Track 详情、三行歌词摘要、不可用原因、播放/暂停、禁用喜欢占位与本地 `/track/[id]`，详情失败保留日推数据并支持重试；Canvas 失败使用 DOM 封面，`EXPLORE` 后浏览器 Back 恢复原 Track 与持续播放。验证通过：unit 11 文件/67 项、component 8 文件/42 项、contract 6 文件/39 项、应用 E2E 24 项、基础组件视觉 E2E 2 项，其中 T013 专项 9 项；1440/768/390 截图与 Canvas 非空像素检查通过，Reduced Motion 路径通过。`npm.cmd run check` 通过，仅保留既有 `AvatarButton.tsx` 与 `QrLoginDialog.tsx` 两条 `<img>` 优化 warning。既有 Vite 视觉预览改用系统动态端口，避免 Windows 保留端口导致假失败。
 
 - [ ] **T014 完整播放页与同步歌词**
 

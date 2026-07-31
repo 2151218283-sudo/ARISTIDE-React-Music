@@ -3,8 +3,7 @@ import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { createServer, type ViteDevServer } from "vite";
 
-const previewPort = 3102;
-const previewUrl = `http://127.0.0.1:${previewPort}/tests/e2e/player-preview.html`;
+let previewUrl = "";
 const viewports = [
   { name: "desktop", width: 1440, height: 900 },
   { name: "tablet", width: 768, height: 1024 },
@@ -29,11 +28,15 @@ test.beforeAll(async () => {
     root: process.cwd(),
     server: {
       host: "127.0.0.1",
-      port: previewPort,
-      strictPort: true,
+      port: 0,
     },
   });
   await previewServer.listen();
+  const address = previewServer.httpServer?.address();
+  if (!address || typeof address === "string") {
+    throw new Error("The persistent player preview server did not expose a TCP port.");
+  }
+  previewUrl = `http://127.0.0.1:${address.port}/tests/e2e/player-preview.html`;
 });
 
 test.afterAll(async () => {

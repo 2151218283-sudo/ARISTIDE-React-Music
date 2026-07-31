@@ -3,8 +3,7 @@ import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { createServer, type ViteDevServer } from "vite";
 
-const previewPort = 3101;
-const previewUrl = `http://127.0.0.1:${previewPort}/tests/e2e/foundation-preview.html`;
+let previewUrl = "";
 const viewports = [
   { name: "desktop", width: 1440, height: 900 },
   { name: "tablet", width: 768, height: 1024 },
@@ -55,11 +54,15 @@ test.beforeAll(async () => {
     server: {
       host: "127.0.0.1",
       hmr: false,
-      port: previewPort,
-      strictPort: true,
+      port: 0,
     },
   });
   await previewServer.listen();
+  const address = previewServer.httpServer?.address();
+  if (!address || typeof address === "string") {
+    throw new Error("The foundation preview server did not expose a TCP port.");
+  }
+  previewUrl = `http://127.0.0.1:${address.port}/tests/e2e/foundation-preview.html`;
 });
 
 test.afterAll(async () => {

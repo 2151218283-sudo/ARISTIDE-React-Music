@@ -18,6 +18,8 @@ const WAVE_FULL_SPEED = 900;
 const WAVE_SCALE_AMPLITUDE = 0.27;
 const WAVE_VERTICAL_TRAVEL = 22;
 const WAVE_ROTATION = THREE.MathUtils.degToRad(4);
+const PREVIEW_ENTRY_DURATION = 1100;
+const PREVIEW_EXIT_DURATION = 500;
 
 type FilmMesh = THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
 
@@ -40,6 +42,12 @@ interface GalleryLayout {
   totalWidth: number;
   width: number;
   worldCenterY: number;
+}
+
+interface PreviewLayout {
+  centerX: number;
+  centerY: number;
+  size: number;
 }
 
 interface FilmstripSceneOptions {
@@ -83,6 +91,40 @@ function calculateLayout(width: number, height: number, itemCount: number): Gall
     width,
     worldCenterY: 0,
   };
+}
+
+function calculatePreviewLayout(width: number, height: number): PreviewLayout {
+  if (width < 700) {
+    return {
+      centerX: 0,
+      centerY: height * 0.21,
+      size: Math.min(width - 48, height * 0.34, 340),
+    };
+  }
+
+  if (width < 1150) {
+    return {
+      centerX: width * -0.22,
+      centerY: 0,
+      size: Math.min(width * 0.46, height * 0.42, 440),
+    };
+  }
+
+  return {
+    centerX: width * -0.18,
+    centerY: 0,
+    size: Math.min(width * 0.37, height * 0.56, 520),
+  };
+}
+
+function easeOutQuint(progress: number): number {
+  return 1 - Math.pow(1 - progress, 5);
+}
+
+function easeInOutCubic(progress: number): number {
+  return progress < 0.5
+    ? 4 * progress * progress * progress
+    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 }
 
 function getWheelPixels(event: WheelEvent, viewportHeight: number): number {
@@ -163,6 +205,12 @@ export class FilmstripScene {
   private onCurrentTrackChange: (track: Track) => void;
   private onSelect: (track: Track) => void;
   private onTextureError: (track: Track) => void;
+  private previewDuration = 1;
+  private previewFrom = 0;
+  private previewProgress = 0;
+  private previewStartedAt = 0;
+  private previewTarget = 0;
+  private previewTrackId: string | null = null;
   private reducedMotion = false;
   private scrollVelocity = 0;
   private targetOffset = 0;
@@ -218,6 +266,55 @@ export class FilmstripScene {
     this.onSelect = onSelect;
   }
 
+  setPreview(trackId: string | null, open: boolean): void {
+    const target = open && trackId ? 1 : 0;
+    const replacingTrack = Boolean(
+      open
+      && trackId
+      && this.previewTrackId
+      && this.previewTrackId !== trackId,
+    );
+
+    if (replacingTrack) {
+      this.previewProgress = 0;
+    }
+
+    if (trackId) {
+      this.previewTrackId = trackId;
+    }
+
+    if (target === this.previewTarget && !replacingTrack) {
+      return;
+    }
+
+    this.previewFrom = this.previewProgress;
+    this.previewTarget = target;
+    const baseDuration = target === 1
+      ? PREVIEW_ENTRY_DURATION
+      : PREVIEW_EXIT_DURATION;
+    this.previewDuration = this.reducedMotion
+      ? 1
+      : Math.max(1, baseDuration * Math.abs(target - this.previewFrom));
+    this.previewStartedAt = this.lastFrameTime || performance.now();
+  }
+
+  restoreTrack(trackId: string): void {
+    const index = this.films.findIndex((film) => film.track.id === trackId);
+    if (index === -1) {
+      return;
+    }
+
+    const offset = THREE.MathUtils.clamp(
+      -index * this.currentStride,
+      this.getMinOffset(),
+      0,
+    );
+    this.currentOffset = offset;
+    this.targetOffset = offset;
+    this.currentTrackIndex = -1;
+    this.scrollVelocity = 0;
+  }
+
   destroy(): void {
     if (this.destroyed) {
       return;
@@ -264,6 +361,7 @@ export class FilmstripScene {
     this.currentOffset = THREE.MathUtils.clamp(this.currentOffset, minOffset, 0);
     this.updateScrollVelocity(previousOffset, deltaSeconds, minOffset);
     this.pointerCurrent.lerp(this.pointerTarget, frameDamping(0.1, deltaSeconds));
+    this.updatePreviewProgress(time);
     this.updateFilms(deltaSeconds);
     this.updateHover();
     this.updateCurrentTrack();
@@ -331,7 +429,7 @@ export class FilmstripScene {
 
   private drawHud(): void {
     const activeIndex = this.getCurrentTrackIndex();
-    this.hud.draw(activeIndex, this.films.length);
+    this.hud.draw(activeIndex, this.previewProgress > 0.01 ? 0 : this.films.length);
   }
 
   private readonly handleClick = (event: MouseEvent): void => {
@@ -541,43 +639,95 @@ export class FilmstripScene {
     this.currentPlaneHeight = this.layout.planeHeight
       * (1 + WAVE_SCALE_AMPLITUDE * waveStrength);
 
+    const previewIndex = this.previewTrackId
+      ? this.films.findIndex((film) => film.track.id === this.previewTrackId)
+      : -1;
+    const previewLayout = calculatePreviewLayout(this.layout.width, this.layout.height);
+
     this.films.forEach((film, index) => {
       const planeLeft = this.layout.originLeft + index * this.currentStride + this.currentOffset;
-      const x = planeLeft + this.layout.planeWidth * 0.5 - this.layout.width * 0.5;
-      const wavePhase = x / Math.max(this.layout.width, 1) * Math.PI * 2.4;
+      const baseX = planeLeft + this.layout.planeWidth * 0.5 - this.layout.width * 0.5;
+      const wavePhase = baseX / Math.max(this.layout.width, 1) * Math.PI * 2.4;
       const wave = Math.sin(wavePhase);
       const waveSlope = Math.cos(wavePhase);
       const verticalScale = 1 + wave * WAVE_SCALE_AMPLITUDE * waveStrength;
       const verticalOffset = wave * WAVE_VERTICAL_TRAVEL * waveStrength;
       const relativeIndex = index / Math.max(this.films.length - 1, 1) - 0.5;
-      const targetBrightness = index === this.hoveredIndex
+      const isPreviewTrack = index === previewIndex;
+      const neighbourDirection = Math.sign(index - previewIndex);
+      const neighbourDisplacement = previewIndex === -1 || isPreviewTrack
+        ? 0
+        : neighbourDirection * (this.layout.width * 0.62 + previewLayout.size * 0.3)
+          * this.previewProgress;
+      const x = isPreviewTrack
+        ? THREE.MathUtils.lerp(baseX, previewLayout.centerX, this.previewProgress)
+        : baseX + neighbourDisplacement;
+      const y = isPreviewTrack
+        ? THREE.MathUtils.lerp(
+          this.layout.worldCenterY + verticalOffset,
+          previewLayout.centerY,
+          this.previewProgress,
+        )
+        : this.layout.worldCenterY + verticalOffset;
+      const planeWidth = isPreviewTrack
+        ? THREE.MathUtils.lerp(
+          this.layout.planeWidth,
+          previewLayout.size,
+          this.previewProgress,
+        )
+        : this.layout.planeWidth;
+      const planeHeight = isPreviewTrack
+        ? THREE.MathUtils.lerp(
+          this.layout.planeHeight * verticalScale,
+          previewLayout.size,
+          this.previewProgress,
+        )
+        : this.layout.planeHeight * verticalScale;
+      const targetBrightness = isPreviewTrack
+        ? THREE.MathUtils.lerp(INACTIVE_BRIGHTNESS, 1, this.previewProgress)
+        : index === this.hoveredIndex
         ? HOVER_BRIGHTNESS
-        : INACTIVE_BRIGHTNESS;
+        : THREE.MathUtils.lerp(INACTIVE_BRIGHTNESS, 0.12, this.previewProgress);
+      const targetSaturation = isPreviewTrack ? this.previewProgress : 0;
 
       film.brightness = THREE.MathUtils.lerp(
         film.brightness,
         targetBrightness,
         brightnessDamping,
       );
-      film.saturation = THREE.MathUtils.lerp(film.saturation, 0, brightnessDamping);
+      film.saturation = THREE.MathUtils.lerp(
+        film.saturation,
+        targetSaturation,
+        brightnessDamping,
+      );
       film.mesh.position.set(
         x,
-        this.layout.worldCenterY + verticalOffset,
-        relativeIndex * this.pointerCurrent.x * 18,
+        y,
+        isPreviewTrack
+          ? this.previewProgress * 24
+          : relativeIndex * this.pointerCurrent.x * 18,
       );
-      film.mesh.rotation.y = relativeIndex * this.pointerCurrent.x * 0.025;
-      film.mesh.rotation.z = -waveDirection * waveSlope * WAVE_ROTATION * waveStrength;
-      film.mesh.scale.set(
-        this.layout.planeWidth,
-        this.layout.planeHeight * verticalScale,
-        1,
-      );
-      film.mesh.renderOrder = index;
+      film.mesh.rotation.y = isPreviewTrack
+        ? THREE.MathUtils.lerp(
+          relativeIndex * this.pointerCurrent.x * 0.025,
+          0,
+          this.previewProgress,
+        )
+        : relativeIndex * this.pointerCurrent.x * 0.025;
+      film.mesh.rotation.z = isPreviewTrack
+        ? THREE.MathUtils.lerp(
+          -waveDirection * waveSlope * WAVE_ROTATION * waveStrength,
+          0,
+          this.previewProgress,
+        )
+        : -waveDirection * waveSlope * WAVE_ROTATION * waveStrength;
+      film.mesh.scale.set(planeWidth, planeHeight, 1);
+      film.mesh.renderOrder = isPreviewTrack ? this.films.length + 1 : index;
       film.material.uniforms.uBrightness.value = film.brightness;
       film.material.uniforms.uSaturation.value = film.saturation;
       (film.material.uniforms.uPlaneSize.value as THREE.Vector2).set(
-        this.layout.planeWidth,
-        this.layout.planeHeight * verticalScale,
+        planeWidth,
+        planeHeight,
       );
     });
 
@@ -587,6 +737,38 @@ export class FilmstripScene {
       this.pointerCurrent.y * 5 * parallaxScale,
       0,
     );
+
+    if (this.previewTrackId) {
+      this.canvas.dataset.previewMeshTrackId = this.previewTrackId;
+      this.canvas.dataset.previewProgress = this.previewProgress.toFixed(3);
+    } else {
+      delete this.canvas.dataset.previewMeshTrackId;
+      delete this.canvas.dataset.previewProgress;
+    }
+  }
+
+  private updatePreviewProgress(time: number): void {
+    if (this.previewProgress === this.previewTarget) {
+      return;
+    }
+
+    const elapsed = Math.max(0, time - this.previewStartedAt);
+    const linearProgress = THREE.MathUtils.clamp(elapsed / this.previewDuration, 0, 1);
+    const easedProgress = this.previewTarget === 1
+      ? easeOutQuint(linearProgress)
+      : easeInOutCubic(linearProgress);
+    this.previewProgress = THREE.MathUtils.lerp(
+      this.previewFrom,
+      this.previewTarget,
+      easedProgress,
+    );
+
+    if (linearProgress === 1) {
+      this.previewProgress = this.previewTarget;
+      if (this.previewTarget === 0) {
+        this.previewTrackId = null;
+      }
+    }
   }
 
   private updateHover(): void {
