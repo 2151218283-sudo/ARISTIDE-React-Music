@@ -17,6 +17,10 @@ const tracks: Track[] = [
   { ...baseTrack, id: "track-002", name: "Middle Signal", artworkUrl: null },
   { ...baseTrack, id: "track-003", name: "Last Signal", artworkUrl: null },
 ];
+const onePixelPng = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL8YQAAAABJRU5ErkJggg==",
+  "base64",
+);
 
 function success(data: unknown) {
   return JSON.stringify({ ok: true, data });
@@ -98,7 +102,7 @@ test("retains the gallery after an artwork texture request fails", async ({ page
   await expect(page.getByLabel("Interactive daily track gallery")).toBeVisible();
 });
 
-test("sleeps while idle and resumes a single gallery render chain", async ({ page }) => {
+test("keeps an ambient render chain without stationary-pointer raycasts", async ({ page }) => {
   const performanceTracks = Array.from({ length: 8 }, (_, index) => ({
     ...baseTrack,
     artworkUrl: null,
@@ -111,19 +115,20 @@ test("sleeps while idle and resumes a single gallery render chain", async ({ pag
 
   const canvas = page.getByLabel("Interactive daily track gallery");
   await expect(canvas).toHaveAttribute("data-gallery-quality", "full");
-  await expect(canvas).toHaveAttribute("data-render-state", "idle");
+  await expect(canvas).toHaveAttribute("data-render-state", "ambient");
 
-  const idleRenderCount = await canvas.getAttribute("data-render-count");
+  const ambientRenderCount = await canvas.getAttribute("data-render-count");
   await page.waitForTimeout(120);
-  await expect(canvas).toHaveAttribute("data-render-count", idleRenderCount ?? "");
+  await expect.poll(async () => Number(await canvas.getAttribute("data-render-count")))
+    .toBeGreaterThan(Number(ambientRenderCount));
 
   await canvas.hover({ position: { x: 720, y: 450 } });
   await expect.poll(async () => Number(await canvas.getAttribute("data-raycast-count")))
     .toBeGreaterThan(0);
-  await expect(canvas).toHaveAttribute("data-render-state", "idle");
-  const idleRaycastCount = await canvas.getAttribute("data-raycast-count");
+  await expect(canvas).toHaveAttribute("data-render-state", "ambient");
+  const ambientRaycastCount = await canvas.getAttribute("data-raycast-count");
   await page.waitForTimeout(120);
-  await expect(canvas).toHaveAttribute("data-raycast-count", idleRaycastCount ?? "");
+  await expect(canvas).toHaveAttribute("data-raycast-count", ambientRaycastCount ?? "");
 
   await page.evaluate(() => {
     Object.defineProperty(document, "visibilityState", {
@@ -133,6 +138,9 @@ test("sleeps while idle and resumes a single gallery render chain", async ({ pag
     document.dispatchEvent(new Event("visibilitychange"));
   });
   await expect(canvas).toHaveAttribute("data-render-state", "hidden");
+  const hiddenRenderCount = await canvas.getAttribute("data-render-count");
+  await page.waitForTimeout(120);
+  await expect(canvas).toHaveAttribute("data-render-count", hiddenRenderCount ?? "");
 
   await page.evaluate(() => {
     Object.defineProperty(document, "visibilityState", {
@@ -142,8 +150,54 @@ test("sleeps while idle and resumes a single gallery render chain", async ({ pag
     document.dispatchEvent(new Event("visibilitychange"));
   });
   await expect.poll(async () => Number(await canvas.getAttribute("data-render-count")))
-    .toBeGreaterThan(Number(idleRenderCount));
+    .toBeGreaterThan(Number(hiddenRenderCount));
+  await expect(canvas).toHaveAttribute("data-render-state", "ambient");
+});
+
+test("loads and retains all available artwork with bounded concurrency", async ({ page }) => {
+  const artworkTracks = Array.from({ length: 8 }, (_, index) => ({
+    ...baseTrack,
+    artworkUrl: `/artwork-${index + 1}.png`,
+    id: `artwork-${index + 1}`,
+    name: `Artwork Signal ${index + 1}`,
+  }));
+  let activeRequests = 0;
+  let maximumConcurrentRequests = 0;
+  await page.route("**/artwork-*.png", async (route) => {
+    activeRequests += 1;
+    maximumConcurrentRequests = Math.max(maximumConcurrentRequests, activeRequests);
+    await new Promise<void>((resolve) => setTimeout(resolve, 80));
+    await route.fulfill({ body: onePixelPng, contentType: "image/png" });
+    activeRequests -= 1;
+  });
+  await installDailyTracks(page, artworkTracks);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  const gallery = page.getByRole("region", { name: "Daily track gallery" });
+  const canvas = page.getByLabel("Interactive daily track gallery");
+  await expect(gallery).not.toHaveAttribute("data-artwork-fallback");
+  await expect(canvas).toHaveAttribute("data-artwork-loaded-count", "8");
+  await expect(canvas).toHaveAttribute("data-artwork-pending-count", "0");
+  expect(maximumConcurrentRequests).toBeLessThanOrEqual(3);
+
+  await canvas.press("End");
+  await expect(page.locator('[data-track-id="artwork-8"]')).toBeVisible();
+  await expect(canvas).toHaveAttribute("data-artwork-loaded-count", "8");
+  await expect(canvas).toHaveAttribute("data-artwork-pending-count", "0");
+});
+
+test("stops ambient rendering when Reduced Motion is requested", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await installDailyTracks(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  const canvas = page.getByLabel("Interactive daily track gallery");
   await expect(canvas).toHaveAttribute("data-render-state", "idle");
+  const idleRenderCount = await canvas.getAttribute("data-render-count");
+  await page.waitForTimeout(120);
+  await expect(canvas).toHaveAttribute("data-render-count", idleRenderCount ?? "");
 });
 
 test("meets the fixed-fixture gallery frame budget at desktop and narrow widths", async ({ page }) => {
@@ -158,7 +212,7 @@ test("meets the fixed-fixture gallery frame budget at desktop and narrow widths"
   await page.goto("/");
 
   const canvas = page.getByLabel("Interactive daily track gallery");
-  await expect(canvas).toHaveAttribute("data-render-state", "idle");
+  await expect(canvas).toHaveAttribute("data-render-state", "ambient");
   const desktopFramesPerSecond = await measureGalleryFrames(page);
   expect(desktopFramesPerSecond).toBeGreaterThanOrEqual(55);
 
@@ -166,7 +220,7 @@ test("meets the fixed-fixture gallery frame budget at desktop and narrow widths"
   await page.reload();
   const narrowCanvas = page.getByLabel("Interactive daily track gallery");
   await expect(narrowCanvas).toHaveAttribute("data-gallery-quality", "constrained");
-  await expect(narrowCanvas).toHaveAttribute("data-render-state", "idle");
+  await expect(narrowCanvas).toHaveAttribute("data-render-state", "ambient");
   const narrowFramesPerSecond = await measureGalleryFrames(page);
   expect(narrowFramesPerSecond).toBeGreaterThanOrEqual(30);
 });

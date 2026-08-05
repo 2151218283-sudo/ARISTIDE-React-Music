@@ -20,15 +20,18 @@ const WAVE_VERTICAL_TRAVEL = 22;
 const WAVE_ROTATION = THREE.MathUtils.degToRad(4);
 const PREVIEW_ENTRY_DURATION = 1100;
 const PREVIEW_EXIT_DURATION = 500;
-const TEXTURE_WINDOW_RADIUS = 3;
 const CONSTRAINED_PIXEL_RATIO = 1.25;
 const FULL_PIXEL_RATIO = 2;
-const CONSTRAINED_MAX_ANISOTROPY = 2;
-const FULL_MAX_ANISOTROPY = 8;
+const AMBIENT_FRAME_INTERVAL = 1_000 / 30;
+const CONSTRAINED_ARTWORK_TEXTURE_EDGE = 160;
+const FALLBACK_TEXTURE_SIZE = 128;
+const FULL_ARTWORK_TEXTURE_EDGE = 256;
+const CONSTRAINED_ARTWORK_LOAD_CONCURRENCY = 2;
+const FULL_ARTWORK_LOAD_CONCURRENCY = 3;
 const POINTER_SETTLE_EPSILON = 0.001;
 
 type GalleryQuality = "constrained" | "full";
-type GalleryRenderState = "hidden" | "idle" | "interacting" | "previewing" | "settling";
+type GalleryRenderState = "ambient" | "hidden" | "idle" | "interacting" | "previewing" | "settling";
 
 type FilmMesh = THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
 
@@ -44,6 +47,7 @@ interface FilmItem {
   track: Track;
   textureLoadGeneration: number;
   textureFailed: boolean;
+  textureQueued: boolean;
 }
 
 interface GalleryLayout {
@@ -164,8 +168,8 @@ function trackInitials(track: Track): string {
 
 function createFallbackTexture(track: Track): THREE.Texture {
   const artwork = document.createElement("canvas");
-  artwork.width = 512;
-  artwork.height = 512;
+  artwork.width = FALLBACK_TEXTURE_SIZE;
+  artwork.height = FALLBACK_TEXTURE_SIZE;
   const context = artwork.getContext("2d");
 
   if (!context) {
@@ -178,10 +182,10 @@ function createFallbackTexture(track: Track): THREE.Texture {
   context.fillStyle = "rgb(36, 39, 37)";
   context.fillRect(0, 0, artwork.width, artwork.height);
   context.strokeStyle = "rgb(142, 145, 139)";
-  context.lineWidth = 2;
-  context.strokeRect(32, 32, artwork.width - 64, artwork.height - 64);
+  context.lineWidth = 1;
+  context.strokeRect(10, 10, artwork.width - 20, artwork.height - 20);
   context.fillStyle = "rgb(218, 220, 214)";
-  context.font = "600 150px Arial, sans-serif";
+  context.font = "600 38px Arial, sans-serif";
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillText(trackInitials(track), artwork.width / 2, artwork.height / 2);
@@ -200,13 +204,15 @@ function resolveGalleryQuality(): GalleryQuality {
 }
 
 export class FilmstripScene {
+  private readonly ambientTimeUniform = { value: 0 };
+  private readonly artworkLoadConcurrency: number;
+  private readonly artworkTextureEdge: number;
   private readonly background = new THREE.Color(BACKGROUND_COLOR);
   private readonly camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 2000);
   private readonly canvas: HTMLCanvasElement;
   private readonly filmGroup = new THREE.Group();
   private readonly geometry = new THREE.PlaneGeometry(1, 1);
   private readonly hud: GalleryHud;
-  private readonly maxAnisotropy: number;
   private readonly pointer = new THREE.Vector2(2, 2);
   private readonly pointerCurrent = new THREE.Vector2();
   private readonly pointerTarget = new THREE.Vector2();
@@ -215,6 +221,9 @@ export class FilmstripScene {
   private readonly scene = new THREE.Scene();
   private readonly textureLoader = new THREE.TextureLoader();
   private animationFrame: number | null = null;
+  private activeArtworkLoads = 0;
+  private ambientLastRenderTime = 0;
+  private artworkLoadQueue: FilmItem[] = [];
   private currentOffset = 0;
   private currentPlaneHeight = 1;
   private currentStride = 1;
@@ -246,7 +255,6 @@ export class FilmstripScene {
   private renderState: GalleryRenderState = "settling";
   private reducedMotion = false;
   private scrollVelocity = 0;
-  private textureWindow = new Set<number>();
   private targetOffset = 0;
   private visualSettling = false;
 
@@ -264,17 +272,18 @@ export class FilmstripScene {
     this.onTextureError = onTextureError;
     this.hud = new GalleryHud(hudCanvas);
     this.quality = resolveGalleryQuality();
+    this.artworkLoadConcurrency = this.quality === "full"
+      ? FULL_ARTWORK_LOAD_CONCURRENCY
+      : CONSTRAINED_ARTWORK_LOAD_CONCURRENCY;
+    this.artworkTextureEdge = this.quality === "full"
+      ? FULL_ARTWORK_TEXTURE_EDGE
+      : CONSTRAINED_ARTWORK_TEXTURE_EDGE;
     this.renderer = new THREE.WebGLRenderer({
       alpha: false,
       antialias: false,
       canvas,
       powerPreference: "high-performance",
     });
-    this.maxAnisotropy = Math.min(
-      this.renderer.capabilities.getMaxAnisotropy(),
-      this.quality === "full" ? FULL_MAX_ANISOTROPY : CONSTRAINED_MAX_ANISOTROPY,
-    );
-
     this.renderer.setClearColor(BACKGROUND_COLOR, 1);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.scene.background = this.background;
@@ -285,6 +294,7 @@ export class FilmstripScene {
 
     this.createFilms(tracks);
     this.resize();
+    this.queueArtworkTextures();
     this.addEventListeners();
     this.updateDiagnostics();
     this.requestRender("settling");
@@ -341,7 +351,7 @@ export class FilmstripScene {
       ? 1
       : Math.max(1, baseDuration * Math.abs(target - this.previewFrom));
     this.previewStartedAt = this.lastFrameTime || performance.now();
-    this.refreshTextureWindow();
+    this.queueArtworkTextures();
     this.requestRender("previewing");
   }
 
@@ -361,7 +371,7 @@ export class FilmstripScene {
     this.currentTrackIndex = -1;
     this.scrollVelocity = 0;
     this.raycastDirty = true;
-    this.refreshTextureWindow();
+    this.queueArtworkTextures();
     this.requestRender("settling");
   }
 
@@ -376,6 +386,7 @@ export class FilmstripScene {
       this.animationFrame = null;
     }
     this.removeEventListeners();
+    this.artworkLoadQueue = [];
 
     for (const film of this.films) {
       this.disposeFilmTextures(film);
@@ -391,6 +402,21 @@ export class FilmstripScene {
   private readonly animate = (time: number): void => {
     this.animationFrame = null;
     if (this.destroyed || !this.isVisible) {
+      return;
+    }
+
+    if (this.renderState === "ambient" && !this.reducedMotion) {
+      if (time - this.ambientLastRenderTime < AMBIENT_FRAME_INTERVAL) {
+        this.requestRender("ambient");
+        return;
+      }
+
+      this.ambientLastRenderTime = time;
+      this.ambientTimeUniform.value = time / 1_000;
+      this.renderer.render(this.scene, this.camera);
+      this.renderCount += 1;
+      this.canvas.dataset.renderCount = String(this.renderCount);
+      this.requestRender("ambient");
       return;
     }
 
@@ -430,12 +456,16 @@ export class FilmstripScene {
     this.updateHover();
     this.updateCurrentTrack();
     this.drawHud();
+    this.ambientTimeUniform.value = time / 1_000;
     this.renderer.render(this.scene, this.camera);
     this.renderCount += 1;
     this.canvas.dataset.renderCount = String(this.renderCount);
 
     if (this.hasPendingVisualMotion()) {
       this.requestRender(this.nextRenderState());
+    } else if (!this.reducedMotion) {
+      this.ambientLastRenderTime = time;
+      this.requestRender("ambient");
     } else {
       this.renderState = "idle";
       this.updateDiagnostics();
@@ -459,6 +489,8 @@ export class FilmstripScene {
         depthWrite: false,
         fragmentShader: filmstripFragmentShader,
         uniforms: {
+          uAmbientPhase: { value: index * 0.67 },
+          uAmbientTime: this.ambientTimeUniform,
           uBrightness: { value: INACTIVE_BRIGHTNESS },
           uImageSize: { value: new THREE.Vector2(1, 1) },
           uPlaneSize: { value: new THREE.Vector2(1, 1) },
@@ -469,8 +501,7 @@ export class FilmstripScene {
       });
       const mesh: FilmMesh = new THREE.Mesh(this.geometry, material);
       const fallbackTexture = createFallbackTexture(track);
-      fallbackTexture.colorSpace = THREE.SRGBColorSpace;
-      fallbackTexture.anisotropy = this.maxAnisotropy;
+      this.configureArtworkTexture(fallbackTexture);
       material.uniforms.uTexture.value = fallbackTexture;
       mesh.renderOrder = index;
       this.filmGroup.add(mesh);
@@ -487,6 +518,7 @@ export class FilmstripScene {
         track,
         textureLoadGeneration: 0,
         textureFailed: false,
+        textureQueued: false,
       };
 
       return film;
@@ -664,21 +696,60 @@ export class FilmstripScene {
     document.removeEventListener("visibilitychange", this.handleVisibilityChange);
   }
 
+  private configureArtworkTexture(texture: THREE.Texture): void {
+    texture.anisotropy = 1;
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.generateMipmaps = false;
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.needsUpdate = true;
+  }
+
+  private createArtworkThumbnail(loadedTexture: THREE.Texture): THREE.Texture {
+    const source = loadedTexture.image as CanvasImageSource & { height?: number; width?: number };
+    const sourceWidth = source.width ?? 1;
+    const sourceHeight = source.height ?? 1;
+    const scale = Math.min(1, this.artworkTextureEdge / Math.max(sourceWidth, sourceHeight));
+
+    if (scale === 1) {
+      return loadedTexture;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+    canvas.height = Math.max(1, Math.round(sourceHeight * scale));
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      return loadedTexture;
+    }
+
+    try {
+      context.drawImage(source, 0, 0, canvas.width, canvas.height);
+    } catch {
+      return loadedTexture;
+    }
+
+    const thumbnail = new THREE.CanvasTexture(canvas);
+    loadedTexture.dispose();
+    return thumbnail;
+  }
+
   private replaceArtworkTexture(film: FilmItem, loadedTexture: THREE.Texture): void {
     if (this.destroyed) {
       loadedTexture.dispose();
       return;
     }
 
-    const image = loadedTexture.image as { height?: number; width?: number };
+    const artworkTexture = this.createArtworkThumbnail(loadedTexture);
+    const image = artworkTexture.image as { height?: number; width?: number };
     const imageWidth = image.width ?? 1;
     const imageHeight = image.height ?? 1;
-    loadedTexture.colorSpace = THREE.SRGBColorSpace;
-    loadedTexture.anisotropy = this.maxAnisotropy;
+    this.configureArtworkTexture(artworkTexture);
     const previousTexture = film.texture;
-    film.texture = loadedTexture;
-    film.remoteTexture = loadedTexture;
-    film.material.uniforms.uTexture.value = loadedTexture;
+    film.texture = artworkTexture;
+    film.remoteTexture = artworkTexture;
+    film.material.uniforms.uTexture.value = artworkTexture;
     (film.material.uniforms.uImageSize.value as THREE.Vector2).set(imageWidth, imageHeight);
     if (previousTexture !== film.fallbackTexture) {
       previousTexture.dispose();
@@ -688,6 +759,7 @@ export class FilmstripScene {
 
   private disposeFilmTextures(film: FilmItem): void {
     film.textureLoadGeneration += 1;
+    film.textureQueued = false;
     film.pendingTexture?.dispose();
     film.pendingTexture = null;
     film.remoteTexture?.dispose();
@@ -695,92 +767,93 @@ export class FilmstripScene {
     film.fallbackTexture.dispose();
   }
 
-  private ensureArtworkTexture(film: FilmItem): void {
-    if (!film.track.artworkUrl || film.remoteTexture || film.pendingTexture || film.textureFailed) {
+  private finishArtworkLoad(): void {
+    this.activeArtworkLoads = Math.max(0, this.activeArtworkLoads - 1);
+    if (!this.destroyed) {
+      this.pumpArtworkQueue();
+    }
+  }
+
+  private getArtworkLoadPriority(film: FilmItem): number {
+    const index = this.films.indexOf(film);
+    const currentIndex = this.currentTrackIndex === -1
+      ? this.getCurrentTrackIndex()
+      : this.currentTrackIndex;
+    const previewIndex = this.previewTrackId
+      ? this.films.findIndex((candidate) => candidate.track.id === this.previewTrackId)
+      : -1;
+    const currentDistance = Math.abs(index - currentIndex);
+    const previewDistance = previewIndex === -1 ? Number.POSITIVE_INFINITY : Math.abs(index - previewIndex);
+
+    return Math.min(currentDistance, previewDistance);
+  }
+
+  private pumpArtworkQueue(): void {
+    if (this.destroyed) {
       return;
     }
 
-    const generation = film.textureLoadGeneration + 1;
-    film.textureLoadGeneration = generation;
-    const pendingTexture = this.textureLoader.load(
-      film.track.artworkUrl,
-      (loadedTexture) => {
-        if (this.destroyed
-          || generation !== film.textureLoadGeneration
-          || !this.textureWindow.has(this.films.indexOf(film))) {
-          loadedTexture.dispose();
-          return;
-        }
-
-        film.pendingTexture = null;
-        this.replaceArtworkTexture(film, loadedTexture);
-      },
-      undefined,
-      () => {
-        if (generation !== film.textureLoadGeneration) {
-          pendingTexture.dispose();
-          return;
-        }
-
-        film.pendingTexture = null;
-        film.textureFailed = true;
-        pendingTexture.dispose();
-        this.onTextureError(film.track);
-      },
-    );
-    film.pendingTexture = pendingTexture;
-  }
-
-  private getTextureWindow(): Set<number> {
-    const centerIndex = this.currentTrackIndex === -1
-      ? this.getCurrentTrackIndex()
-      : this.currentTrackIndex;
-    const indexes = new Set<number>();
-    const addRange = (index: number): void => {
-      for (let candidate = index - TEXTURE_WINDOW_RADIUS;
-        candidate <= index + TEXTURE_WINDOW_RADIUS;
-        candidate += 1) {
-        if (candidate >= 0 && candidate < this.films.length) {
-          indexes.add(candidate);
-        }
+    while (this.activeArtworkLoads < this.artworkLoadConcurrency) {
+      const film = this.artworkLoadQueue.shift();
+      if (!film) {
+        break;
       }
-    };
 
-    addRange(centerIndex);
-    if (this.previewTrackId) {
-      const previewIndex = this.films.findIndex((film) => film.track.id === this.previewTrackId);
-      if (previewIndex !== -1) {
-        addRange(previewIndex);
+      film.textureQueued = false;
+      if (!film.track.artworkUrl || film.remoteTexture || film.pendingTexture || film.textureFailed) {
+        continue;
       }
+
+      const generation = film.textureLoadGeneration + 1;
+      film.textureLoadGeneration = generation;
+      this.activeArtworkLoads += 1;
+      const pendingTexture = this.textureLoader.load(
+        film.track.artworkUrl,
+        (loadedTexture) => {
+          if (this.destroyed || generation !== film.textureLoadGeneration) {
+            loadedTexture.dispose();
+          } else {
+            film.pendingTexture = null;
+            this.replaceArtworkTexture(film, loadedTexture);
+          }
+          this.finishArtworkLoad();
+        },
+        undefined,
+        () => {
+          if (generation === film.textureLoadGeneration) {
+            film.pendingTexture?.dispose();
+            film.pendingTexture = null;
+            film.textureFailed = true;
+            this.onTextureError(film.track);
+          }
+          this.finishArtworkLoad();
+        },
+      );
+      film.pendingTexture = pendingTexture;
     }
 
-    return indexes;
+    this.updateDiagnostics();
   }
 
-  private refreshTextureWindow(): void {
-    const nextWindow = this.getTextureWindow();
-    this.textureWindow = nextWindow;
+  private queueArtworkTexture(film: FilmItem): void {
+    if (!film.track.artworkUrl
+      || film.remoteTexture
+      || film.pendingTexture
+      || film.textureFailed
+      || film.textureQueued) {
+      return;
+    }
 
-    this.films.forEach((film, index) => {
-      if (nextWindow.has(index)) {
-        this.ensureArtworkTexture(film);
-        return;
-      }
+    film.textureQueued = true;
+    this.artworkLoadQueue.push(film);
+  }
 
-      film.textureLoadGeneration += 1;
-      film.pendingTexture?.dispose();
-      film.pendingTexture = null;
-      if (!film.remoteTexture) {
-        return;
-      }
-
-      const remoteTexture = film.remoteTexture;
-      film.remoteTexture = null;
-      film.texture = film.fallbackTexture;
-      film.material.uniforms.uTexture.value = film.fallbackTexture;
-      (film.material.uniforms.uImageSize.value as THREE.Vector2).set(1, 1);
-      remoteTexture.dispose();
-    });
+  private queueArtworkTextures(): void {
+    this.films
+      .map((film, index) => ({ film, index, priority: this.getArtworkLoadPriority(film) }))
+      .sort((left, right) => left.priority - right.priority || left.index - right.index)
+      .forEach(({ film }) => this.queueArtworkTexture(film));
+    this.pumpArtworkQueue();
   }
 
   private hasPendingVisualMotion(): boolean {
@@ -819,6 +892,17 @@ export class FilmstripScene {
   private updateDiagnostics(): void {
     if (this.canvas.dataset.galleryQuality !== this.quality) {
       this.canvas.dataset.galleryQuality = this.quality;
+    }
+    const artworkLoadedCount = this.films.filter((film) => film.remoteTexture !== null).length;
+    const artworkPendingCount = this.activeArtworkLoads + this.artworkLoadQueue.length;
+    if (this.canvas.dataset.artworkLoadedCount !== String(artworkLoadedCount)) {
+      this.canvas.dataset.artworkLoadedCount = String(artworkLoadedCount);
+    }
+    if (this.canvas.dataset.artworkActiveCount !== String(this.activeArtworkLoads)) {
+      this.canvas.dataset.artworkActiveCount = String(this.activeArtworkLoads);
+    }
+    if (this.canvas.dataset.artworkPendingCount !== String(artworkPendingCount)) {
+      this.canvas.dataset.artworkPendingCount = String(artworkPendingCount);
     }
     if (this.canvas.dataset.raycastCount !== String(this.raycastCount)) {
       this.canvas.dataset.raycastCount = String(this.raycastCount);
@@ -876,7 +960,7 @@ export class FilmstripScene {
     }
 
     this.currentTrackIndex = index;
-    this.refreshTextureWindow();
+    this.queueArtworkTextures();
     this.onCurrentTrackChange(this.films[index].track);
   }
 

@@ -124,7 +124,7 @@
 ## 4. 当前执行卡
 
 - 当前任务：`T019 音乐库与 IndexedDB 播放历史`（待确认开始）
-- 状态：T018S 已完成本地验收，尚未提交或推送；T019 尚未开始，等待用户确认。
+- 状态：T018R 已完成本地验收，尚未提交或推送；T019 尚未开始，等待用户确认。
 - 修改目标：实现 `/library` 的喜欢、专辑、歌单、历史 Tabs；用 IndexedDB 按 30 秒或 50% 阈值记录本地有效播放，支持去重、离线读取和清空。
 - 允许修改：Library/History 规格；`src/app/library/**`、`src/features/library/**`、本地存储 adapter、测试 fixtures 和测试。
 - 不允许修改：不把音源 URL 写入 IndexedDB；本地历史与网易云记录必须标明来源；未登录状态不能跳外站；清空历史属于删除数据，执行真实 UI 操作和实现前按 AGENTS 红线确认。
@@ -481,7 +481,21 @@
 
   验收：当前执行卡全部量化标准满足；新增调度与订阅测试可在实现退化为永久 rAF、逐帧 raycast 或完整树按帧更新时失败；专项 tests、`npm.cmd run check`、敏感扫描、`git diff --check` 与本地提交通过。推送必须另行确认。
 
-  完成记录：WebGL 改为按需调度，稳定静止和页面隐藏时停止 rAF；静止 Pointer 不再重复 raycast；封面纹理只保留当前可见窗口和相邻三项，画布根据启动视口选择质量层级。播放器把 `currentTimeMs`、缓冲时间移入独立 timeline store，进度和歌词继续准确更新而语义订阅者不按帧重渲染。生产构建固定 8 项夹具画廊专项 E2E 通过桌面 >=55fps、窄屏 >=30fps；unit 74、component 75、contract 59、应用 E2E 42 和 Foundation visual E2E 2 全部通过，`npm.cmd run check` 通过（仅保留既有原生 `<img>` warning），敏感扫描和 `git diff --check` 无问题。待生成本地提交；推送仍需当次确认。
+  完成记录：WebGL 改为按需调度，稳定静止和页面隐藏时停止 rAF；静止 Pointer 不再重复 raycast；封面纹理只保留当前可见窗口和相邻三项，画布根据启动视口选择质量层级。播放器把 `currentTimeMs`、缓冲时间移入独立 timeline store，进度和歌词继续准确更新而语义订阅者不按帧重渲染。生产构建固定 8 项夹具画廊专项 E2E 通过桌面 >=55fps、窄屏 >=30fps；unit 74、component 75、contract 59、应用 E2E 42 和 Foundation visual E2E 2 全部通过，`npm.cmd run check` 通过（仅保留既有原生 `<img>` warning），敏感扫描和 `git diff --check` 无问题。已本地提交 `e027f87`；推送仍需当次确认。
+
+- [x] **T018R 完整封面与持续环境动效修复**
+
+  目标：修正 T018S 的可见画廊策略，保留全部可用真实封面和克制持续环境动效，避免以局部封面回退或静态主页换取性能。
+
+  允许修改：当前执行卡列出的控制文档、WebGL 场景/Shader 与对应测试。
+
+  不允许破坏：不改变任何 BFF/API、登录、音频、路由或数据模型边界；不以高分辨率原图、无限并发请求、逐帧 raycast、降低可访问性或关闭 Reduced Motion 伪造效果。
+
+  页面测试：真实封面首屏和完整有限轨道、首次加载补齐、滚动首中尾、预览进入/退出、隐藏/恢复、Reduced Motion、Canvas fallback 与 1440/768/390。
+
+  验收：所有可用封面在加载完成后持续保留；封面请求和解码有可观察并发上限；可见默认页面存在连续环境动效但静止 Pointer 不重复 raycast；页面隐藏和 Reduced Motion 不保留环境调度；生产构建固定夹具下桌面 >=55fps、窄屏 >=30fps，专项和全量测试、`npm.cmd run check`、敏感扫描、`git diff --check` 通过后本地提交。推送必须另行确认。
+
+  完成记录：可用封面按距离排序、最多 3 个并行请求加载，成功后保留到场景销毁；远端封面下采样为 full 256px / constrained 160px 纹理，fallback 降至 128px。非 Reduced Motion 的可见画廊以约 30fps 的共享 shader 时间变量保留轻量环境动效，不执行 ambient raycast、纹理队列或逐封面 CPU 几何；hidden 与 Reduced Motion 仍停止环境调度。生产专项 E2E 7 项通过，证明 8 张真实封面完整保留、并发受限、Canvas fallback、隐藏/恢复、Reduced Motion 和桌面 >=55fps/窄屏 >=30fps。unit 74、component 75、contract 59、应用 E2E 44、Foundation visual E2E 2 通过，三视口 Canvas 截图均非空，`npm.cmd run check` 通过（仅既有原生 `<img>` warning）。Profile 状态测试的头像失败断言收窄至主内容，消除了顶部账户头像同名导致的测试歧义，不改产品页面行为。待生成本地提交；推送仍需当次确认。
 
 - [ ] **T019 音乐库与 IndexedDB 播放历史**
 

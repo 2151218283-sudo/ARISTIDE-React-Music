@@ -131,3 +131,26 @@
   preview entry/exit, hidden/resume, stationary-pointer raycast count, first/
   last Clamp, missing artwork, texture errors, Canvas fallback, Reduced Motion
   and 1440/768/390 nonblank visual checks.
+
+## T018R Visual Continuity Override
+
+- This section supersedes the T018S idle and texture-window rules where they
+  conflict. A visible scene without Reduced Motion stays in `ambient` after
+  interaction settles. It renders a restrained shader-driven environment
+  motion through one shared time uniform; it must not run raycasting, texture
+  queue work, DOM/React updates or per-film CPU geometry work solely for that
+  ambient frame. `hidden` and Reduced Motion use `idle` and cancel pending
+  animation frames.
+- Every Track with a usable artwork URL receives a quality-limited thumbnail
+  texture and retains it until scene destruction. Loading is ordered by
+  distance from the current and preview Track, has a deterministic bounded
+  concurrency, and never turns an already loaded remote cover back into a
+  fallback merely because the Track leaves view. Full quality targets a 256px
+  texture edge; constrained quality targets 160px. Failed artwork retains its
+  existing fallback and reports the track once.
+- The scene exposes only aggregate, non-user-facing artwork queue and loaded
+  counts for local tests. Tests prove all fixed-fixture covers load and remain
+  available after moving from first to last; ambient render count advances
+  while stationary-pointer raycast count remains stable; hidden and Reduced
+  Motion stop ambient scheduling; the existing desktop >=55fps and narrow
+  >=30fps interaction budgets still pass.

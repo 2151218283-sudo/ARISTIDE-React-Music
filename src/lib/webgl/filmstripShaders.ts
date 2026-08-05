@@ -1,9 +1,15 @@
 export const filmstripVertexShader = /* glsl */ `
+  uniform float uAmbientPhase;
+  uniform float uAmbientTime;
+
   varying vec2 vUv;
 
   void main() {
     vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vec3 ambientPosition = position;
+    ambientPosition.y += sin(uAmbientTime * 0.72 + uAmbientPhase) * 0.007;
+    ambientPosition.x += cos(uAmbientTime * 0.48 + uAmbientPhase) * 0.0015;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(ambientPosition, 1.0);
   }
 `;
 

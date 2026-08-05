@@ -194,7 +194,8 @@ test("covers loading, empty, protected, missing, upstream-error, and avatar-fail
     await route.fulfill({ status: 404, body: "" });
   });
   await page.goto("/profile/701");
-  await expect(page.getByLabel("Profile Listener的头像加载失败")).toBeVisible();
+  const profileMain = page.getByRole("main", { name: "ECHOFORM 主内容" });
+  await expect(profileMain.getByLabel("Profile Listener的头像加载失败")).toBeVisible();
 });
 
 test("starts and completes the avatar clone before a delayed profile BFF response", async ({ page }) => {

@@ -435,9 +435,9 @@ Demo Mode 是答辩容灾，不是 Real Provider 的自动降级：
 - 歌词高亮以真实 `audio.currentTime` 为基准，不使用延迟性视觉缓动修正时间。
 - 后台标签页不依赖 `requestAnimationFrame` 推进播放状态。
 - 所有播放命令和错误变化通过受控 live region 提供可访问反馈。
-- WebGL 场景必须实现可观察的调度状态：`entering`、`interacting`、`previewing`、`settling` 可连续渲染；`idle` 完成一次最终绘制后休眠；`hidden` 停止 rAF。输入、布局或可见性恢复只能唤醒一条待处理帧，销毁后不得残留帧或监听器。
+- WebGL 场景必须实现可观察的调度状态：`entering`、`interacting`、`previewing`、`settling` 与可见默认态 `ambient` 可连续渲染；`hidden` 与 Reduced Motion 的 `idle` 停止 rAF。`ambient` 只允许更新共享 GPU 时间变量，不得驱动逐帧 raycast、纹理加载调度或 React 更新。输入、布局或可见性恢复只能保持一条待处理帧，销毁后不得残留帧或监听器。
 - WebGL 的受限质量层级按顺序降低 DPR、抗锯齿和纹理各向异性/不可见工作；无法达到最低交互目标或初始化失败时进入既有 DOM fallback，不把性能模式作为静默失败。
-- 纹理所有权与驻留窗口由场景管理：仅保留可见项及相邻 2-3 项，窗口外请求可取消，已脱离窗口且不被预览引用的纹理必须 `dispose`。路由卸载仍负责完整释放 geometry、material、renderer 与剩余纹理。
+- 纹理所有权由场景管理：所有可用封面均使用受质量层级限制的缩略纹理并在本次场景生命周期内驻留。加载按当前/预览项目距离排序并限制并发，禁止无限并发解码；场景卸载负责完整释放 geometry、material、renderer、fallback 与远端纹理。
 - raycast 由脏标记驱动，只有 Pointer、相机、封面变换或交互可用性变化后执行；命中结果变化才更新光标或悬停样式。
 
 ## 14. 测试架构
@@ -451,7 +451,7 @@ Demo Mode 是答辩容灾，不是 Real Provider 的自动降级：
 - Live contract probe：显式手动命令，只做匿名读取；登录态和写操作使用专用测试账号。
 - Playwright：QR 状态模拟、持久播放、路由切换、滚轮退出、搜索和响应式关键路径。
 
-性能任务额外使用可替换时钟/帧调度与计数器证明 idle/hidden 不续帧、Pointer 静止不 raycast、纹理窗口正确释放；浏览器在固定本地生产构建和固定夹具下记录帧数与 React 更新时间边界。开发服务器的 HMR 和机器瞬时负载只作诊断，不作为绝对性能门槛。
+性能任务额外使用可替换时钟/帧调度与计数器证明可见 `ambient` 只做轻量 GPU 时间更新、hidden/Reduced Motion 不续帧、Pointer 静止不 raycast、完整缩略纹理受并发上限加载并完整释放；浏览器在固定本地生产构建和固定夹具下记录帧数与 React 更新时间边界。开发服务器的 HMR 和机器瞬时负载只作诊断，不作为绝对性能门槛。
 
 Live Probe 不能成为默认 CI 的稳定性门槛，因为上游没有 SLA 且存在风控。
 
@@ -481,8 +481,8 @@ Live Probe 不能成为默认 CI 的稳定性门槛，因为上游没有 SLA 且
 - `ARCH-AC-08`：日志不含 Cookie、QR、评论正文、音源 URL 和原始用户 Response。
 - `ARCH-AC-09`：所有写操作在契约登录态实测通过后才标记完成。
 - `ARCH-AC-10`：`npm run check` 通过；引入测试后对应测试命令同时通过。
-- `ARCH-AC-11`：画廊在 idle 或 hidden 状态没有残留连续 rAF；恢复后只有一条调度链并保持有限轨道几何。
-- `ARCH-AC-12`：纹理窗口、质量层级和 DOM fallback 不泄露 renderer/纹理资源，也不改变 BFF、音频、队列或路由边界。
+- `ARCH-AC-11`：画廊在可见非 Reduced Motion 的 ambient 状态只有一条轻量渲染链，hidden 或 Reduced Motion 的 idle 状态没有残留连续 rAF；恢复后保持有限轨道几何。
+- `ARCH-AC-12`：完整缩略纹理驻留、质量层级和 DOM fallback 不泄露 renderer/纹理资源，也不改变 BFF、音频、队列或路由边界。
 - `ARCH-AC-13`：可见播放态的高频时间更新不会重渲染 AppShell 或非时间订阅者；ProgressRail、LyricsViewport 仍以真实 Audio 时间更新。
 ## T017B Change Record: Session-Bound Audio Relay
 

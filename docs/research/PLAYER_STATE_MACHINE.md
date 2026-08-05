@@ -468,7 +468,7 @@ type SleepTimer =
 - 标签页隐藏后音频继续播放，除非用户设置或系统策略暂停。
 - 隐藏时停止歌词 rAF 和非必要 WebGL；依赖 Audio 事件更新进度。
 - 回到前台立即读取 currentTime、duration、paused 和 buffered 校正快照。
-- WebGL 画廊在 `hidden` 状态停止调度，在恢复可见时以当前画廊/预览状态完成一次校正绘制；音频、队列和当前歌曲不因图形休眠发生改变。
+- WebGL 画廊在 `hidden` 与 Reduced Motion 的 `idle` 状态停止调度；可见非 Reduced Motion 时以轻量 `ambient` 链维持环境动效，在恢复可见时以当前画廊/预览状态完成校正绘制。音频、队列和当前歌曲不因图形调度发生改变。
 - Media Session 的 play/pause/next/previous/seek handler 发送同一 PlayerCommand。
 - 系统耳机拔出、来电或浏览器策略造成 pause 时，接受 `MEDIA_PAUSE` 并进入 paused；不自动
   抢回播放。
@@ -525,7 +525,7 @@ type SleepTimer =
 - yrc 有/无、翻译合并、Seek 后歌词定位。
 - Sleep duration、end-of-track、最后 3 秒渐弱、取消恢复音量、刷新清除和后台触发。
 - 旧 revision 的 ended/error/canplay 被忽略。
-- 可替换帧调度验证画廊 entering/interacting/previewing/settling 连续渲染，而 idle/hidden 无后续 rAF；唤醒和销毁不产生重复调度链。
+- 可替换帧调度验证画廊 entering/interacting/previewing/settling/ambient 连续渲染，ambient 只更新共享 GPU 时间变量，而 Reduced Motion 的 idle/hidden 无后续 rAF；唤醒和销毁不产生重复调度链。
 - Pointer 不变时 raycast 计数保持不变；Pointer、布局或相机变更后只在下一帧完成必要命中。
 - 高密度 `MEDIA_TIME`/时间线输入下，ProgressRail 和歌词命中保持准确，但 AppShell、队列与非时间选择器的渲染/通知计数不按帧增长。
 
