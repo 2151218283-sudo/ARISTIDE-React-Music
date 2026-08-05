@@ -140,6 +140,33 @@ describe("daily recommendations BFF", () => {
     expect(secondBody.data.tracks).toMatchObject([{ availability: "playable" }]);
   });
 
+  it("does not cache an empty public selection so a retry can recover", async () => {
+    const store = new InMemorySessionStore();
+    const session = store.create();
+    const publicRead = vi.fn()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([track]);
+    const { handlers } = createHandlers({
+      store,
+      real: { getVerifiedPublicRecommendations: publicRead },
+    });
+
+    const first = await handlers.daily(new Request(
+      "http://localhost/api/recommendations/daily",
+      { headers: { cookie: cookieFor(session.id) } },
+    ));
+    const second = await handlers.daily(new Request(
+      "http://localhost/api/recommendations/daily",
+      { headers: { cookie: cookieFor(session.id) } },
+    ));
+
+    expect(await responseBody<{ data: { tracks: unknown[] } }>(first))
+      .toMatchObject({ data: { tracks: [] } });
+    expect(await responseBody<{ data: { tracks: unknown[] } }>(second))
+      .toMatchObject({ data: { tracks: [{ id: "101" }] } });
+    expect(publicRead).toHaveBeenCalledTimes(2);
+  });
+
   it("uses a verified account only for personal daily recommendations and falls back on empty", async () => {
     const store = new InMemorySessionStore();
     const sessionId = createAuthenticatedSession(store);

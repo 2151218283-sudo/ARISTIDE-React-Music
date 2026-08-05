@@ -257,7 +257,9 @@ async function getVerifiedPublicRecommendations(
     dependencies,
   );
   const result: DailyRecommendations = { date, source: "public", tracks };
-  dependencies.store.setPublicDailyRecommendations(cacheKey, result);
+  if (tracks.length > 0) {
+    dependencies.store.setPublicDailyRecommendations(cacheKey, result);
+  }
   return result;
 }
 
@@ -292,7 +294,9 @@ async function getDailyRecommendations(
     result = await getVerifiedPublicRecommendations(date, dependencies);
   }
 
-  dependencies.store.setDailyRecommendations(session.id, cacheKey, result);
+  if (result.source === "demo" || result.tracks.length > 0) {
+    dependencies.store.setDailyRecommendations(session.id, cacheKey, result);
+  }
   return result;
 }
 

@@ -373,7 +373,7 @@
 
   验收：先有固定包函数与脱敏运行证据，再实现公开精选；不记录歌曲名、Cookie 或 URL 的可播率聚合比较；首页不显示未经验证为可播的公开曲目；搜索不因预检失败丢失发现结果；三视口、键盘、Reduced Motion、专项 tests、完整测试、`npm run check`、敏感信息检查和 `git diff --check` 全部通过。
 
-  完成记录：固定 Legacy 包匿名注册与裸匿名可播率探测通过；匿名凭据无可量化提升，因此未引入 Cookie 持有。首页公开精选仅保留服务端标准音质预检通过的曲目并按日期缓存；新增可播性 BFF，搜索保留 unknown/checking/verified-playable/unavailable 状态与“仅看可播放”筛选。契约 6 文件/43 项、单元 11 文件/67 项、组件 11 文件/61 项、应用 E2E 32 项、基础视觉 E2E 2 项、`npm run check` 和 `git diff --check` 通过。未记录 Cookie、Token、QR key、音源 URL 或用户数据。
+  完成记录：固定 Legacy 包匿名注册与裸匿名可播率探测通过；匿名凭据无可量化提升，因此未引入 Cookie 持有。首页公开精选仅保留服务端标准音质预检通过的曲目并按日期缓存；空结果不写入全局或会话缓存，重新加载会重新探测。新增可播性 BFF，搜索保留 unknown/checking/verified-playable/unavailable 状态与“仅看可播放”筛选。契约 6 文件/44 项、单元 11 文件/67 项、组件 11 文件/61 项、应用 E2E 32 项、基础视觉 E2E 2 项、`npm run check` 和 `git diff --check` 通过。未记录 Cookie、Token、QR key、音源 URL 或用户数据。
 
 - [ ] **T017 专辑、歌手、新歌与热门推荐**
 

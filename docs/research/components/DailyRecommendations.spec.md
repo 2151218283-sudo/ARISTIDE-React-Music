@@ -47,8 +47,9 @@ interface DailyRecommendations {
 - Personal and Demo cache keys include the server-local date and identity:
   `personal:<userId>:<date>` or `demo:<sessionId>:<date>`. The verified public
   selection uses a separate in-process `public:bare:<date>` cache because it
-  is neither user data nor a source cache. Cache contents never include an
-  upstream credential or source URL.
+  is neither user data nor a source cache. Only a non-empty verified selection
+  is cached; an empty public result is retried when the user reloads. Cache
+  contents never include an upstream credential or source URL.
 - Anonymous-credential registration was runtime-tested for the pinned Legacy
   package. It did not increase the measured playable count for the fixed
   public sample, so this product does not retain a guest upstream credential.
