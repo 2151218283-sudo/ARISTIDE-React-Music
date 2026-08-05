@@ -469,3 +469,32 @@ Live Probe 不能成为默认 CI 的稳定性门槛，因为上游没有 SLA 且
 - `ARCH-AC-08`：日志不含 Cookie、QR、评论正文、音源 URL 和原始用户 Response。
 - `ARCH-AC-09`：所有写操作在契约登录态实测通过后才标记完成。
 - `ARCH-AC-10`：`npm run check` 通过；引入测试后对应测试命令同时通过。
+## T017B Change Record: Session-Bound Audio Relay
+
+This section supersedes earlier statements that prohibited every form of audio
+body forwarding. The approved scope is only a local, single-instance, real-time
+relay for a short-lived source that the selected provider already authorized.
+It does not cache, transcode, download, unlock, mirror, share, or make media
+available outside the ordinary ECHOFORM session.
+
+The browser plays `/api/tracks/:id/audio`, never a provider URL. `/source`
+resolves the provider source server-side and registers it against the HttpOnly
+`sid`, track id, chosen quality, and expiry; `/audio` requires that same session
+and supports one validated Range request. The server validates every HTTP(S)
+target and redirect against a fixed Netease media-host allowlist, forwards only
+allowlisted media headers, and uses `Cache-Control: no-store` throughout.
+
+The real URL, upstream Cookie, proxy address, redirect Location, and media body
+remain outside browser state, response envelopes, logging, fixtures, storage,
+and Git. Session expiration, source expiration, logout, user/mode change, and
+server restart clear the registration. Missing or stale registrations make no
+upstream request and map to `SOURCE_EXPIRED`.
+
+`NETEASE_UPSTREAM_PROXY`, when configured, remains a validated server-only
+loopback transport setting. T017B may use it for the relay's outgoing request;
+it is not a client option or a production deployment decision.
+
+For the approved local single-instance runtime, the in-memory session Store is
+published once on the Node process global. This keeps session-bound relay
+registrations shared when development Route Handlers are evaluated from separate
+bundles, while retaining the existing restart-clears-session behavior.

@@ -1008,3 +1008,16 @@ P0/P1 默认不新增自有数据库，账号数据和社交写操作走网易�
    Session 和密钥管理必须先更新架构并获得批准。
 3. 真实音频频谱属于 P2，不阻塞 P0/P1。P0/P1 以程序化音乐呼吸作为正式降级方案，
    Web Audio/CORS 可用时也不得绕过版权或音源限制。
+## T017B Change Record: Same-Origin Playback Delivery
+
+When a currently authorized short-lived Netease source uses HTTP, ECHOFORM may
+deliver it to the local player through a same-origin, session-bound stream. The
+user experience remains the existing player: the audio element loads one local
+path, seeks with the normal progress control, and uses the existing source
+refresh and error recovery states.
+
+This does not promise universal anonymous playback and does not change VIP,
+copyright, region, or future availability rules. The player continues to show
+the true unavailable or retryable state when source resolution or stream loading
+fails. The relay does not create a public download feature, cache media, or
+introduce a new page or navigation surface.

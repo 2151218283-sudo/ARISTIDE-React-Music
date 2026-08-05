@@ -84,7 +84,8 @@ function playbackUrl(value: unknown): string | null {
     return null;
   }
   try {
-    return new URL(candidate).protocol === "https:" ? candidate : null;
+    const protocol = new URL(candidate).protocol;
+    return protocol === "https:" || protocol === "http:" ? candidate : null;
   } catch {
     return null;
   }

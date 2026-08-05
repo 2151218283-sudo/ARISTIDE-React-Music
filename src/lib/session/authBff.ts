@@ -111,7 +111,7 @@ function shouldSecureCookie(request: Request): boolean {
   return forwardedProtocol === "https" || new URL(request.url).protocol === "https:";
 }
 
-function sessionCookie(request: Request, sessionId: string): string {
+export function createSessionCookie(request: Request, sessionId: string): string {
   const attributes = [
     `${SESSION_COOKIE_NAME}=${sessionId}`,
     "Path=/",
@@ -229,7 +229,7 @@ export function createAuthRouteHandlers(
           data,
           requestId,
           dependencies.now,
-          resolved.created ? sessionCookie(request, resolved.session.id) : undefined,
+          resolved.created ? createSessionCookie(request, resolved.session.id) : undefined,
         );
       } catch (error) {
         return failure(error, requestId);
@@ -243,7 +243,7 @@ export function createAuthRouteHandlers(
         parseCookie(request, SESSION_COOKIE_NAME),
       );
       const setCookie = resolved.created
-        ? sessionCookie(request, resolved.session.id)
+        ? createSessionCookie(request, resolved.session.id)
         : undefined;
       try {
         const data: StartQrLoginResponse = await withTimeout(

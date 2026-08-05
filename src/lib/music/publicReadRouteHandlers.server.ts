@@ -4,6 +4,7 @@ import {
   readSessionIdFromRequest,
   sessionStore,
 } from "../session/sessionStore";
+import { createAudioRelayRouteHandlers } from "./audioRelayRouteHandlers.server";
 
 function resolvePlaybackCredential(request: Request): string | undefined {
   const sessionId = readSessionIdFromRequest(request);
@@ -15,4 +16,9 @@ function resolvePlaybackCredential(request: Request): string | undefined {
 export const publicReadRouteHandlers = createPublicReadRouteHandlers({
   createProvider: createLegacyNeteaseAdapter,
   resolvePlaybackCredential,
+});
+
+export const audioRelayRouteHandlers = createAudioRelayRouteHandlers({
+  publicReadRouteHandlers,
+  store: sessionStore,
 });

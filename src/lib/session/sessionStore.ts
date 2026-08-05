@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import type {
   DailyRecommendations,
   DataMode,
+  PlaybackSource,
   UserProfile,
 } from "@/lib/music/models";
 
@@ -28,6 +29,7 @@ export interface ServerSession {
   upstreamCookie: string | null;
   qr: ServerQrChallenge | null;
   dailyRecommendations: Map<string, DailyRecommendations>;
+  audioRelaySources: Map<string, PlaybackSource>;
 }
 
 export interface PublicSessionState {
@@ -77,6 +79,7 @@ export class InMemorySessionStore {
       upstreamCookie: null,
       qr: null,
       dailyRecommendations: new Map(),
+      audioRelaySources: new Map(),
     };
     this.sessions.set(session.id, session);
     return session;
@@ -183,6 +186,7 @@ export class InMemorySessionStore {
     session.upstreamCookie = upstreamCookie;
     session.qr = null;
     session.dailyRecommendations.clear();
+    session.audioRelaySources.clear();
     return true;
   }
 
@@ -193,6 +197,7 @@ export class InMemorySessionStore {
     }
     session.user = user;
     session.dailyRecommendations.clear();
+    session.audioRelaySources.clear();
     return true;
   }
 
@@ -204,6 +209,7 @@ export class InMemorySessionStore {
     session.user = null;
     session.upstreamCookie = null;
     session.dailyRecommendations.clear();
+    session.audioRelaySources.clear();
     return true;
   }
 
@@ -215,6 +221,7 @@ export class InMemorySessionStore {
     if (session.mode !== mode) {
       session.mode = mode;
       session.dailyRecommendations.clear();
+      session.audioRelaySources.clear();
     }
     return true;
   }
@@ -260,6 +267,44 @@ export class InMemorySessionStore {
     return true;
   }
 
+  setAudioRelaySource(
+    sessionId: string,
+    trackId: string,
+    source: PlaybackSource,
+  ): boolean {
+    const session = this.get(sessionId);
+    if (!session || source.expiresAt <= this.now()) {
+      return false;
+    }
+    session.audioRelaySources.set(trackId, source);
+    return true;
+  }
+
+  getAudioRelaySource(sessionId: string, trackId: string): PlaybackSource | null {
+    const session = this.get(sessionId);
+    if (!session) {
+      return null;
+    }
+    const source = session.audioRelaySources.get(trackId) ?? null;
+    if (!source) {
+      return null;
+    }
+    if (source.expiresAt <= this.now()) {
+      session.audioRelaySources.delete(trackId);
+      return null;
+    }
+    return source;
+  }
+
+  clearAudioRelaySources(sessionId: string): boolean {
+    const session = this.get(sessionId);
+    if (!session) {
+      return false;
+    }
+    session.audioRelaySources.clear();
+    return true;
+  }
+
   getUpstreamCookie(sessionId: string): string | null {
     return this.get(sessionId)?.upstreamCookie ?? null;
   }
@@ -293,7 +338,17 @@ export class InMemorySessionStore {
   }
 }
 
-export const sessionStore = new InMemorySessionStore();
+interface SessionStoreGlobal {
+  __echoformSessionStore?: InMemorySessionStore;
+}
+
+const sessionStoreGlobal = globalThis as typeof globalThis & SessionStoreGlobal;
+
+// Route handlers can be evaluated from separate development bundles in one process.
+export const sessionStore = sessionStoreGlobal.__echoformSessionStore
+  ?? new InMemorySessionStore();
+
+sessionStoreGlobal.__echoformSessionStore = sessionStore;
 
 export function readSessionIdFromRequest(request: Request): string | null {
   const cookieHeader = request.headers.get("cookie");

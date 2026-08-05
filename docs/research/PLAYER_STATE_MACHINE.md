@@ -551,3 +551,14 @@ type SleepTimer =
 - `PLAYER-AC-16`：错误提供可执行恢复动作且不只依赖 Toast。
 - `PLAYER-AC-17`：音源 URL 不进入持久存储或日志。
 - `PLAYER-AC-18`：状态机单元测试、关键 E2E 和 `npm run check` 全部通过。
+## T017B Change Record: Relay Source Boundary
+
+For Real Mode, a resolved `PlaybackSource.url` given to the Audio host is a
+same-origin `/api/tracks/:id/audio` path. The provider URL is server-only and
+does not enter the controller's public snapshot, persistence, logs, or UI.
+
+This changes only source transport. `LOAD_TRACK`, revision guards, one automatic
+source refresh, media events, finite queue traversal, seek behavior, and the
+single Audio-element invariant are unchanged. A relay HTTP/media failure is
+treated as the existing source/media error and follows the current bounded
+recovery policy.

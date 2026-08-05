@@ -5,8 +5,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   request: Request,
-  context: RouteContext<"/api/tracks/[id]/source">,
+  context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
   const { id } = await context.params;
-  return audioRelayRouteHandlers.source(request, id);
+  return audioRelayRouteHandlers.audio(request, id);
 }

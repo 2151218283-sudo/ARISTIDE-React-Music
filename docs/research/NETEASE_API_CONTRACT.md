@@ -723,3 +723,21 @@ BFF 在单个 Session 内短期记录 `clientMutationId`，重复提交返回第
 - `API-AC-15`：Enhanced 的解灰、第三方匹配和代理 URL 在代码、配置与测试中均不可达。
 - `API-AC-16`：`type=all` 使用三类独立查询，支持部分成功且不会被单类失败清空全部结果。
 - `API-AC-17`：新 Session 默认 Real；Demo 只能由用户显式切换，响应带明确模式且不混用真实用户数据。
+## T017B Local Audio Relay Evidence and Contract
+
+On 2026-08-05, a sanitized manual probe found publicly readable, provider-
+authorized short-lived sources that use HTTP rather than HTTPS. Through the
+validated loopback transport proxy, a single `Range: bytes=0-0` read returned
+`206 Partial Content`. The probe recorded no track, source URL, Cookie, proxy
+address, CDN host, or media byte.
+
+The adapter may therefore retain an HTTP or HTTPS source only in server memory.
+The public `/source` response must replace it with the same-origin `/audio`
+path. `/audio` is session-bound; it validates the source expiry, one Range
+header, every redirect, and a fixed Netease media-host allowlist before it
+streams. It exposes only selected media response headers and `no-store`.
+
+This evidence proves local transport feasibility only. It does not prove rights,
+VIP, region access, a particular user account, future availability, production
+hosting, or unrestricted playback. T017B does not use Enhanced, unblock,
+third-party matching, anonymous credentials, or write operations.

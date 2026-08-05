@@ -404,6 +404,26 @@ describe("Legacy anonymous reads", () => {
     expect(result.corsMode).toBe("unavailable");
   });
 
+  it("retains a valid HTTP source for the server-only relay boundary", async () => {
+    const adapter = new LegacyNeteaseAdapter(makeApi({
+      song_url_v1: method({
+        code: 200,
+        data: [{
+          id: 101,
+          code: 200,
+          url: "http://music.126.net/synthetic-stream",
+          expi: 120,
+          level: "standard",
+        }],
+      }),
+    }));
+
+    const result = await adapter.getPlaybackSource("101", "standard");
+
+    expect(result.url.startsWith("http:")).toBe(true);
+    expect(result.corsMode).toBe("unavailable");
+  });
+
   it("degrades naturally to line lyrics when yrc is absent", async () => {
     const adapter = new LegacyNeteaseAdapter(makeApi({
       lyric_new: method({

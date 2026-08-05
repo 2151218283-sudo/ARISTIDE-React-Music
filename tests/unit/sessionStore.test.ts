@@ -10,12 +10,24 @@ import {
   InMemorySessionStore,
   SESSION_IDLE_TTL_MS,
 } from "../../src/lib/session/sessionStore";
+import type { PlaybackSource } from "../../src/lib/music/models";
 
 const user = {
   id: "9001",
   nickname: "测试用户",
   avatarUrl: null,
   signature: null,
+};
+
+const relaySource: PlaybackSource = {
+  url: "http://music.126.net/synthetic-stream",
+  expiresAt: 2_000,
+  quality: "standard",
+  codec: "mp3",
+  bitrate: 128_000,
+  sampleRate: 44_100,
+  sizeBytes: 1,
+  corsMode: "unavailable",
 };
 
 function createOpaqueServerValue(): string {
@@ -112,6 +124,23 @@ describe("InMemorySessionStore", () => {
     )).toBeNull();
     expect(store.setMode(session.id, "real")).toBe(true);
     expect(store.getPublicState(session.id)).toEqual({ mode: "real", user });
+  });
+
+  it("isolates, expires, and clears relay sources with their session context", () => {
+    let now = 1_000;
+    const store = createStore(() => now);
+    const first = store.create();
+    const second = store.create();
+
+    expect(store.setAudioRelaySource(first.id, "101", relaySource)).toBe(true);
+    expect(store.getAudioRelaySource(second.id, "101")).toBeNull();
+    expect(store.setMode(first.id, "demo")).toBe(true);
+    expect(store.getAudioRelaySource(first.id, "101")).toBeNull();
+
+    expect(store.setAudioRelaySource(first.id, "101", relaySource)).toBe(true);
+    now = relaySource.expiresAt;
+    expect(store.getAudioRelaySource(first.id, "101")).toBeNull();
+    expect(store.setAudioRelaySource(first.id, "101", relaySource)).toBe(false);
   });
 });
 
