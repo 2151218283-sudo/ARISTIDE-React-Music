@@ -24,7 +24,7 @@ const noStoreCacheControl = "no-store";
 export interface DailyRecommendationRealProvider {
   getSessionUser(upstreamCookie: string): Promise<UserProfile | null>;
   getPersonalDailyRecommendations(upstreamCookie: string): Promise<Track[]>;
-  getPublicRecommendations(): Promise<Track[]>;
+  getVerifiedPublicRecommendations(): Promise<Track[]>;
 }
 
 export interface DailyRecommendationDemoProvider {
@@ -238,6 +238,29 @@ function recommendationCacheKey(
   return `public:${session.id}:${date}`;
 }
 
+function publicRecommendationCacheKey(date: string): string {
+  return `public:bare:${date}`;
+}
+
+async function getVerifiedPublicRecommendations(
+  date: string,
+  dependencies: ResolvedDependencies,
+): Promise<DailyRecommendations> {
+  const cacheKey = publicRecommendationCacheKey(date);
+  const cached = dependencies.store.getPublicDailyRecommendations(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const tracks = await executeRead(
+    () => dependencies.createRealProvider().getVerifiedPublicRecommendations(),
+    dependencies,
+  );
+  const result: DailyRecommendations = { date, source: "public", tracks };
+  dependencies.store.setPublicDailyRecommendations(cacheKey, result);
+  return result;
+}
+
 async function getDailyRecommendations(
   session: ServerSession,
   date: string,
@@ -262,23 +285,11 @@ async function getDailyRecommendations(
       () => realProvider.getPersonalDailyRecommendations(session.upstreamCookie ?? ""),
       dependencies,
     );
-    const tracks = personalTracks.length > 0
-      ? personalTracks
-      : await executeRead(
-        () => realProvider.getPublicRecommendations(),
-        dependencies,
-      );
-    result = {
-      date,
-      source: personalTracks.length > 0 ? "personal" : "public",
-      tracks,
-    };
+    result = personalTracks.length > 0
+      ? { date, source: "personal", tracks: personalTracks }
+      : await getVerifiedPublicRecommendations(date, dependencies);
   } else {
-    const tracks = await executeRead(
-      () => dependencies.createRealProvider().getPublicRecommendations(),
-      dependencies,
-    );
-    result = { date, source: "public", tracks };
+    result = await getVerifiedPublicRecommendations(date, dependencies);
   }
 
   dependencies.store.setDailyRecommendations(session.id, cacheKey, result);

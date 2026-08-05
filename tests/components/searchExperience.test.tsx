@@ -37,6 +37,17 @@ const track: Track = {
   privilege: { fee: 0, maxQuality: "standard" },
 };
 
+const source: PlaybackSource = {
+  url: "synthetic-stream",
+  expiresAt: Number.MAX_SAFE_INTEGER,
+  quality: "standard",
+  codec: "mp3",
+  bitrate: 128_000,
+  sampleRate: 44_100,
+  sizeBytes: 4_096,
+  corsMode: "unavailable",
+};
+
 function allResult(overrides: Partial<SearchResponse> = {}): SearchResponse {
   return {
     type: "all",
@@ -75,7 +86,7 @@ function failure(message: string): Response {
 function renderSearch(fetchMock: (input: RequestInfo | URL) => Promise<Response>) {
   vi.stubGlobal("fetch", vi.fn(fetchMock));
   return render(
-    <PlayerProvider sourceResolver={async () => await new Promise<PlaybackSource>(() => undefined)}>
+    <PlayerProvider sourceResolver={async () => source}>
       <SearchExperience />
     </PlayerProvider>,
   );
@@ -153,6 +164,38 @@ describe("SearchExperience", () => {
     await user.click(screen.getByRole("button", { name: "播放 First Signal" }));
     expect(await screen.findByRole("button", { name: "暂停 First Signal" })).toBeVisible();
     expect(window.location.search).toBe("?q=A%26B&type=all");
+  });
+
+  it("checks unknown tracks only after the playable filter is enabled", async () => {
+    const user = userEvent.setup();
+    const unknownTrack = { ...track, availability: "unknown" as const };
+    const fetchMock = vi.fn<(input: RequestInfo | URL) => Promise<Response>>(async (input) => {
+      const url = new URL(String(input), "http://localhost");
+      if (url.pathname.endsWith("/availability")) {
+        return Response.json({
+          ok: true,
+          data: { state: "verified-playable" },
+        });
+      }
+      return success(allResult({
+        tracks: { items: [unknownTrack], total: 1, hasMore: false },
+      }));
+    });
+    renderSearch(fetchMock);
+
+    await searchFor(user, "signal");
+    await waitFor(() => expect(screen.getByText("First Signal")).toBeVisible());
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "播放并检查 First Signal" })).toBeEnabled();
+
+    await user.click(screen.getByRole("checkbox", { name: "仅看可播放" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(new URL(String(fetchMock.mock.calls[1][0]), "http://localhost").pathname)
+      .toBe("/api/tracks/track-001/availability");
+    expect(window.location.search).toBe("?q=signal&type=all&playable=1");
+    await waitFor(() => expect(screen.queryByText("正在检查 1 首歌曲是否可播放"))
+      .not.toBeInTheDocument());
+    expect(screen.getByRole("button", { name: "播放 First Signal" })).toBeEnabled();
   });
 
   it("ignores a stale response after rapid input", async () => {

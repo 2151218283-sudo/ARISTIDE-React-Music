@@ -354,6 +354,69 @@ describe("public BFF read routes", () => {
     expect(getPlaybackSource).toHaveBeenNthCalledWith(1, "101", "standard");
   });
 
+  it("uses a server-only session credential for source reads without returning it", async () => {
+    const getPlaybackSource = vi.fn<PublicReadProvider["getPlaybackSource"]>(
+      async () => source,
+    );
+    const handlers = createHandlers(createProvider({ getPlaybackSource }), {
+      resolvePlaybackCredential: () => "server-only-credential",
+    });
+
+    const response = await handlers.source(
+      new Request("http://localhost/api/tracks/101/source"),
+      "101",
+    );
+    const text = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(getPlaybackSource).toHaveBeenCalledWith(
+      "101",
+      "standard",
+      "server-only-credential",
+    );
+    expect(text).not.toContain("server-only-credential");
+  });
+
+  it("returns a no-store availability state without exposing a source URL", async () => {
+    const getPlaybackSource = vi.fn<PublicReadProvider["getPlaybackSource"]>()
+      .mockResolvedValueOnce(source)
+      .mockRejectedValueOnce(new AppError(
+        "TRACK_UNAVAILABLE",
+        "Synthetic unavailable track.",
+      ));
+    const handlers = createHandlers(createProvider({ getPlaybackSource }));
+
+    const playable = await handlers.availability(
+      new Request("http://localhost/api/tracks/101/availability"),
+      "101",
+    );
+    const unavailable = await handlers.availability(
+      new Request("http://localhost/api/tracks/101/availability"),
+      "101",
+    );
+    const playableText = await playable.text();
+    const unavailableBody = await readBody<{
+      ok: boolean;
+      data: { state: string };
+    }>(unavailable);
+
+    expect(playable.status).toBe(200);
+    expect(playable.headers.get("Cache-Control")).toBe("no-store");
+    expect(playableText).toContain("verified-playable");
+    expect(playableText).not.toContain("ephemeral-source");
+    expect(unavailable.status).toBe(200);
+    expect(unavailableBody).toEqual({
+      ok: true,
+      data: { state: "unavailable" },
+      meta: {
+        requestId: "request-2",
+        mode: "real",
+        fetchedAt: "2023-11-14T22:13:20.000Z",
+      },
+    });
+    expect(getPlaybackSource).toHaveBeenNthCalledWith(1, "101", "standard");
+  });
+
   it("applies the comment cache and forwards validated pagination", async () => {
     const getComments = vi.fn<PublicReadProvider["getComments"]>(async () => comments);
     const handlers = createHandlers(createProvider({ getComments }));

@@ -26,7 +26,7 @@ const track = {
   artworkUrl: null,
   aliases: [],
   explicit: false,
-  availability: "unknown" as const,
+  availability: "playable" as const,
   privilege: { fee: 0, maxQuality: null },
 };
 
@@ -61,7 +61,7 @@ function createHandlers(options: {
   const real: DailyRecommendationRealProvider = {
     getSessionUser: vi.fn(async () => user),
     getPersonalDailyRecommendations: vi.fn(async () => [track]),
-    getPublicRecommendations: vi.fn(async () => [track]),
+    getVerifiedPublicRecommendations: vi.fn(async () => [track]),
     ...options.real,
   };
   const demo: DailyRecommendationDemoProvider = {
@@ -112,7 +112,32 @@ describe("daily recommendations BFF", () => {
       meta: { mode: "real" },
     });
     expect(second.headers.get("Cache-Control")).toBe("no-store");
-    expect(real.getPublicRecommendations).toHaveBeenCalledTimes(1);
+    expect(real.getVerifiedPublicRecommendations).toHaveBeenCalledTimes(1);
+  });
+
+  it("shares only verified public selections across guest sessions for the same date", async () => {
+    const { handlers, real, store } = createHandlers();
+    const firstSession = store.create();
+    const secondSession = store.create();
+
+    const first = await handlers.daily(new Request(
+      "http://localhost/api/recommendations/daily",
+      { headers: { cookie: cookieFor(firstSession.id) } },
+    ));
+    const second = await handlers.daily(new Request(
+      "http://localhost/api/recommendations/daily",
+      { headers: { cookie: cookieFor(secondSession.id) } },
+    ));
+    const firstBody = await responseBody<{
+      data: { tracks: Array<{ availability: string }> };
+    }>(first);
+    const secondBody = await responseBody<{
+      data: { tracks: Array<{ availability: string }> };
+    }>(second);
+
+    expect(real.getVerifiedPublicRecommendations).toHaveBeenCalledTimes(1);
+    expect(firstBody.data.tracks).toMatchObject([{ availability: "playable" }]);
+    expect(secondBody.data.tracks).toMatchObject([{ availability: "playable" }]);
   });
 
   it("uses a verified account only for personal daily recommendations and falls back on empty", async () => {
@@ -134,7 +159,7 @@ describe("daily recommendations BFF", () => {
 
     expect(body.data).toMatchObject({ source: "public", tracks: [{ id: "101" }] });
     expect(personal).toHaveBeenCalledWith(expect.any(String));
-    expect(real.getPublicRecommendations).toHaveBeenCalledTimes(1);
+    expect(real.getVerifiedPublicRecommendations).toHaveBeenCalledTimes(1);
     expect(JSON.stringify(body)).not.toContain("echoform.sid");
   });
 
@@ -146,7 +171,7 @@ describe("daily recommendations BFF", () => {
       .mockRejectedValueOnce(new AppError("UPSTREAM_UNAVAILABLE", "offline", { retryable: true }));
     const { demo, handlers } = createHandlers({
       store,
-      real: { getPublicRecommendations: publicRead },
+      real: { getVerifiedPublicRecommendations: publicRead },
     });
 
     const response = await handlers.daily(new Request(
@@ -172,7 +197,7 @@ describe("daily recommendations BFF", () => {
     const slowRead = vi.fn(async () => await new Promise<never>(() => undefined));
     const { handlers, real, store } = createHandlers({
       real: {
-        getPublicRecommendations: slowRead,
+        getVerifiedPublicRecommendations: slowRead,
       },
       timeoutMs: 1,
     });
@@ -191,7 +216,7 @@ describe("daily recommendations BFF", () => {
       ok: false,
       error: { code: "UPSTREAM_TIMEOUT", retryable: true },
     });
-    expect(real.getPublicRecommendations).toHaveBeenCalledTimes(2);
+    expect(real.getVerifiedPublicRecommendations).toHaveBeenCalledTimes(2);
     expect(store.getDailyRecommendations(session.id, `public:${session.id}:2026-07-30`))
       .toBeNull();
   });

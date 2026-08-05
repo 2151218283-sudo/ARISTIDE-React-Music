@@ -1,6 +1,6 @@
 # BFF Public Read Routes Specification
 
-> Status: T009 implementation baseline
+> Status: T017A implementation baseline
 > Scope: anonymous same-origin reads for search, tracks, playback sources, lyrics, and comments.
 
 ## Ownership
@@ -27,6 +27,7 @@ page-level data UI.
 | `GET /api/search` | `q`, `type`, `limit`, `offset` | `SearchResponse` | `public, max-age=300, s-maxage=300` | 10s |
 | `GET /api/tracks/:id` | numeric `id` | `Track` | `public, max-age=300, s-maxage=300` | 10s |
 | `GET /api/tracks/:id/source` | numeric `id`, `quality` | `PlaybackSource` | `no-store` | 15s |
+| `GET /api/tracks/:id/availability` | numeric `id` | `{ state: "verified-playable" | "unavailable" }` | `no-store` | 15s |
 | `GET /api/tracks/:id/lyrics` | numeric `id` | `LyricDocument` | `public, max-age=300, s-maxage=300` | 10s |
 | `GET /api/tracks/:id/comments` | numeric `id`, `limit`, `offset` | `CommentPage` | `public, max-age=30, s-maxage=30` | 10s |
 
@@ -35,6 +36,10 @@ must be 1-20 decimal digits. Search types are `all`, `track`, `album`, and
 `artist`; source qualities are `standard`, `exhigh`, `lossless`, and `hires`.
 Search limits are 1-30, comment limits are 1-100, and offsets are non-negative
 integers. Invalid input never reaches the provider.
+
+The availability route requests the normal standard-quality source path only
+on the server, then discards the returned URL. It exists for the search filter;
+the browser receives a state only and cannot turn it into an audio proxy.
 
 ## Envelope And Errors
 
@@ -67,6 +72,13 @@ retry with a short jittered delay. Validation, access, availability, and other
 upstream errors are not retried. `type=all` preserves fulfilled sections and
 reports failures in `partialErrors`; only an all-failed result becomes an
 `ApiFailure`.
+
+For source and availability reads, the route may inject the authenticated
+user's server-only upstream Cookie after resolving the ECHOFORM `sid`. It is
+never created from client input, returned in an envelope, logged, or passed to
+metadata reads. If no authenticated Cookie exists, the normal bare-anonymous
+upstream call is used. The user Cookie is preferred and never merged with an
+anonymous-visitor credential.
 
 ## Test Gates
 

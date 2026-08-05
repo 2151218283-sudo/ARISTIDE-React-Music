@@ -31,8 +31,11 @@ interface DailyRecommendations {
 ```
 
 - A new or existing anonymous Real session reads the Real Provider's public
-  new-song selection and returns `source: "public"`. It is never described as
-  a personal daily recommendation.
+  new-song selection, verifies candidates at standard quality on the server,
+  and returns only the verified subset as `source: "public"`. Every returned
+  public Track has `availability: "playable"`; a source URL is discarded after
+  the probe and never enters this response or a cache. It is never described
+  as a personal daily recommendation.
 - An authenticated Real session reads the authenticated upstream
   `/recommend/songs` capability and returns `source: "personal"`.
 - An empty personal list makes one public-selection read and returns
@@ -41,10 +44,15 @@ interface DailyRecommendations {
   never changes the session's mode or synthesizes Demo data.
 - A Demo session reads only `DemoMusicProvider` and returns `source: "demo"`.
   It contains no Real user or upstream values.
-- A session cache key includes the server-local date and identity:
-  `personal:<userId>:<date>`, `public:<sessionId>:<date>`, or
-  `demo:<sessionId>:<date>`. Cache contents exist only in process memory and
-  are cleared when authentication changes or the data mode changes.
+- Personal and Demo cache keys include the server-local date and identity:
+  `personal:<userId>:<date>` or `demo:<sessionId>:<date>`. The verified public
+  selection uses a separate in-process `public:bare:<date>` cache because it
+  is neither user data nor a source cache. Cache contents never include an
+  upstream credential or source URL.
+- Anonymous-credential registration was runtime-tested for the pinned Legacy
+  package. It did not increase the measured playable count for the fixed
+  public sample, so this product does not retain a guest upstream credential.
+  Guest reads use the normal bare-anonymous upstream path.
 - Read requests time out after 10 seconds and retry only once for 429, timeout,
   or network errors. Private and mode responses are never HTTP cached.
 
@@ -108,7 +116,7 @@ normalized `{ mode, user }` public session state using `no-store`.
 | Real authenticated personal | `YOUR DAILY SIGNAL` | none |
 | Real authenticated public fallback | `PUBLIC SELECTION` | `重新加载日推` |
 | Loading | `正在载入今日推荐` | none |
-| Empty public selection | `暂时没有可展示的推荐` | `重新加载` |
+| Empty public selection | `暂时没有可确认可播放的公开精选` | `重新加载` |
 | Real read failure | `无法载入今日推荐` | `重试`, `使用演示数据` |
 | Demo | `DEMO` | `返回实时数据` |
 

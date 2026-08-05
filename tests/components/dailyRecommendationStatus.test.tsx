@@ -203,7 +203,7 @@ describe("DailyRecommendationStatus", () => {
     expect(screen.getByText("PUBLIC SELECTION")).toBeVisible();
 
     await userEventInstance.click(screen.getByRole("button", { name: "重新加载日推" }));
-    expect(await screen.findByText("暂时没有可展示的推荐，请稍后重新加载。")).toBeVisible();
+    expect(await screen.findByText("暂时没有可确认可播放的公开精选，请稍后重新加载。")).toBeVisible();
     expect(screen.getByRole("button", { name: "重新加载" })).toBeVisible();
   });
 });

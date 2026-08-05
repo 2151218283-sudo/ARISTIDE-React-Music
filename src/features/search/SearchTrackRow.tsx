@@ -9,9 +9,12 @@ import { usePlayerDispatch, usePlayerSelector } from "@/features/player/playerCo
 import type { QueueItem } from "@/lib/player";
 import type { Track } from "@/lib/music/models";
 
+import type { SearchTrackPlayability } from "./availabilityClient";
 import styles from "./SearchTrackRow.module.css";
 
 export interface SearchTrackRowProps {
+  onPlaybackRequested: (trackId: string) => void;
+  playability: SearchTrackPlayability;
   queue: readonly QueueItem[];
   track: Track;
 }
@@ -32,19 +35,37 @@ function unavailableReason(track: Track): string | null {
     case "region":
       return "当前地区不可播放";
     case "unknown":
-      return "当前歌曲暂时不可播放";
     case "playable":
       return null;
   }
 }
 
-export function SearchTrackRow({ queue, track }: SearchTrackRowProps) {
+function playabilityLabel(state: SearchTrackPlayability): string | null {
+  switch (state) {
+    case "checking":
+      return "正在检查";
+    case "unavailable":
+      return "当前不可播放";
+    case "unknown":
+      return "播放时检查";
+    case "verified-playable":
+      return null;
+  }
+}
+
+export function SearchTrackRow({
+  onPlaybackRequested,
+  playability,
+  queue,
+  track,
+}: SearchTrackRowProps) {
   const dispatch = usePlayerDispatch();
   const currentTrack = usePlayerSelector((snapshot) => snapshot.currentTrack);
   const desiredPlayback = usePlayerSelector((snapshot) => snapshot.desiredPlayback);
   const playbackStatus = usePlayerSelector((snapshot) => snapshot.playbackStatus);
   const networkStatus = usePlayerSelector((snapshot) => snapshot.networkStatus);
   const restriction = unavailableReason(track);
+  const availabilityLabel = restriction ?? playabilityLabel(playability);
   const isCurrent = currentTrack?.id === track.id;
   const isPlaying = isCurrent && desiredPlayback === "playing";
   const isLoading = isCurrent && (
@@ -55,7 +76,7 @@ export function SearchTrackRow({ queue, track }: SearchTrackRowProps) {
   const artistNames = track.artists.map((artist) => artist.name).join(" / ");
 
   const handlePlayback = (): void => {
-    if (restriction) {
+    if (restriction || playability === "checking" || playability === "unavailable") {
       return;
     }
 
@@ -66,6 +87,7 @@ export function SearchTrackRow({ queue, track }: SearchTrackRowProps) {
       return;
     }
 
+    onPlaybackRequested(track.id);
     dispatch({
       type: "LOAD_TRACK",
       autoplay: true,
@@ -74,8 +96,18 @@ export function SearchTrackRow({ queue, track }: SearchTrackRowProps) {
     });
   };
 
-  const statusLabel = restriction
+  const statusLabel = availabilityLabel
     ?? (isPlaying ? "正在播放" : isCurrent ? "已载入播放器" : null);
+  const playbackDisabled = Boolean(restriction)
+    || playability === "checking"
+    || playability === "unavailable";
+  const playbackLabel = isPlaying
+    ? `暂停 ${track.name}`
+    : playability === "unknown"
+      ? `播放并检查 ${track.name}`
+      : availabilityLabel
+        ? `${availabilityLabel} ${track.name}`
+        : `播放 ${track.name}`;
 
   return (
     <article className={styles.row} data-current={isCurrent || undefined}>
@@ -104,14 +136,14 @@ export function SearchTrackRow({ queue, track }: SearchTrackRowProps) {
       <span className={styles.playback}>
         {statusLabel ? <span className={styles.status}>{statusLabel}</span> : null}
         <IconButton
-          disabled={Boolean(restriction)}
+          disabled={playbackDisabled}
           icon={isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
-          label={restriction ?? (isPlaying ? `暂停 ${track.name}` : `播放 ${track.name}`)}
-          loading={isLoading}
+          label={playbackLabel}
+          loading={isLoading || playability === "checking"}
           onClick={handlePlayback}
           pressed={isPlaying}
           size="md"
-          tooltip={restriction ?? (isPlaying ? "暂停" : "播放")}
+          tooltip={availabilityLabel ?? (isPlaying ? "暂停" : "播放")}
         />
       </span>
     </article>

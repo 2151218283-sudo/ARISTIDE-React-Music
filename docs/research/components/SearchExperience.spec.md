@@ -69,6 +69,18 @@
 - The current track exposes text plus an accessible playing state, not color
   alone. Unavailable tracks remain visible and explain why their play control
   is disabled.
+- Search keeps all discovered Tracks. Each row has an in-memory-only
+  availability state: `unknown`, `checking`, `verified-playable`, or
+  `unavailable`. `unknown` remains actionable and changes to `checking` when
+  the user requests playback. A successful source resolution marks it
+  `verified-playable`; an access failure marks it `unavailable` without
+  inventing a more specific reason.
+- The `仅看可播放` checkbox is represented in the local route URL as
+  `playable=1`. Enabling it may check the currently rendered Track results via
+  the same-origin availability BFF, with bounded concurrency. It never deletes
+  search results, stores a source URL, or preflights all results by default.
+  Pending checks remain visibly labelled; a failed check can be retried or the
+  user can turn the filter off to see every discovery result.
 - Artist and album links resolve to local `/artist/[id]` and `/album/[id]`
   routes only. No result may navigate to the source portfolio or an external
   music site.
@@ -99,6 +111,10 @@
 | Empty result | Explain no result and offer `修改关键词` by focusing the input. |
 | Failure | Explain the BFF error and retry without clearing a prior result. |
 | Stale response | Ignore it after a newer revision begins. |
+| Availability unknown | Keep the Track visible and actionable; state that playback will check it. |
+| Availability checking | Retain row dimensions, disable duplicate playback, and announce local progress. |
+| Availability unavailable | Keep the Track discoverable, explain it is currently unavailable, and disable playback. |
+| Only playable filter | Check current Track rows on demand, show checking progress, retain only verified rows after checks, and expose retry/show-all recovery. |
 
 Component tests cover the state matrix, keyboard shortcut, URL restoration,
 pagination, player dispatch, and stale-response isolation. Contract tests cover

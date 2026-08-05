@@ -55,6 +55,9 @@ const qualityBitrates: Record<AudioQuality, number> = {
 };
 
 const trackIdPattern = /^\d{1,20}$/;
+const publicSelectionCandidateLimit = 24;
+const publicSelectionTargetSize = 12;
+const publicSelectionProbeConcurrency = 4;
 
 function validationError(message: string): AppError {
   return new AppError("VALIDATION_ERROR", message);
@@ -102,6 +105,12 @@ function withCookie(
   cookie: string | undefined,
 ): Readonly<Record<string, unknown>> {
   return cookie ? { ...params, cookie } : params;
+}
+
+function isExpectedAvailabilityFailure(error: AppError): boolean {
+  return error.code === "TRACK_UNAVAILABLE"
+    || error.code === "VIP_REQUIRED"
+    || error.code === "REGION_RESTRICTED";
 }
 
 export class LegacyNeteaseAdapter {
@@ -259,6 +268,40 @@ export class LegacyNeteaseAdapter {
     const response = await this.invoke(this.api.top_song, { type: 0 });
     const body = unwrapLegacyBody(response);
     return mapTracks(body.data ?? []);
+  }
+
+  async getVerifiedPublicRecommendations(): Promise<Track[]> {
+    const candidates = (await this.getPublicRecommendations())
+      .slice(0, publicSelectionCandidateLimit);
+    const verified: Track[] = [];
+    let firstUnexpectedFailure: AppError | null = null;
+
+    for (
+      let offset = 0;
+      offset < candidates.length && verified.length < publicSelectionTargetSize;
+      offset += publicSelectionProbeConcurrency
+    ) {
+      const batch = candidates.slice(offset, offset + publicSelectionProbeConcurrency);
+      const results = await Promise.all(batch.map(async (candidate) => {
+        try {
+          await this.getPlaybackSource(candidate.id, "standard");
+          return { ...candidate, availability: "playable" as const };
+        } catch (error) {
+          const appError = safeUpstreamError(error);
+          if (!isExpectedAvailabilityFailure(appError) && !firstUnexpectedFailure) {
+            firstUnexpectedFailure = appError;
+          }
+          return null;
+        }
+      }));
+      verified.push(...results.flatMap((track) => track ? [track] : []));
+    }
+
+    if (verified.length === 0 && firstUnexpectedFailure) {
+      throw firstUnexpectedFailure;
+    }
+
+    return verified.slice(0, publicSelectionTargetSize);
   }
 
   async getTrack(trackId: string, cookie?: string): Promise<Track> {

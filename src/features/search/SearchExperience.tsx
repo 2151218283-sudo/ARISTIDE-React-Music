@@ -17,6 +17,7 @@ import { IconButton } from "@/components/IconButton";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusView } from "@/components/StatusView";
 import { TextButton } from "@/components/TextButton";
+import { usePlayerSelector } from "@/features/player/playerContext";
 import type {
   AlbumSummary,
   ArtistSummary,
@@ -30,6 +31,11 @@ import type { QueueItem } from "@/lib/player";
 import { SearchEntityTile } from "./SearchEntityTile";
 import { SearchTrackRow } from "./SearchTrackRow";
 import {
+  AvailabilityClientError,
+  requestTrackAvailability,
+  type SearchTrackPlayability,
+} from "./availabilityClient";
+import {
   isSearchType,
   requestSearch,
   SearchClientError,
@@ -39,6 +45,7 @@ import styles from "./SearchExperience.module.css";
 const debounceMs = 300;
 const slowInitialResultMs = 1_000;
 const pageLimit = 20;
+const availabilityProbeConcurrency = 3;
 const pageHeadingFocusStorageKey = "echoform:page-heading-focus";
 
 const tabs: Array<{ label: string; type: SearchType }> = [
@@ -63,6 +70,10 @@ type PaginatedResponse = Exclude<SearchResponse, SearchAllResult>;
 
 function readUrlType(value: string | null): SearchType {
   return isSearchType(value) ? value : "all";
+}
+
+function readUrlPlayableOnly(value: string | null): boolean {
+  return value === "1";
 }
 
 function resultHasNoItems(response: SearchResponse): boolean {
@@ -138,6 +149,46 @@ function toQueue(tracks: readonly Track[]): QueueItem[] {
   }));
 }
 
+function trackPlayability(
+  track: Track,
+  states: Readonly<Record<string, SearchTrackPlayability>>,
+): SearchTrackPlayability {
+  const remembered = states[track.id];
+  if (remembered) {
+    return remembered;
+  }
+  if (track.availability === "playable") {
+    return "verified-playable";
+  }
+  if (track.availability === "unknown") {
+    return "unknown";
+  }
+  return "unavailable";
+}
+
+function searchTracks(response: SearchResponse | null): readonly Track[] {
+  if (!response) {
+    return [];
+  }
+  return response.type === "all" ? response.tracks.items : response.type === "track"
+    ? response.items
+    : [];
+}
+
+function visibleSearchTracks(
+  tracks: readonly Track[],
+  playableOnly: boolean,
+  states: Readonly<Record<string, SearchTrackPlayability>>,
+): readonly Track[] {
+  if (!playableOnly) {
+    return tracks;
+  }
+  return tracks.filter((track) => {
+    const state = trackPlayability(track, states);
+    return state === "checking" || state === "verified-playable";
+  });
+}
+
 function resultLabel(type: SearchType): string {
   return tabs.find((tab) => tab.type === type)?.label ?? "搜索";
 }
@@ -204,28 +255,53 @@ function EntityGrid({
 }
 
 function AllSearchResults({
+  onTrackPlaybackRequested,
   onRetry,
   onTypeChange,
+  playabilities,
+  playableOnly,
   response,
 }: {
+  onTrackPlaybackRequested: (trackId: string) => void;
   onRetry: () => void;
   onTypeChange: (type: SearchType) => void;
+  playabilities: Readonly<Record<string, SearchTrackPlayability>>;
+  playableOnly: boolean;
   response: SearchAllResult;
 }) {
   const failedTypes = new Set(response.partialErrors.map((partial) => partial.type));
-  const trackQueue = toQueue(response.tracks.items);
+  const visibleTracks = visibleSearchTracks(
+    response.tracks.items,
+    playableOnly,
+    playabilities,
+  );
+  const trackQueue = toQueue(playableOnly
+    ? visibleTracks.filter((track) => (
+      trackPlayability(track, playabilities) === "verified-playable"
+    ))
+    : response.tracks.items);
 
   return (
     <div className={styles.sectionStack}>
-      <SearchSection actionLabel="查看全部歌曲" count={response.tracks.items.length} onViewAll={() => onTypeChange("track")} title="歌曲">
+      <SearchSection actionLabel="查看全部歌曲" count={visibleTracks.length} onViewAll={() => onTypeChange("track")} title="歌曲">
         {failedTypes.has("track") ? <PartialFailure onRetry={onRetry} type="track" /> : null}
-        {response.tracks.items.length > 0 ? (
+        {visibleTracks.length > 0 ? (
           <div className={styles.trackList}>
-            {response.tracks.items.map((track) => (
-              <SearchTrackRow key={track.id} queue={trackQueue} track={track} />
+            {visibleTracks.map((track) => (
+              <SearchTrackRow
+                key={track.id}
+                onPlaybackRequested={onTrackPlaybackRequested}
+                playability={trackPlayability(track, playabilities)}
+                queue={trackQueue}
+                track={track}
+              />
             ))}
           </div>
-        ) : !failedTypes.has("track") ? <p className={styles.sectionEmpty}>没有匹配的歌曲。</p> : null}
+        ) : !failedTypes.has("track") ? (
+          <p className={styles.sectionEmpty}>
+            {playableOnly ? "没有已验证可播放的歌曲。" : "没有匹配的歌曲。"}
+          </p>
+        ) : null}
       </SearchSection>
       <SearchSection actionLabel="查看全部歌手" count={response.artists.items.length} onViewAll={() => onTypeChange("artist")} title="歌手">
         {failedTypes.has("artist") ? <PartialFailure onRetry={onRetry} type="artist" /> : null}
@@ -269,23 +345,46 @@ function LoadMore({
 function SingleSearchResults({
   isLoadingMore,
   onLoadMore,
+  onTrackPlaybackRequested,
   onRetry,
+  playabilities,
+  playableOnly,
   response,
 }: {
   isLoadingMore: boolean;
   onLoadMore: () => void;
+  onTrackPlaybackRequested: (trackId: string) => void;
   onRetry: () => void;
+  playabilities: Readonly<Record<string, SearchTrackPlayability>>;
+  playableOnly: boolean;
   response: PaginatedResponse;
 }) {
   if (response.type === "track") {
-    const queue = toQueue(response.items);
+    const visibleTracks = visibleSearchTracks(response.items, playableOnly, playabilities);
+    const queue = toQueue(playableOnly
+      ? visibleTracks.filter((track) => (
+        trackPlayability(track, playabilities) === "verified-playable"
+      ))
+      : response.items);
     return (
-      <SearchSection count={response.items.length} title="歌曲">
-        <div className={styles.trackList}>
-          {response.items.map((track) => (
-            <SearchTrackRow key={track.id} queue={queue} track={track} />
-          ))}
-        </div>
+      <SearchSection count={visibleTracks.length} title="歌曲">
+        {visibleTracks.length > 0 ? (
+          <div className={styles.trackList}>
+            {visibleTracks.map((track) => (
+              <SearchTrackRow
+                key={track.id}
+                onPlaybackRequested={onTrackPlaybackRequested}
+                playability={trackPlayability(track, playabilities)}
+                queue={queue}
+                track={track}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className={styles.sectionEmpty}>
+            {playableOnly ? "没有已验证可播放的歌曲。" : "没有匹配的歌曲。"}
+          </p>
+        )}
         <LoadMore hasMore={response.hasMore} loading={isLoadingMore} onLoadMore={onLoadMore} onRetry={onRetry} />
       </SearchSection>
     );
@@ -303,20 +402,45 @@ function SingleSearchResults({
 function SearchResults({
   isLoadingMore,
   onLoadMore,
+  onTrackPlaybackRequested,
   onRetry,
   onTypeChange,
+  playabilities,
+  playableOnly,
   response,
 }: {
   isLoadingMore: boolean;
   onLoadMore: () => void;
+  onTrackPlaybackRequested: (trackId: string) => void;
   onRetry: () => void;
   onTypeChange: (type: SearchType) => void;
+  playabilities: Readonly<Record<string, SearchTrackPlayability>>;
+  playableOnly: boolean;
   response: SearchResponse;
 }) {
   if (response.type === "all") {
-    return <AllSearchResults onRetry={onRetry} onTypeChange={onTypeChange} response={response} />;
+    return (
+      <AllSearchResults
+        onRetry={onRetry}
+        onTrackPlaybackRequested={onTrackPlaybackRequested}
+        onTypeChange={onTypeChange}
+        playabilities={playabilities}
+        playableOnly={playableOnly}
+        response={response}
+      />
+    );
   }
-  return <SingleSearchResults isLoadingMore={isLoadingMore} onLoadMore={onLoadMore} onRetry={onRetry} response={response} />;
+  return (
+    <SingleSearchResults
+      isLoadingMore={isLoadingMore}
+      onLoadMore={onLoadMore}
+      onTrackPlaybackRequested={onTrackPlaybackRequested}
+      onRetry={onRetry}
+      playabilities={playabilities}
+      playableOnly={playableOnly}
+      response={response}
+    />
+  );
 }
 
 function SearchLanding({ onFocusInput }: { onFocusInput: () => void }) {
@@ -345,9 +469,16 @@ export function SearchExperience() {
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q")?.trim() ?? "";
   const urlType = readUrlType(searchParams.get("type"));
-  const urlStateKey = `${urlQuery}\u0000${urlType}`;
+  const urlPlayableOnly = readUrlPlayableOnly(searchParams.get("playable"));
+  const urlStateKey = `${urlQuery}\u0000${urlType}\u0000${urlPlayableOnly}`;
   const [inputValue, setInputValue] = useState(urlQuery);
   const [selectedType, setSelectedType] = useState<SearchType>(urlType);
+  const [playableOnly, setPlayableOnly] = useState(urlPlayableOnly);
+  const [playabilities, setPlayabilities] = useState<
+    Record<string, SearchTrackPlayability>
+  >({});
+  const [availabilityError, setAvailabilityError] = useState<SearchFailure | null>(null);
+  const [availabilityRevision, setAvailabilityRevision] = useState(0);
   const [result, setResult] = useState<ResultContext | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -361,18 +492,38 @@ export function SearchExperience() {
   const requestRevisionRef = useRef(0);
   const requestControllerRef = useRef<AbortController | null>(null);
   const urlStateRef = useRef(urlStateKey);
+  const playableOnlyRef = useRef(playableOnly);
+  const playabilitiesRef = useRef(playabilities);
+  const playerSnapshot = usePlayerSelector((snapshot) => snapshot);
 
   const commitResult = useCallback((nextResult: ResultContext | null) => {
     resultRef.current = nextResult;
     setResult(nextResult);
   }, []);
 
-  const writeUrl = useCallback((query: string, type: SearchType, mode: "push" | "replace") => {
+  const updateTrackPlayability = useCallback((
+    trackId: string,
+    state: SearchTrackPlayability,
+  ) => {
+    setPlayabilities((previous) => (
+      previous[trackId] === state ? previous : { ...previous, [trackId]: state }
+    ));
+  }, []);
+
+  const writeUrl = useCallback((
+    query: string,
+    type: SearchType,
+    includePlayableOnly: boolean,
+    mode: "push" | "replace",
+  ) => {
     const normalized = query.trim();
     const params = new URLSearchParams();
     if (normalized) {
       params.set("q", normalized);
       params.set("type", type);
+      if (includePlayableOnly) {
+        params.set("playable", "1");
+      }
     }
     const href = params.size > 0 ? `/search?${params.toString()}` : "/search";
     if (mode === "push") {
@@ -389,7 +540,16 @@ export function SearchExperience() {
     urlStateRef.current = urlStateKey;
     setInputValue(urlQuery);
     setSelectedType(urlType);
-  }, [urlQuery, urlStateKey, urlType]);
+    setPlayableOnly(urlPlayableOnly);
+  }, [urlPlayableOnly, urlQuery, urlStateKey, urlType]);
+
+  useEffect(() => {
+    playableOnlyRef.current = playableOnly;
+  }, [playableOnly]);
+
+  useEffect(() => {
+    playabilitiesRef.current = playabilities;
+  }, [playabilities]);
 
   useLayoutEffect(() => {
     const requestedPath = window.sessionStorage.getItem(pageHeadingFocusStorageKey);
@@ -454,7 +614,7 @@ export function SearchExperience() {
         }
         setIsLoading(false);
         commitResult(null);
-        writeUrl("", selectedType, "replace");
+        writeUrl("", selectedType, playableOnlyRef.current, "replace");
       }, debounceMs);
       return () => {
         window.clearTimeout(clearId);
@@ -472,7 +632,7 @@ export function SearchExperience() {
         }
       }, slowInitialResultMs - debounceMs);
 
-      writeUrl(normalizedQuery, selectedType, "replace");
+      writeUrl(normalizedQuery, selectedType, playableOnlyRef.current, "replace");
       void requestSearch({ limit: pageLimit, signal: controller.signal, text: normalizedQuery, type: selectedType })
         .then((response) => {
           if (requestRevisionRef.current !== revision) {
@@ -515,7 +675,17 @@ export function SearchExperience() {
       return;
     }
     setSelectedType(type);
-    writeUrl(inputValue, type, "push");
+    writeUrl(inputValue, type, playableOnly, "push");
+  };
+
+  const handlePlayableOnlyChange = (checked: boolean): void => {
+    setPlayableOnly(checked);
+    setAvailabilityError(null);
+    writeUrl(inputValue, selectedType, checked, "push");
+  };
+
+  const handleTrackPlaybackRequested = (trackId: string): void => {
+    updateTrackPlayability(trackId, "checking");
   };
 
   const handleRetry = (): void => {
@@ -567,6 +737,120 @@ export function SearchExperience() {
     result.query !== normalizedQuery || result.type !== selectedType
   );
   const visibleResult = result?.response ?? null;
+  const visibleTracks = useMemo(
+    () => searchTracks(visibleResult),
+    [visibleResult],
+  );
+  const availabilityScopeKey = result
+    ? `${result.query}\u0000${result.type}\u0000${visibleTracks.map((track) => track.id).join(",")}`
+    : "";
+
+  useEffect(() => {
+    const currentTrack = playerSnapshot.currentTrack;
+    if (!currentTrack || !visibleTracks.some((track) => track.id === currentTrack.id)) {
+      return;
+    }
+
+    let nextState: SearchTrackPlayability | null = null;
+    if (playerSnapshot.playbackStatus === "loading") {
+      nextState = "checking";
+    } else if (playerSnapshot.hasSource) {
+      nextState = "verified-playable";
+    } else if (
+      playerSnapshot.playbackStatus === "error"
+      && (
+        playerSnapshot.error?.code === "TRACK_UNAVAILABLE"
+        || playerSnapshot.error?.code === "VIP_REQUIRED"
+        || playerSnapshot.error?.code === "REGION_RESTRICTED"
+      )
+    ) {
+      nextState = "unavailable";
+    }
+
+    if (!nextState) {
+      return;
+    }
+
+    const updateId = window.setTimeout(() => {
+      updateTrackPlayability(currentTrack.id, nextState);
+    }, 0);
+    return () => window.clearTimeout(updateId);
+  }, [playerSnapshot, updateTrackPlayability, visibleTracks]);
+
+  useEffect(() => {
+    if (!playableOnly || displayIsStale || visibleTracks.length === 0) {
+      return;
+    }
+
+    const candidates = visibleTracks.filter((track) => (
+      trackPlayability(track, playabilitiesRef.current) === "unknown"
+    ));
+    if (candidates.length === 0) {
+      return;
+    }
+
+    const controller = new AbortController();
+    setAvailabilityError(null);
+    setPlayabilities((previous) => {
+      const next = { ...previous };
+      for (const track of candidates) {
+        next[track.id] = "checking";
+      }
+      return next;
+    });
+
+    let nextIndex = 0;
+    const checkNext = async (): Promise<void> => {
+      while (!controller.signal.aborted && nextIndex < candidates.length) {
+        const track = candidates[nextIndex];
+        nextIndex += 1;
+        try {
+          const state = await requestTrackAvailability(track.id, controller.signal);
+          if (!controller.signal.aborted) {
+            updateTrackPlayability(track.id, state);
+          }
+        } catch (error) {
+          if (controller.signal.aborted) {
+            return;
+          }
+          updateTrackPlayability(track.id, "unknown");
+          const failure = error instanceof AvailabilityClientError
+            ? error
+            : new AvailabilityClientError("无法验证歌曲是否可播放，请稍后重试。", true);
+          setAvailabilityError({
+            message: failure.message,
+            retryable: failure.retryable,
+          });
+        }
+      }
+    };
+
+    void Promise.all(
+      Array.from(
+        { length: Math.min(availabilityProbeConcurrency, candidates.length) },
+        () => checkNext(),
+      ),
+    );
+    return () => controller.abort();
+  }, [availabilityRevision, availabilityScopeKey, displayIsStale, playableOnly, updateTrackPlayability, visibleTracks]);
+
+  const handleAvailabilityRetry = (): void => {
+    setPlayabilities((previous) => {
+      const next = { ...previous };
+      for (const track of visibleTracks) {
+        if (trackPlayability(track, previous) === "unknown") {
+          next[track.id] = "unknown";
+        }
+      }
+      return next;
+    });
+    setAvailabilityError(null);
+    setAvailabilityRevision((revision) => revision + 1);
+  };
+
+  const checkingAvailabilityCount = visibleTracks.filter((track) => (
+    trackPlayability(track, playabilities) === "checking"
+  )).length;
   const isEmpty = visibleResult !== null && !displayIsStale && resultHasNoItems(visibleResult);
   const state = !normalizedQuery
     ? "idle"
@@ -622,11 +906,35 @@ export function SearchExperience() {
               </button>
             ))}
           </div>
+          <label className={styles.availabilityFilter}>
+            <input
+              checked={playableOnly}
+              onChange={(event) => handlePlayableOnlyChange(event.target.checked)}
+              type="checkbox"
+            />
+            <span>仅看可播放</span>
+          </label>
           <div aria-labelledby={`search-tab-${selectedType}`} className={styles.resultsPanel} id={tabPanelId} role="tabpanel">
             <div aria-live="polite" className={styles.resultHeading}>
               <span>{displayIsStale ? `显示“${result?.query}”的先前结果` : `${activeResultLabel}结果`}</span>
               {isLoading ? <span>正在更新</span> : resultsSummary ? <span>{resultsSummary}</span> : null}
             </div>
+            {playableOnly && checkingAvailabilityCount > 0 ? (
+              <p aria-live="polite" className={styles.availabilityProgress} role="status">
+                正在检查 {checkingAvailabilityCount} 首歌曲是否可播放
+              </p>
+            ) : null}
+            {availabilityError ? (
+              <StatusView
+                action={availabilityError.retryable
+                  ? { label: "重试检查", onClick: handleAvailabilityRetry }
+                  : undefined}
+                description="你仍可关闭筛选查看所有搜索结果。"
+                title={availabilityError.message}
+                tone="error"
+                variant="inline"
+              />
+            ) : null}
             {requestError ? (
               <StatusView
                 action={requestError.retryable ? { label: "重试", onClick: handleRetry } : undefined}
@@ -643,7 +951,16 @@ export function SearchExperience() {
             {isEmpty ? (
               <StatusView action={{ label: "修改关键词", onClick: () => inputRef.current?.focus() }} description={`没有找到与“${normalizedQuery}”相关的${activeResultLabel}。`} title="没有找到相关音乐" tone="empty" variant="page" />
             ) : visibleResult ? (
-              <SearchResults isLoadingMore={isLoadingMore} onLoadMore={handleLoadMore} onRetry={handleRetry} onTypeChange={handleTypeChange} response={visibleResult} />
+              <SearchResults
+                isLoadingMore={isLoadingMore}
+                onLoadMore={handleLoadMore}
+                onRetry={handleRetry}
+                onTrackPlaybackRequested={handleTrackPlaybackRequested}
+                onTypeChange={handleTypeChange}
+                playabilities={playabilities}
+                playableOnly={playableOnly}
+                response={visibleResult}
+              />
             ) : !requestError && !showInitialSkeleton ? <p className={styles.waiting}>准备搜索“{normalizedQuery}”</p> : null}
           </div>
         </div>

@@ -53,6 +53,7 @@ function createOpaqueId(random: (size: number) => Buffer): string {
 
 export class InMemorySessionStore {
   private readonly sessions = new Map<string, ServerSession>();
+  private readonly publicDailyRecommendations = new Map<string, DailyRecommendations>();
   private readonly now: () => number;
   private readonly random: (size: number) => Buffer;
   private readonly idleTtlMs: number;
@@ -239,6 +240,17 @@ export class InMemorySessionStore {
     return true;
   }
 
+  getPublicDailyRecommendations(cacheKey: string): DailyRecommendations | null {
+    return this.publicDailyRecommendations.get(cacheKey) ?? null;
+  }
+
+  setPublicDailyRecommendations(
+    cacheKey: string,
+    recommendations: DailyRecommendations,
+  ): void {
+    this.publicDailyRecommendations.set(cacheKey, recommendations);
+  }
+
   clearDailyRecommendations(sessionId: string): boolean {
     const session = this.get(sessionId);
     if (!session) {
@@ -282,3 +294,19 @@ export class InMemorySessionStore {
 }
 
 export const sessionStore = new InMemorySessionStore();
+
+export function readSessionIdFromRequest(request: Request): string | null {
+  const cookieHeader = request.headers.get("cookie");
+  if (!cookieHeader) {
+    return null;
+  }
+
+  for (const part of cookieHeader.split(";")) {
+    const [rawName, ...rawValue] = part.trim().split("=");
+    if (rawName === SESSION_COOKIE_NAME) {
+      return rawValue.join("=") || null;
+    }
+  }
+
+  return null;
+}

@@ -1,6 +1,6 @@
 # ECHOFORM 网易云 API 契约
 
-> 状态：Primary Baseline + T008 Installed Legacy Adapter + Candidate Provider
+> 状态：Primary Baseline + T008 Installed Legacy Adapter + T017A Guest Credential Measured + Candidate Provider
 > 核验日期：2026-07-29
 > 当前主 Provider：`NeteaseCloudMusicApi@4.32.0`
 > 候选替代 Provider：`@neteasecloudmusicapienhanced/api@4.38.0`
@@ -86,6 +86,10 @@ return mapSearchResponse(upstream);
 - Legacy 与 Enhanced 必须使用独立 Adapter 标识和独立 Contract fixtures，不能依据包名
   相似而复用未验证的原始字段判断。
 
+T017A 拟验证 `register_anonimous` 的 server-only 调用，作为按需获取匿名访客凭据的独立
+Adapter 能力。它不等同于 `app.js` 自动初始化，未通过固定包函数、响应形状和运行探测前不得
+进入生产路径；凭据绝不进入浏览器或 URL。
+
 嵌入库避免了额外端口、CORS 和 `server.js` 输出完整请求 URL 的日志风险。若包在 Next.js
 Standalone 构建中无法正确打包，再评估受限 sidecar；该变更必须先更新架构文档。
 
@@ -136,6 +140,7 @@ Standalone 构建中无法正确打包，再评估受限 sidecar；该变更必�
 | `RUNTIME_ANON` | 固定包实际启动并完成匿名只读请求 | 是，但仅限同类匿名路径 |
 | `SOURCE_VERIFIED` | 模块源码、参数和路由存在 | 可以适配，不代表账号或写入成功 |
 | `PENDING_AUTH` | 需要真实登录态，尚未用专用账号实测 | 只能实现保护与模拟，不能完成验收 |
+| `PENDING_ANON_GUEST` | 需要匿名访客注册与匿名音源组合运行探测 | 只能完成 server-only 隔离与离线契约，不能宣称改善可播率 |
 | `MUTATION_NOT_RUN` | 会改变网易云外部状态，刻意未执行 | 不得宣称真实写入可用 |
 | `BLOCKED` | 已知上游缺陷或无法稳定归一化 | 不得用于 P0 |
 
@@ -229,6 +234,24 @@ Provider，同时提供独立 `DemoMusicProvider`。新 ECHOFORM Session 的数�
 只有用户调用 `PUT /api/mode` 才能把当前 Session 切换为 `demo` 或返回 `real`。Real 请求
 失败、单首歌曲无版权、VIP/地区限制、一次超时、QR 过期、用户退出或非法参数都不能自动
 改变数据模式，也不能触发 Real Provider 切换。
+
+### 4.4.1 待验证：匿名访客凭据与可播公开精选
+
+研究 `folia-major` 的网易云路径发现：其未扫码路径会注册匿名访客 Cookie 后请求音源。这仅是
+外部实现参考，不能作为 ECHOFORM 的上游事实或运行证据。ECHOFORM 的 Legacy 4.32.0 当前尚未
+验证 `register_anonimous` 的导出、响应 Cookie 形状、有效期或对可播率的影响，状态为
+`PENDING_ANON_GUEST`。
+
+T017A 的探测与实现边界：
+
+1. 先验证固定发布包是否导出该函数，并以无登录、无写操作的方式确认成功与失败响应可被脱敏映射。
+2. 仅在 server-only 进程内保存匿名凭据；绝不通过 query 参数、响应 JSON、浏览器存储、日志、fixture 或 Git 暴露它。
+3. 对固定数量、非用户特定的公开候选歌曲，以相同 `standard` 音质分别比较裸匿名与匿名访客的
+   `check_music` / `song_url_v1` 结果。记录只有聚合数量、HTTP 状态、业务码和字段存在性，不记录歌曲名、Cookie 或 URL。
+4. 仅在可播比例有可复现提升且延迟满足首页体验预算时，首页才以已验证可播曲目建立公开精选缓存。
+   搜索仍保留所有结果，不对整页做强制预检；播放请求与短期检查缓存才是最终判据。
+5. 无论探测结果如何，匿名访客均不得获得 VIP、地区、版权绕过、第三方匹配、解灰或代理音源；
+   不可播放继续映射为既有规范错误。
 
 ### 4.5 受限的本地上游传输代理
 

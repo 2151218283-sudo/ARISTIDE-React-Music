@@ -81,7 +81,7 @@ export function DailyRecommendationStatus() {
         content={{
           label: mode === "demo" ? "DEMO" : "PUBLIC SELECTION",
           state: mode === "demo" ? "demo" : "empty",
-          description: "暂时没有可展示的推荐，请稍后重新加载。",
+          description: "暂时没有可确认可播放的公开精选，请稍后重新加载。",
           action: { label: "重新加载", onClick: recommendations.retry },
           tone: "info",
         }}

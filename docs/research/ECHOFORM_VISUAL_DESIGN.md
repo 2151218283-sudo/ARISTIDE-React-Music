@@ -498,6 +498,8 @@ AppShell
 | Loading | 与最终封面同尺寸的低对比静态底板，准备超过 300ms 后开始轻呼吸 |
 | Loaded | 160ms 不透明度进入，不改变布局 |
 | Error | 中性底板 + 唱片图标 + 可读替代文字，不显示破图图标 |
+| Checking | 搜索结果首次点播或“仅看可播放”筛选期间，保留行内容与播放控件位置，在图标区域显示短暂进度；不得把它画成已播放或不可播放 |
+| Verified playable | 不增加装饰徽章；正常可用的播放图标即为唯一正向信号，避免列表噪声 |
 | Unavailable | 保留封面，叠加低对比遮罩和“不可播放”文本 |
 | Playing | 仅在需要区分时显示播放标记，不能覆盖标题主体 |
 
@@ -523,6 +525,9 @@ disabled > loading > pressed > focus-visible > hover > default
 ```
 
 `selected`、`playing`、`error` 是语义变体，可与上述交互状态组合，但不得仅靠颜色表达。
+
+歌曲可用性是独立语义：`checking`、`verified-playable`、`unavailable`、`unknown`。首页画廊只接收
+`verified-playable` 曲目；搜索列表可显示其余状态，但未知状态不得使用可播放的强调色或播放中图形。
 
 所有交互组件必须实现：
 

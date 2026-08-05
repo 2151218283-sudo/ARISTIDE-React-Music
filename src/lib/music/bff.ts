@@ -11,6 +11,7 @@ import type {
   CommentPage,
   LyricDocument,
   PageQuery,
+  PlaybackAvailability,
   PlaybackSource,
   SearchQuery,
   SearchResponse,
@@ -32,6 +33,7 @@ export interface PublicReadProvider {
   getPlaybackSource(
     trackId: string,
     quality: AudioQuality,
+    upstreamCookie?: string,
   ): Promise<PlaybackSource>;
   getLyrics(trackId: string): Promise<LyricDocument>;
   getComments(trackId: string, page: PageQuery): Promise<CommentPage>;
@@ -41,6 +43,7 @@ export interface PublicReadRouteHandlers {
   search(request: Request): Promise<Response>;
   track(request: Request, trackId: string): Promise<Response>;
   source(request: Request, trackId: string): Promise<Response>;
+  availability(request: Request, trackId: string): Promise<Response>;
   lyrics(request: Request, trackId: string): Promise<Response>;
   comments(request: Request, trackId: string): Promise<Response>;
 }
@@ -51,6 +54,7 @@ export interface PublicReadRouteDependencies {
   now?: () => number;
   retryDelay?: (delayMs: number) => Promise<void>;
   random?: () => number;
+  resolvePlaybackCredential?: (request: Request) => string | undefined;
   timeoutMs?: {
     default: number;
     source: number;
@@ -63,6 +67,7 @@ interface ResolvedDependencies {
   now: () => number;
   retryDelay: (delayMs: number) => Promise<void>;
   random: () => number;
+  resolvePlaybackCredential: (request: Request) => string | undefined;
   timeoutMs: {
     default: number;
     source: number;
@@ -301,11 +306,23 @@ function resolveDependencies(
     now: dependencies.now ?? Date.now,
     retryDelay: dependencies.retryDelay ?? defaultRetryDelay,
     random: dependencies.random ?? Math.random,
+    resolvePlaybackCredential: dependencies.resolvePlaybackCredential ?? (() => undefined),
     timeoutMs: dependencies.timeoutMs ?? {
       default: 10_000,
       source: 15_000,
     },
   };
+}
+
+function getPlaybackSource(
+  provider: PublicReadProvider,
+  trackId: string,
+  quality: AudioQuality,
+  upstreamCookie: string | undefined,
+): Promise<PlaybackSource> {
+  return upstreamCookie
+    ? provider.getPlaybackSource(trackId, quality, upstreamCookie)
+    : provider.getPlaybackSource(trackId, quality);
 }
 
 export function createPublicReadRouteHandlers(
@@ -361,12 +378,60 @@ export function createPublicReadRouteHandlers(
       try {
         const id = parseTrackId(trackId);
         const quality = parseAudioQuality(request);
+        const upstreamCookie = dependencies.resolvePlaybackCredential(request);
         return await respondToRead({
           cacheControl: noStoreCacheControl,
           requestId,
           timeoutMs: dependencies.timeoutMs.source,
           dependencies,
-          execute: () => dependencies.createProvider().getPlaybackSource(id, quality),
+          execute: () => getPlaybackSource(
+            dependencies.createProvider(),
+            id,
+            quality,
+            upstreamCookie,
+          ),
+        });
+      } catch (error) {
+        const appError = toAppError(error);
+        return jsonResponse(
+          createApiFailure(appError, requestId),
+          statusForError(appError.code),
+          noStoreCacheControl,
+        );
+      }
+    },
+
+    async availability(request, trackId) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const id = parseTrackId(trackId);
+        const upstreamCookie = dependencies.resolvePlaybackCredential(request);
+        return await respondToRead<PlaybackAvailability>({
+          cacheControl: noStoreCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs.source,
+          dependencies,
+          execute: async () => {
+            try {
+              await getPlaybackSource(
+                dependencies.createProvider(),
+                id,
+                "standard",
+                upstreamCookie,
+              );
+              return { state: "verified-playable" };
+            } catch (error) {
+              const appError = toAppError(error);
+              if (
+                appError.code === "TRACK_UNAVAILABLE"
+                || appError.code === "VIP_REQUIRED"
+                || appError.code === "REGION_RESTRICTED"
+              ) {
+                return { state: "unavailable" };
+              }
+              throw appError;
+            }
+          },
         });
       } catch (error) {
         const appError = toAppError(error);

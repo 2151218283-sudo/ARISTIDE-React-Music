@@ -178,6 +178,38 @@ describe("Legacy anonymous reads", () => {
     expect(publicTracks[0]).not.toHaveProperty("artistsRaw");
   });
 
+  it("keeps only public candidates with a verified standard source", async () => {
+    const source = vi.fn<LegacyApiMethod>(async (params) => response({
+      code: 200,
+      data: [{
+        id: Number(params.id),
+        code: 200,
+        url: "https://example.invalid/runtime-stream",
+        expi: 120,
+        level: "standard",
+      }],
+    }));
+    const adapter = new LegacyNeteaseAdapter(makeApi({
+      top_song: method({
+        code: 200,
+        data: [syntheticTrack(101), syntheticTrack(102), syntheticTrack(103)],
+      }),
+      check_music: async (params) => response({
+        code: 200,
+        success: params.id !== "102",
+      }),
+      song_url_v1: source,
+    }));
+
+    const tracks = await adapter.getVerifiedPublicRecommendations();
+
+    expect(tracks).toMatchObject([
+      { id: "101", availability: "playable" },
+      { id: "103", availability: "playable" },
+    ]);
+    expect(source).toHaveBeenCalledTimes(2);
+  });
+
   it("normalizes track search and detail without leaking upstream field names", async () => {
     const search = vi.fn<LegacyApiMethod>(async (params) => {
       if (params.type !== 1) {

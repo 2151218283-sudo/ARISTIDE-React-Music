@@ -142,6 +142,12 @@ export interface PlaybackSource {
   corsMode: "anonymous" | "unavailable";
 }
 
+export type PlaybackAvailabilityState = "verified-playable" | "unavailable";
+
+export interface PlaybackAvailability {
+  state: PlaybackAvailabilityState;
+}
+
 export interface PageQuery {
   limit: number;
   offset: number;
