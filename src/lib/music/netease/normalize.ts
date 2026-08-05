@@ -18,6 +18,7 @@ import type {
   SearchPage,
   Track,
   UserProfile,
+  UserPlaylistCollection,
 } from "../models";
 import type {
   LegacyApiResponse,
@@ -250,6 +251,14 @@ function unavailableCatalogEntity(): AppError {
   );
 }
 
+function unavailableUserProfile(): AppError {
+  return new AppError(
+    "USER_NOT_FOUND",
+    "未找到这个公开用户。",
+    { retryable: false },
+  );
+}
+
 function mapArtistProfile(value: unknown): Artist {
   const rawArtist = asRecord(value);
   const summary = mapArtist(rawArtist);
@@ -377,6 +386,65 @@ export function mapPlaylistPage(
     offset: page.offset,
     hasMore: upstreamHasMore ?? hasMore(total, page.offset, items.length, page.limit),
   };
+}
+
+function playlistOwnerId(value: unknown): string | null {
+  const playlist = asRecord(value);
+  const creator = playlist ? asRecord(playlist.creator) : null;
+  return creator ? entityId(creator.userId ?? creator.id) : null;
+}
+
+function playlistSpecialType(value: unknown): number | null {
+  const playlist = asRecord(value);
+  return playlist ? nonNegativeNumber(playlist.specialType) : null;
+}
+
+export function mapUserProfile(body: UnknownRecord): UserProfile {
+  const profile = mapUser(body.profile ?? body.user ?? body);
+  if (!profile) {
+    throw unavailableUserProfile();
+  }
+  return profile;
+}
+
+export function mapUserPlaylistCollection(
+  body: UnknownRecord,
+  userId: string,
+): UserPlaylistCollection {
+  const rows = body.playlist ?? body.playlists;
+  if (!Array.isArray(rows)) {
+    throw upstreamError();
+  }
+
+  const collection: UserPlaylistCollection = {
+    liked: null,
+    created: [],
+    subscribed: [],
+  };
+  let normalizedRows = 0;
+
+  for (const row of rows) {
+    const playlist = mapPlaylist(row);
+    if (!playlist) {
+      continue;
+    }
+    normalizedRows += 1;
+
+    const ownedByProfile = playlistOwnerId(row) === userId;
+    if (ownedByProfile && playlistSpecialType(row) === 5) {
+      collection.liked ??= playlist;
+    } else if (ownedByProfile) {
+      collection.created.push(playlist);
+    } else {
+      collection.subscribed.push(playlist);
+    }
+  }
+
+  if (rows.length > 0 && normalizedRows === 0) {
+    throw upstreamError();
+  }
+
+  return collection;
 }
 
 function hasMore(total: number | null, offset: number, count: number, limit: number) {

@@ -28,6 +28,7 @@ import type {
   SearchResponse,
   Track,
   UserProfile,
+  UserPlaylistCollection,
 } from "../models";
 import type { MusicProvider } from "../provider";
 
@@ -254,6 +255,27 @@ export class DemoMusicProvider implements MusicProvider {
 
   async logout(sessionId: string): Promise<void> {
     void sessionId;
+  }
+
+  async getUserProfile(userId: string, sessionId?: string): Promise<UserProfile> {
+    void userId;
+    void sessionId;
+    this.assertReadScenarioAvailable();
+    throw new AppError("USER_NOT_FOUND", "演示模式没有可公开读取的用户资料。", {
+      retryable: false,
+    });
+  }
+
+  async getUserPlaylists(
+    userId: string,
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<UserPlaylistCollection> {
+    void userId;
+    void page;
+    void sessionId;
+    this.assertReadScenarioAvailable();
+    return { liked: null, created: [], subscribed: [] };
   }
 
   async getDailyRecommendations(sessionId: string): Promise<Track[]> {

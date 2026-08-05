@@ -21,6 +21,8 @@ import type {
   Track,
   AlbumSummary,
   ArtistSummary,
+  UserPlaylistCollection,
+  UserProfile,
 } from "../models";
 import {
   assertTrackPlayable,
@@ -38,6 +40,8 @@ import {
   mapArtistDetail,
   mapNewSongs,
   mapPlaylistPage,
+  mapUserPlaylistCollection,
+  mapUserProfile,
   unwrapLegacyBody,
   unwrapLegacyQrBody,
 } from "./normalize";
@@ -86,6 +90,14 @@ function validateTrackId(trackId: string): string {
   const normalized = trackId.trim();
   if (!trackIdPattern.test(normalized)) {
     throw validationError("歌曲 ID 格式无效。");
+  }
+  return normalized;
+}
+
+function validateUserId(userId: string): string {
+  const normalized = userId.trim();
+  if (!trackIdPattern.test(normalized)) {
+    throw validationError("用户 ID 格式无效。");
   }
   return normalized;
 }
@@ -304,6 +316,27 @@ export class LegacyNeteaseAdapter {
       offset: page.offset,
     });
     return mapPlaylistPage(unwrapLegacyBody(response), page);
+  }
+
+  async getUserProfile(userId: string, cookie?: string): Promise<UserProfile> {
+    const id = validateUserId(userId);
+    const response = await this.invoke(this.api.user_detail, withCookie({ uid: id }, cookie));
+    return mapUserProfile(unwrapLegacyBody(response));
+  }
+
+  async getUserPlaylists(
+    userId: string,
+    page: PageQuery,
+    cookie?: string,
+  ): Promise<UserPlaylistCollection> {
+    const id = validateUserId(userId);
+    validatePage(page, 30);
+    const response = await this.invoke(this.api.user_playlist, withCookie({
+      uid: id,
+      limit: page.limit,
+      offset: page.offset,
+    }, cookie));
+    return mapUserPlaylistCollection(unwrapLegacyBody(response), id);
   }
 
   async getPersonalDailyRecommendations(upstreamCookie: string): Promise<Track[]> {

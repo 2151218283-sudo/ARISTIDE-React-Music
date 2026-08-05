@@ -59,6 +59,8 @@ function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
     song_url_v1: method({ code: 200, data: [] }),
     top_playlist: method({ code: 200, playlists: [], total: 0, more: false }),
     top_song: method({ code: 200, data: [] }),
+    user_detail: method({ code: 200, profile: null }),
+    user_playlist: method({ code: 200, playlist: [] }),
     ...overrides,
   };
 }
@@ -143,6 +145,79 @@ describe("Legacy package boundary", () => {
 });
 
 describe("Legacy anonymous reads", () => {
+  it("normalizes user details and playlist summaries without exposing upstream fields", async () => {
+    const userDetail = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      profile: {
+        userId: 701,
+        nickname: "Synthetic Listener",
+        avatarUrl: "https://example.invalid/profile-avatar",
+        signature: "Synthetic signature",
+        birthday: 1_700_000_000_000,
+        province: 11,
+      },
+    }));
+    const userPlaylist = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      playlist: [{
+        id: 801,
+        name: "Synthetic Likes",
+        coverImgUrl: "https://example.invalid/liked-cover",
+        creator: { userId: 701, nickname: "Synthetic Listener" },
+        specialType: 5,
+        privacy: 0,
+        trackCount: 3,
+      }, {
+        id: 802,
+        name: "Synthetic Created",
+        coverImgUrl: "https://example.invalid/created-cover",
+        creator: { userId: 701, nickname: "Synthetic Listener" },
+        privacy: 10,
+        trackCount: 2,
+      }, {
+        id: 803,
+        name: "Synthetic Subscribed",
+        coverImgUrl: "https://example.invalid/subscribed-cover",
+        creator: { userId: 702, nickname: "Another Listener" },
+        privacy: 0,
+        trackCount: 4,
+      }],
+    }));
+    const adapter = new LegacyNeteaseAdapter(makeApi({
+      user_detail: userDetail,
+      user_playlist: userPlaylist,
+    }));
+
+    const profile = await adapter.getUserProfile("701", "server-only-cookie");
+    const playlists = await adapter.getUserPlaylists(
+      "701",
+      { limit: 30, offset: 0 },
+      "server-only-cookie",
+    );
+
+    expect(profile).toEqual({
+      id: "701",
+      nickname: "Synthetic Listener",
+      avatarUrl: "https://example.invalid/profile-avatar",
+      signature: "Synthetic signature",
+    });
+    expect(profile).not.toHaveProperty("birthday");
+    expect(profile).not.toHaveProperty("province");
+    expect(playlists).toMatchObject({
+      liked: { id: "801", name: "Synthetic Likes" },
+      created: [{ id: "802", visibility: "private" }],
+      subscribed: [{ id: "803", name: "Synthetic Subscribed" }],
+    });
+    expect(playlists.liked).not.toHaveProperty("specialType");
+    expect(userDetail).toHaveBeenCalledWith({ uid: "701", cookie: "server-only-cookie" });
+    expect(userPlaylist).toHaveBeenCalledWith({
+      uid: "701",
+      limit: 30,
+      offset: 0,
+      cookie: "server-only-cookie",
+    });
+  });
+
   it("normalizes public and authenticated daily recommendation shapes", async () => {
     const personal = vi.fn<LegacyApiMethod>(async () => response({
       code: 200,

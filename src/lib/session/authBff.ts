@@ -71,6 +71,8 @@ function statusForError(code: AppErrorCode): number {
     case "AUTH_REQUIRED":
     case "SESSION_EXPIRED":
       return 401;
+    case "USER_NOT_FOUND":
+      return 404;
     case "QR_EXPIRED":
       return 410;
     case "RATE_LIMITED":

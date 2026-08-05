@@ -30,6 +30,8 @@ export interface LegacyNeteaseApi {
   song_url_v1: LegacyApiMethod;
   top_playlist: LegacyApiMethod;
   top_song: LegacyApiMethod;
+  user_detail: LegacyApiMethod;
+  user_playlist: LegacyApiMethod;
 }
 
 export interface LegacyAdapterOptions {

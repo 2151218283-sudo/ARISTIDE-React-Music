@@ -1,6 +1,7 @@
 export const appErrorCodes = [
   "AUTH_REQUIRED",
   "SESSION_EXPIRED",
+  "USER_NOT_FOUND",
   "QR_EXPIRED",
   "VALIDATION_ERROR",
   "TRACK_UNAVAILABLE",

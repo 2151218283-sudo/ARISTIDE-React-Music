@@ -18,6 +18,7 @@ import type {
   SearchResponse,
   Track,
   UserProfile,
+  UserPlaylistCollection,
 } from "./models";
 
 export interface MusicProvider {
@@ -25,6 +26,13 @@ export interface MusicProvider {
   pollQrLogin(sessionId: string): Promise<QrLoginState>;
   getSessionUser(sessionId: string): Promise<UserProfile | null>;
   logout(sessionId: string): Promise<void>;
+
+  getUserProfile(userId: string, sessionId?: string): Promise<UserProfile>;
+  getUserPlaylists(
+    userId: string,
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<UserPlaylistCollection>;
 
   getDailyRecommendations(sessionId: string): Promise<Track[]>;
   search(query: SearchQuery, sessionId?: string): Promise<SearchResponse>;

@@ -3,7 +3,6 @@ import { expect, test } from "@playwright/test";
 const productRoutes = [
   ["/library", "音乐库", "LIBRARY"],
   ["/playlist/demo-playlist", "歌单", "PLAYLIST"],
-  ["/profile/demo-user", "用户主页", "PROFILE"],
   ["/settings", "设置", "SETTINGS"],
 ] as const;
 
@@ -68,6 +67,41 @@ test("keeps every product route local and explicit", async ({ page }) => {
     await expect(page.getByRole("navigation", { name: "ECHOFORM 主导航" })).toBeVisible();
     await expect(page.locator("[data-route-context]")).toHaveText(context);
   }
+
+  await page.route("**/api/users/701", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        data: {
+          profile: {
+            id: "701",
+            nickname: "Route Listener",
+            avatarUrl: null,
+            signature: null,
+          },
+          isCurrentUser: false,
+          recentPlays: { state: "unavailable", reason: "upstream-not-verified" },
+        },
+      }),
+    });
+  });
+  await page.route("**/api/users/701/playlists?*", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        data: { liked: null, created: [], subscribed: [] },
+      }),
+    });
+  });
+  const profileResponse = await page.goto("/profile/701");
+  expect(profileResponse?.ok()).toBe(true);
+  await expect(page).toHaveURL(/\/profile\/701$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Route Listener" })).toBeVisible();
+  await expect(page.getByText("暂时没有可公开展示的喜欢音乐。")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "ECHOFORM 主导航" })).toBeVisible();
+  await expect(page.locator("[data-route-context]")).toHaveText("PROFILE");
 
   const searchResponse = await page.goto("/search");
   expect(searchResponse?.ok()).toBe(true);

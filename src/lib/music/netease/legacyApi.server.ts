@@ -25,6 +25,8 @@ const requiredMethods = [
   "song_url_v1",
   "top_playlist",
   "top_song",
+  "user_detail",
+  "user_playlist",
 ] as const satisfies readonly (keyof LegacyNeteaseApi)[];
 
 let cachedApi: LegacyNeteaseApi | null = null;

@@ -74,6 +74,17 @@ export interface UserProfile {
   signature: string | null;
 }
 
+export interface RecentPlaysUnavailable {
+  state: "unavailable";
+  reason: "upstream-not-verified";
+}
+
+export interface UserProfileOverview {
+  profile: UserProfile;
+  isCurrentUser: boolean;
+  recentPlays: RecentPlaysUnavailable;
+}
+
 export type PlaylistVisibility = "public" | "private";
 
 export interface Playlist {
@@ -86,6 +97,12 @@ export interface Playlist {
   trackCount: number;
   createdAt: number | null;
   updatedAt: number | null;
+}
+
+export interface UserPlaylistCollection {
+  liked: Playlist | null;
+  created: Playlist[];
+  subscribed: Playlist[];
 }
 
 export interface CommentReplySummary {
