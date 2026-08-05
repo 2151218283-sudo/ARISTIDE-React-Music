@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-08-06
-> 当前任务：`T019`（待确认开始）
+> 当前任务：无（`T019` 已完成，等待下一轮确认）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,13 +123,13 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T019 音乐库与 IndexedDB 播放历史`（待确认开始）
-- 状态：T018R 已完成本地验收，尚未提交或推送；T019 尚未开始，等待用户确认。
+- 当前任务：无（`T019 音乐库与 IndexedDB 播放历史` 已完成）
+- 状态：T019 已完成验收，T020 未开始。用户已在本任务内明确授权清空当前浏览器的 `echoform-listening-history.entries`，实现与测试均未触及会话、队列、音频或其他本地存储。
 - 修改目标：实现 `/library` 的喜欢、专辑、歌单、历史 Tabs；用 IndexedDB 按 30 秒或 50% 阈值记录本地有效播放，支持去重、离线读取和清空。
-- 允许修改：Library/History 规格；`src/app/library/**`、`src/features/library/**`、本地存储 adapter、测试 fixtures 和测试。
+- 允许修改：Library/History 规格；`src/app/library/**`、`src/features/library/**`、本地存储 adapter、用于全局挂载只读历史记录器的 `src/app/layout.tsx`、测试 fixtures 和测试。
 - 不允许修改：不把音源 URL 写入 IndexedDB；本地历史与网易云记录必须标明来源；未登录状态不能跳外站；清空历史属于删除数据，执行真实 UI 操作和实现前按 AGENTS 红线确认。
 - 不允许破坏：唯一 Audio、现有队列和播放时间源、Real/Demo 语义、登录/Session、BFF/API 契约、播放器可访问性、有限画廊和已通过路由。
-- 验收标准：IndexedDB schema 有版本与 adapter 测试；音频时间事件不会导致高频重复写入；未登录、loading、各 Tab 正常/空/错误、离线历史、重复播放、阈值前后、清空确认/取消/失败、50+ 项和 1440/768/390 页面测试通过；专项 tests、`npm run check`、敏感信息扫描和 `git diff --check` 全部通过。真实清空前仍需用户确认。
+- 验收标准：IndexedDB schema 有版本与 adapter 测试；音频时间事件不会导致高频重复写入；未登录、loading、各 Tab 正常/空/错误、离线历史、重复播放、阈值前后、清空确认/取消/失败、50+ 项和 1440/768/390 页面测试通过；专项 tests、`npm run check`、敏感信息扫描和 `git diff --check` 全部通过。
 
 ### T017A 归档执行卡
 - 状态：T017A 已完成验收；下一任务为 T017，尚未开始。
@@ -497,7 +497,7 @@
 
   完成记录：可用封面按距离排序、最多 3 个并行请求加载，成功后保留到场景销毁；远端封面下采样为 full 256px / constrained 160px 纹理，fallback 降至 128px。非 Reduced Motion 的可见画廊以约 30fps 的共享 shader 时间变量保留轻量环境动效，不执行 ambient raycast、纹理队列或逐封面 CPU 几何；hidden 与 Reduced Motion 仍停止环境调度。生产专项 E2E 7 项通过，证明 8 张真实封面完整保留、并发受限、Canvas fallback、隐藏/恢复、Reduced Motion 和桌面 >=55fps/窄屏 >=30fps。unit 74、component 75、contract 59、应用 E2E 44、Foundation visual E2E 2 通过，三视口 Canvas 截图均非空，`npm.cmd run check` 通过（仅既有原生 `<img>` warning）。Profile 状态测试的头像失败断言收窄至主内容，消除了顶部账户头像同名导致的测试歧义，不改产品页面行为。待生成本地提交；推送仍需当次确认。
 
-- [ ] **T019 音乐库与 IndexedDB 播放历史**
+- [x] **T019 音乐库与 IndexedDB 播放历史**
 
   目标：实现 `/library` 的喜欢、专辑、歌单、历史 Tabs；用 IndexedDB 按 30 秒或 50% 阈值记录本地有效播放，支持去重、离线读取和清空。
 
@@ -508,6 +508,8 @@
   页面测试：未登录、loading、各 Tab 正常、各 Tab 空、接口错误、离线历史、重复播放、阈值前后、清空确认/取消/失败、50+ 项。
 
   验收：IndexedDB schema 有版本与 adapter 测试；音频时间事件不会导致高频重复写入；列表末项不被播放器/导航遮挡；专项 tests 与 `npm run check` 通过。
+
+  完成记录：`/library` 已提供喜欢、专辑、歌单与播放记录 Tab；收藏专辑未验证时保持诚实不可读状态。播放记录使用 version `1` 的 `echoform-listening-history.entries`，仅保存白名单曲目快照并在 30 秒或 50% 有效聆听阈值后去重写入，支持离线读取与 50 项分段。清空记录仅在存在本地记录时可见，经过可访问确认对话框后执行单一 `entries.clear()` 事务；取消、Escape、失败、进行中防重、焦点返回和成功公告均已实现。unit 81、component 83、contract 59、音乐库定向 E2E 2、应用 E2E 46 与 Foundation visual E2E 2 均通过；组合 `npm.cmd run test:e2e` 在 46 项通过后因外层 240 秒时限于 Foundation 启动阶段终止，Foundation 随后单独复跑通过。`npm.cmd run check` 通过（仅保留既有 `QrLoginDialog.tsx` 原生 `<img>` warning），敏感扫描与 `git diff --check` 均通过。待生成本地提交；推送仍需当次确认。
 
 ### Phase 6：登录态写操作与毕设完整功能
 

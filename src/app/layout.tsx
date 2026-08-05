@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/AppShell";
 import { AuthProvider } from "@/features/auth/AuthProvider";
+import { ListeningHistoryRecorder } from "@/features/library/ListeningHistoryRecorder";
 import { PlayerProvider } from "@/features/player/PlayerProvider";
 
 import "./globals.css";
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="zh-CN">
       <body>
         <PlayerProvider>
+          <ListeningHistoryRecorder />
           <AuthProvider>
             <AppShell>{children}</AppShell>
           </AuthProvider>

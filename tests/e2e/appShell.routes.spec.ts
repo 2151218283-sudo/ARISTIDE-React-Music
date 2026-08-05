@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 const productRoutes = [
-  ["/library", "音乐库", "LIBRARY"],
   ["/playlist/demo-playlist", "歌单", "PLAYLIST"],
   ["/settings", "设置", "SETTINGS"],
 ] as const;
@@ -67,6 +66,15 @@ test("keeps every product route local and explicit", async ({ page }) => {
     await expect(page.getByRole("navigation", { name: "ECHOFORM 主导航" })).toBeVisible();
     await expect(page.locator("[data-route-context]")).toHaveText(context);
   }
+
+  const libraryResponse = await page.goto("/library");
+  expect(libraryResponse?.ok()).toBe(true);
+  await expect(page).toHaveURL(/\/library$/);
+  await expect(page.getByRole("heading", { level: 1, name: "音乐库" })).toBeVisible();
+  await expect(page.getByRole("tablist", { name: "音乐库分类" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "登录后查看你的音乐库" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "ECHOFORM 主导航" })).toBeVisible();
+  await expect(page.locator("[data-route-context]")).toHaveText("LIBRARY");
 
   await page.route("**/api/users/701", async (route) => {
     await route.fulfill({
