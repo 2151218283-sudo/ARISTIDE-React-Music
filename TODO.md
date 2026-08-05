@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-08-06
-> 当前任务：`T018S`（待确认开始）
+> 当前任务：`T019`（待确认开始）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,13 +123,13 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：`T018S 画廊与播放器性能治理`（待确认开始）
-- 状态：`T018P` 文档与计划对齐已完成并已本地提交；`T018S` 未开始，获得下一次明确确认前不得修改运行时代码或启动性能实现。
-- 修改目标：让首页 WebGL 仅在入场、滚动、指针交互、预览转场或收束阶段连续渲染，稳定静止和后台时休眠；将播放时间的高频发布隔离为只驱动进度和歌词的窄订阅路径，消除每媒体帧扩散到 AppShell 的更新工作。
-- 允许修改：`docs/research/components/FilmstripGallery.spec.md`、`docs/research/components/PersistentPlayer.spec.md`、`src/lib/webgl/filmstripScene.ts`、`src/components/FilmstripGallery.tsx`、`src/features/player/PersistentAudioHost.tsx`、`src/features/player/playerContext.ts`、`src/features/player/PlayerProvider.tsx`、仅为实现所需的 `src/lib/player/**`，以及对应 unit/component/e2e 测试与测试脚本。若测试证明现有规范缺口，可在上述两个组件规格中补充可观察约束。
-- 不允许修改：不改 BFF、Provider、上游 API、音频中转、登录/Session、`.env*`、CI/CD、依赖、数据库、路由、外部 URL、Real/Demo 语义或数据模型；不安装依赖、不删除文件、不推送。
-- 不允许破坏：有限画廊首尾 Clamp、真实速度波浪、首屏入场、预览进入/退出、共享封面、Canvas 非空与 DOM 降级；唯一 Audio、队列/模式、`loadRevision`、音源刷新、Seek、后台音频、歌词以 `audio.currentTime` 为唯一真值、进度可访问性和 Reduced Motion。
-- 验收标准：以稳定的本地生产构建和固定不少于 8 张封面的夹具场景记录证据；1440px 交互画廊目标 >=55fps，390px 或低质量层级目标 >=30fps；页面隐藏和画廊稳定静止时没有连续 WebGL rAF；指针不变时不逐帧 raycast；可见播放态歌词和进度保持准确，且没有完整 AppShell/无关播放器子树按媒体帧重渲染；Canvas 与 DOM fallback、loading/empty/API error/音频 buffering-error、预览进入退出、直接路由、Reduced Motion、1440/768/390 均通过。专项测试、`npm.cmd run check`、敏感信息扫描和 `git diff --check` 全部通过后才可提交；推送仍需当次明确确认。
+- 当前任务：`T019 音乐库与 IndexedDB 播放历史`（待确认开始）
+- 状态：T018S 已完成本地验收，尚未提交或推送；T019 尚未开始，等待用户确认。
+- 修改目标：实现 `/library` 的喜欢、专辑、歌单、历史 Tabs；用 IndexedDB 按 30 秒或 50% 阈值记录本地有效播放，支持去重、离线读取和清空。
+- 允许修改：Library/History 规格；`src/app/library/**`、`src/features/library/**`、本地存储 adapter、测试 fixtures 和测试。
+- 不允许修改：不把音源 URL 写入 IndexedDB；本地历史与网易云记录必须标明来源；未登录状态不能跳外站；清空历史属于删除数据，执行真实 UI 操作和实现前按 AGENTS 红线确认。
+- 不允许破坏：唯一 Audio、现有队列和播放时间源、Real/Demo 语义、登录/Session、BFF/API 契约、播放器可访问性、有限画廊和已通过路由。
+- 验收标准：IndexedDB schema 有版本与 adapter 测试；音频时间事件不会导致高频重复写入；未登录、loading、各 Tab 正常/空/错误、离线历史、重复播放、阈值前后、清空确认/取消/失败、50+ 项和 1440/768/390 页面测试通过；专项 tests、`npm run check`、敏感信息扫描和 `git diff --check` 全部通过。真实清空前仍需用户确认。
 
 ### T017A 归档执行卡
 - 状态：T017A 已完成验收；下一任务为 T017，尚未开始。
@@ -469,7 +469,7 @@
 
   完成记录：确认当前 `FilmstripScene` 在构造后持续 rAF，并在 Pointer 位于画布内时逐帧 raycast；`PersistentAudioHost` 在可见播放态逐帧发布 `MEDIA_TIME`。已规定画廊仅在进入、输入、预览、收束时连续渲染，稳定静止/隐藏时休眠；纹理只保留可见及相邻窗口；播放器时间线采用窄订阅，维持歌词和进度准确而不令无关 UI 按帧更新。实现任务独立编号为 `T018S`，等待下一次确认。
 
-- [ ] **T018S 画廊与播放器性能治理**
+- [x] **T018S 画廊与播放器性能治理**
 
   目标：按 `T018P` 已冻结的调度、质量和订阅边界完成 WebGL 与播放器性能修复，并用仪表化证据验证流畅度和行为不回归。
 
@@ -480,6 +480,8 @@
   页面测试：画廊 loading/正常/empty/API error、首次入场、滚动首中尾、pointer hover、预览进入/退出、隐藏后恢复、Canvas 失败 DOM fallback；播放器播放/暂停/Seek/buffering/error/后台恢复、歌词/进度、Reduced Motion 和 1440/768/390。
 
   验收：当前执行卡全部量化标准满足；新增调度与订阅测试可在实现退化为永久 rAF、逐帧 raycast 或完整树按帧更新时失败；专项 tests、`npm.cmd run check`、敏感扫描、`git diff --check` 与本地提交通过。推送必须另行确认。
+
+  完成记录：WebGL 改为按需调度，稳定静止和页面隐藏时停止 rAF；静止 Pointer 不再重复 raycast；封面纹理只保留当前可见窗口和相邻三项，画布根据启动视口选择质量层级。播放器把 `currentTimeMs`、缓冲时间移入独立 timeline store，进度和歌词继续准确更新而语义订阅者不按帧重渲染。生产构建固定 8 项夹具画廊专项 E2E 通过桌面 >=55fps、窄屏 >=30fps；unit 74、component 75、contract 59、应用 E2E 42 和 Foundation visual E2E 2 全部通过，`npm.cmd run check` 通过（仅保留既有原生 `<img>` warning），敏感扫描和 `git diff --check` 无问题。待生成本地提交；推送仍需当次确认。
 
 - [ ] **T019 音乐库与 IndexedDB 播放历史**
 

@@ -37,6 +37,29 @@ async function installDailyTracks(page: Page, nextTracks: Track[] = tracks): Pro
   });
 }
 
+async function measureGalleryFrames(page: Page): Promise<number> {
+  return page.evaluate(async () => {
+    const canvas = document.querySelector<HTMLCanvasElement>(
+      "canvas[aria-label='Interactive daily track gallery']",
+    );
+    if (!canvas) {
+      throw new Error("The gallery canvas is unavailable for frame measurement.");
+    }
+
+    const before = Number(canvas.dataset.renderCount ?? "0");
+    const startedAt = performance.now();
+    canvas.dispatchEvent(new WheelEvent("wheel", {
+      bubbles: true,
+      cancelable: true,
+      deltaY: 120,
+    }));
+    await new Promise<void>((resolve) => window.setTimeout(resolve, 500));
+    const elapsedSeconds = (performance.now() - startedAt) / 1_000;
+    const after = Number(canvas.dataset.renderCount ?? "0");
+    return (after - before) / elapsedSeconds;
+  });
+}
+
 test.describe.configure({ mode: "serial" });
 
 test("uses normalized tracks in a finite, nonblank canvas gallery", async ({ page }) => {
@@ -73,6 +96,79 @@ test("retains the gallery after an artwork texture request fails", async ({ page
   await expect(gallery).toHaveAttribute("data-renderer", "canvas");
   await expect(gallery).toHaveAttribute("data-artwork-fallback", "true");
   await expect(page.getByLabel("Interactive daily track gallery")).toBeVisible();
+});
+
+test("sleeps while idle and resumes a single gallery render chain", async ({ page }) => {
+  const performanceTracks = Array.from({ length: 8 }, (_, index) => ({
+    ...baseTrack,
+    artworkUrl: null,
+    id: `performance-${index + 1}`,
+    name: `Performance Signal ${index + 1}`,
+  }));
+  await installDailyTracks(page, performanceTracks);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  const canvas = page.getByLabel("Interactive daily track gallery");
+  await expect(canvas).toHaveAttribute("data-gallery-quality", "full");
+  await expect(canvas).toHaveAttribute("data-render-state", "idle");
+
+  const idleRenderCount = await canvas.getAttribute("data-render-count");
+  await page.waitForTimeout(120);
+  await expect(canvas).toHaveAttribute("data-render-count", idleRenderCount ?? "");
+
+  await canvas.hover({ position: { x: 720, y: 450 } });
+  await expect.poll(async () => Number(await canvas.getAttribute("data-raycast-count")))
+    .toBeGreaterThan(0);
+  await expect(canvas).toHaveAttribute("data-render-state", "idle");
+  const idleRaycastCount = await canvas.getAttribute("data-raycast-count");
+  await page.waitForTimeout(120);
+  await expect(canvas).toHaveAttribute("data-raycast-count", idleRaycastCount ?? "");
+
+  await page.evaluate(() => {
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      value: "hidden",
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(canvas).toHaveAttribute("data-render-state", "hidden");
+
+  await page.evaluate(() => {
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      value: "visible",
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect.poll(async () => Number(await canvas.getAttribute("data-render-count")))
+    .toBeGreaterThan(Number(idleRenderCount));
+  await expect(canvas).toHaveAttribute("data-render-state", "idle");
+});
+
+test("meets the fixed-fixture gallery frame budget at desktop and narrow widths", async ({ page }) => {
+  const performanceTracks = Array.from({ length: 8 }, (_, index) => ({
+    ...baseTrack,
+    artworkUrl: null,
+    id: `budget-${index + 1}`,
+    name: `Budget Signal ${index + 1}`,
+  }));
+  await installDailyTracks(page, performanceTracks);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  const canvas = page.getByLabel("Interactive daily track gallery");
+  await expect(canvas).toHaveAttribute("data-render-state", "idle");
+  const desktopFramesPerSecond = await measureGalleryFrames(page);
+  expect(desktopFramesPerSecond).toBeGreaterThanOrEqual(55);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  const narrowCanvas = page.getByLabel("Interactive daily track gallery");
+  await expect(narrowCanvas).toHaveAttribute("data-gallery-quality", "constrained");
+  await expect(narrowCanvas).toHaveAttribute("data-render-state", "idle");
+  const narrowFramesPerSecond = await measureGalleryFrames(page);
+  expect(narrowFramesPerSecond).toBeGreaterThanOrEqual(30);
 });
 
 test.describe("Canvas fallback", () => {

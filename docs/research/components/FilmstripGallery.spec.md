@@ -100,3 +100,34 @@
   last positions, wheel, pointer, keyboard and touch fallback at 1440, 768,
   and 390 widths. Normal Canvas checks require nonblank pixels and disposal on
   unmount.
+
+## T018S Performance Governance Override
+
+- The scene owns an observable render scheduler. `interacting`, `previewing`
+  and `settling` may request a continuous animation frame; `idle` completes
+  its final draw and holds no pending frame; `hidden` cancels pending work.
+  A new wheel, keyboard, pointer, preview, resize or visibility event schedules
+  at most one wake-up frame and never creates a second loop.
+- Pointer movement, resize, preview geometry and track motion mark hit-testing
+  dirty. The raycaster runs only for a dirty frame or the immediate click
+  check; a stationary pointer on a stable gallery cannot cause continuous
+  raycasts. Hover brightness still settles smoothly after a hit changes.
+- Quality is selected before renderer creation. Full quality caps DPR at 2;
+  the renderer disables antialiasing in every tier because planes retain hard
+  rectangular clipping, while constrained quality additionally lowers DPR and
+  limits texture anisotropy. This must not alter plane geometry, finite bounds, hit targets,
+  wave cause/effect or preview continuity. Canvas initialization failure or a
+  remaining constrained-performance failure keeps the existing DOM fallback.
+- Each film owns a stable in-memory fallback texture. Remote artwork is loaded
+  only for the current visible window plus at most three neighbours on either
+  side, and any preview item. Pending work outside that window is invalidated;
+  remote textures that leave it and are not part of a preview are released and
+  the fallback texture is restored. Unmount disposes every remaining fallback,
+  remote texture, material, geometry, renderer and HUD resource exactly once.
+- The canvas exposes non-user-facing render state, quality, render count and
+  raycast count for deterministic local verification. The attributes are not a
+  product API and must not contain track, provider or account data.
+- Tests cover initial draw, idle sleep, wake-up after wheel/pointer/keyboard,
+  preview entry/exit, hidden/resume, stationary-pointer raycast count, first/
+  last Clamp, missing artwork, texture errors, Canvas fallback, Reduced Motion
+  and 1440/768/390 nonblank visual checks.

@@ -16,12 +16,22 @@ import type {
 
 export type PlayerPublicSnapshot = Omit<
   PlayerSnapshot,
-  "source" | "shuffleBag" | "playbackHistory" | "loadOrigin"
+  | "bufferedUntilMs"
+  | "currentTimeMs"
+  | "source"
+  | "shuffleBag"
+  | "playbackHistory"
+  | "loadOrigin"
 > & {
   canNext: boolean;
   canPrevious: boolean;
   hasSource: boolean;
 };
+
+export type PlayerTimelineSnapshot = Pick<
+  PlayerSnapshot,
+  "bufferedUntilMs" | "currentTimeMs" | "durationMs" | "loadRevision"
+>;
 
 export interface PlayerRuntimeContextValue {
   audioRef: RefObject<HTMLAudioElement | null>;
@@ -29,7 +39,9 @@ export interface PlayerRuntimeContextValue {
   controller: PlayerController;
   dispatch(command: PlayerCommand): void;
   getPublicSnapshot(): PlayerPublicSnapshot;
+  getTimelineSnapshot(): PlayerTimelineSnapshot;
   subscribe(listener: () => void): () => void;
+  subscribeTimeline(listener: () => void): () => void;
 }
 
 export const PlayerRuntimeContext = createContext<PlayerRuntimeContextValue | null>(null);
@@ -57,6 +69,22 @@ export function usePlayerSelector<T>(
 
   return useSyncExternalStore(
     runtime.subscribe,
+    getSelectedSnapshot,
+    getSelectedSnapshot,
+  );
+}
+
+export function usePlayerTimelineSelector<T>(
+  selector: (snapshot: PlayerTimelineSnapshot) => T,
+): T {
+  const runtime = usePlayerRuntime();
+  const getSelectedSnapshot = useCallback(
+    () => selector(runtime.getTimelineSnapshot()),
+    [runtime, selector],
+  );
+
+  return useSyncExternalStore(
+    runtime.subscribeTimeline,
     getSelectedSnapshot,
     getSelectedSnapshot,
   );

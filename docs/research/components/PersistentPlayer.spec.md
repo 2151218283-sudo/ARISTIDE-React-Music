@@ -44,3 +44,29 @@
 - Media integration: source application order, metadata, play/pause, time, progress, seeked, ended, media error, volume/mute and one audio element.
 - Route persistence: client navigation across at least three ECHOFORM routes retains the same audio DOM node and player state.
 - Visual: 1440x900, 768x1024 and 390x844; 200% equivalent zoom; Reduced Motion; no overlap, clipping or unexpected horizontal scroll.
+
+## T018S High-Frequency Timeline Override
+
+- Player context exposes two external subscription surfaces. The public
+  semantic snapshot contains queue, track, intent, playback/network/seek
+  status, errors and finite-control availability, but excludes volatile
+  `currentTimeMs` and `bufferedUntilMs`. It only notifies when one of those
+  semantic values changes.
+- A separate timeline snapshot supplies `currentTimeMs`, buffered duration,
+  media duration and load revision to time consumers. `ProgressRail` uses it
+  for linear visual and ARIA updates; `LyricsViewport` uses it to resolve the
+  actual active line/word. Both retain `audio.currentTime` as the sole time
+  source and keep browser-event updates while hidden or under Reduced Motion.
+- The audio host subscribes to semantic lifecycle changes for source, volume,
+  playback and recovery synchronization. A `MEDIA_TIME` frame must not cause
+  source application, output-volume work, player-bar rendering or unrelated
+  page rendering.
+- `canPrevious` may notify when its boolean threshold changes, but a changing
+  millisecond value alone cannot republish the public snapshot. `loadRevision`,
+  SEEK, pause precedence, media error handling, source refresh, one Audio
+  element and route persistence are unchanged.
+- Component tests drive repeated timeline frames and prove that a timeline
+  consumer updates while an AppShell-equivalent semantic consumer and a full
+  non-time selector retain their render counts. Existing media integration
+  tests continue to cover metadata, seek, buffering, errors and background
+  recovery.

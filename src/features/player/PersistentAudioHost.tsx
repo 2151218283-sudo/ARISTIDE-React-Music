@@ -26,7 +26,12 @@ function bufferedUntilMs(audio: HTMLAudioElement): number {
 }
 
 export function PersistentAudioHost() {
-  const { audioRef, connectAudio, controller } = usePlayerRuntime();
+  const {
+    audioRef,
+    connectAudio,
+    controller,
+    subscribe,
+  } = usePlayerRuntime();
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -246,7 +251,7 @@ export function PersistentAudioHost() {
       }
     }, 500);
 
-    const unsubscribe = controller.subscribe(syncFromSnapshot);
+    const unsubscribe = subscribe(() => syncFromSnapshot(controller.getSnapshot()));
     syncFromSnapshot(latestSnapshot);
 
     return () => {
@@ -270,7 +275,7 @@ export function PersistentAudioHost() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       reducedMotionQuery?.removeEventListener("change", onMotionChange);
     };
-  }, [audioRef, controller]);
+  }, [audioRef, controller, subscribe]);
 
   return (
     <audio

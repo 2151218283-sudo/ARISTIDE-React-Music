@@ -19,7 +19,11 @@ import {
 } from "@/lib/player";
 import type { LyricDocument, LyricLine } from "@/lib/music/models";
 
-import { usePlayerDispatch, usePlayerSelector } from "./playerContext";
+import {
+  usePlayerDispatch,
+  usePlayerSelector,
+  usePlayerTimelineSelector,
+} from "./playerContext";
 import { formatPlayerTime } from "./playerView";
 import type { TrackPageResource } from "./useTrackPageDetails";
 import styles from "./LyricsViewport.module.css";
@@ -84,7 +88,7 @@ interface LyricsViewportProps {
 }
 
 export function LyricsViewport({ lyrics }: LyricsViewportProps) {
-  const currentTimeMs = usePlayerSelector((snapshot) => snapshot.currentTimeMs);
+  const currentTimeMs = usePlayerTimelineSelector((snapshot) => snapshot.currentTimeMs);
   const currentTrack = usePlayerSelector((snapshot) => snapshot.currentTrack);
   const durationMs = usePlayerSelector((snapshot) => snapshot.durationMs);
   const dispatch = usePlayerDispatch();

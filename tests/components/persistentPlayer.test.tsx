@@ -8,6 +8,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { useEffect } from "react";
 import userEvent from "@testing-library/user-event";
 import {
   afterEach,
@@ -25,6 +26,7 @@ import {
   usePlayerDispatch,
   usePlayerRuntime,
   usePlayerSelector,
+  usePlayerTimelineSelector,
 } from "../../src/features/player/playerContext";
 
 interface Deferred<T> {
@@ -127,6 +129,43 @@ function PlayerTestDriver({ queue = defaultQueue }: { queue?: readonly QueueItem
       </button>
       <output data-testid="public-snapshot">{JSON.stringify(snapshot)}</output>
     </div>
+  );
+}
+
+function SemanticRenderProbe({ onUpdate }: { onUpdate: () => void }) {
+  const semanticSnapshot = usePlayerSelector((value) => value);
+  useEffect(() => {
+    onUpdate();
+  }, [onUpdate, semanticSnapshot]);
+
+  return (
+    <>
+      <span data-testid="semantic-track">{semanticSnapshot.currentTrack?.id ?? "none"}</span>
+    </>
+  );
+}
+
+function TimelineRenderProbe({ onUpdate }: { onUpdate: () => void }) {
+  const runtime = usePlayerRuntime();
+  const currentTimeMs = usePlayerTimelineSelector((value) => value.currentTimeMs);
+  useEffect(() => {
+    onUpdate();
+  }, [currentTimeMs, onUpdate]);
+
+  return (
+    <>
+      <output data-testid="timeline-time">{currentTimeMs}</output>
+      <button
+        onClick={() => runtime.controller.dispatch({
+          type: "MEDIA_TIME",
+          currentTimeMs: runtime.controller.getSnapshot().currentTimeMs + 1_000,
+          revision: runtime.controller.getSnapshot().loadRevision,
+        })}
+        type="button"
+      >
+        Timeline tick
+      </button>
+    </>
   );
 }
 
@@ -266,6 +305,41 @@ describe("persistent player media integration", () => {
     fireEvent.change(progress, { target: { value: "30000" } });
     fireEvent.pointerUp(progress, { target: { value: "30000" } });
     expect((audio as HTMLAudioElement).currentTime).toBe(30);
+  });
+
+  it("isolates media-time rendering to timeline consumers", async () => {
+    const user = userEvent.setup();
+    const semanticUpdates = vi.fn();
+    const timelineUpdates = vi.fn();
+    render(
+      <PlayerProvider sourceResolver={async (value) => source(value.id)}>
+        <PlayerTestDriver />
+        <SemanticRenderProbe onUpdate={semanticUpdates} />
+        <TimelineRenderProbe onUpdate={timelineUpdates} />
+      </PlayerProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Load" }));
+    const audio = document.querySelector<HTMLAudioElement>("[data-echoform-audio]");
+    expect(audio).not.toBeNull();
+    await waitFor(() => expect(audio).toHaveAttribute("src", "memory:a"));
+    setDuration(audio as HTMLAudioElement, 120);
+    fireEvent.loadedMetadata(audio as HTMLAudioElement);
+
+    await user.click(screen.getByRole("button", { name: "Timeline tick" }));
+    const semanticUpdatesAfterThreshold = semanticUpdates.mock.calls.length;
+    const loadCallsAfterThreshold = vi.mocked(HTMLMediaElement.prototype.load).mock.calls.length;
+    const timelineUpdatesAfterThreshold = timelineUpdates.mock.calls.length;
+
+    await user.click(screen.getByRole("button", { name: "Timeline tick" }));
+    await user.click(screen.getByRole("button", { name: "Timeline tick" }));
+    await user.click(screen.getByRole("button", { name: "Timeline tick" }));
+
+    expect(semanticUpdates).toHaveBeenCalledTimes(semanticUpdatesAfterThreshold);
+    expect(timelineUpdates.mock.calls.length).toBeGreaterThanOrEqual(timelineUpdatesAfterThreshold + 3);
+    expect(screen.getByTestId("timeline-time")).toHaveTextContent("4000");
+    expect(screen.getByTestId("semantic-track")).toHaveTextContent("a");
+    expect(HTMLMediaElement.prototype.load).toHaveBeenCalledTimes(loadCallsAfterThreshold);
   });
 
   it("controls volume, restores zero volume, and cycles all playback modes", async () => {

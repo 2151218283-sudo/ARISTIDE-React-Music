@@ -9,7 +9,11 @@ import {
   type PointerEvent,
 } from "react";
 
-import { usePlayerDispatch, usePlayerSelector } from "./playerContext";
+import {
+  usePlayerDispatch,
+  usePlayerSelector,
+  usePlayerTimelineSelector,
+} from "./playerContext";
 import { formatPlayerTime } from "./playerView";
 import styles from "./PersistentPlayerBar.module.css";
 
@@ -23,9 +27,9 @@ function clampTime(timeMs: number, durationMs: number): number {
 }
 
 export function ProgressRail() {
-  const currentTimeMs = usePlayerSelector((snapshot) => snapshot.currentTimeMs);
+  const currentTimeMs = usePlayerTimelineSelector((snapshot) => snapshot.currentTimeMs);
   const durationMs = usePlayerSelector((snapshot) => snapshot.durationMs);
-  const bufferedUntilMs = usePlayerSelector((snapshot) => snapshot.bufferedUntilMs);
+  const bufferedUntilMs = usePlayerTimelineSelector((snapshot) => snapshot.bufferedUntilMs);
   const loadRevision = usePlayerSelector((snapshot) => snapshot.loadRevision);
   const dispatch = usePlayerDispatch();
   const labelId = useId();
