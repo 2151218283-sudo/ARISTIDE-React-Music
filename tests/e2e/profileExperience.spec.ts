@@ -59,6 +59,7 @@ async function installProfileRoutes(
   options: {
     collectionBody?: string;
     collectionStatus?: number;
+    overviewGate?: Promise<void>;
     overviewBody?: string;
     overviewStatus?: number;
     sessionUser?: typeof profile | null;
@@ -79,6 +80,9 @@ async function installProfileRoutes(
         options.collectionStatus ?? 200,
       );
       return;
+    }
+    if (options.overviewGate) {
+      await options.overviewGate;
     }
     await fulfillJson(
       route,
@@ -112,7 +116,11 @@ test("renders a local public profile at desktop, tablet, and mobile sizes withou
 });
 
 test("covers loading, empty, protected, missing, upstream-error, and avatar-failure profile states", async ({ page }) => {
-  await installProfileRoutes(page);
+  let releaseLoadingOverview = (): void => {};
+  const loadingOverviewGate = new Promise<void>((resolve) => {
+    releaseLoadingOverview = resolve;
+  });
+  await installProfileRoutes(page, { sessionUser: profile });
   await page.unroute("**/api/users/**");
   await page.route("**/api/users/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
@@ -120,11 +128,14 @@ test("covers loading, empty, protected, missing, upstream-error, and avatar-fail
       await fulfillJson(route, success({ liked: null, created: [], subscribed: [] }));
       return;
     }
-    await new Promise<void>((resolve) => setTimeout(resolve, 750));
+    await loadingOverviewGate;
     await fulfillJson(route, success(overview));
   });
-  await page.goto("/profile/701");
+  await page.goto("/");
+  await page.getByRole("link", { name: "Profile Listener的个人主页" }).click();
+  await expect(page).toHaveURL(/\/profile\/701$/);
   await expect(page.getByRole("status", { name: "正在加载用户主页" })).toBeVisible();
+  releaseLoadingOverview();
   await expect(page.getByRole("heading", { name: "Profile Listener" })).toBeVisible();
   await expect(page.getByText("暂时没有可公开展示的喜欢音乐。")).toBeVisible();
 
@@ -186,6 +197,39 @@ test("covers loading, empty, protected, missing, upstream-error, and avatar-fail
   await expect(page.getByLabel("Profile Listener的头像加载失败")).toBeVisible();
 });
 
+test("starts and completes the avatar clone before a delayed profile BFF response", async ({ page }) => {
+  let releaseOverview = (): void => {};
+  const overviewGate = new Promise<void>((resolve) => {
+    releaseOverview = resolve;
+  });
+  await installProfileRoutes(page, {
+    overviewGate,
+    sessionUser: profile,
+  });
+
+  await page.goto("/");
+  await page.getByRole("link", { name: "Profile Listener的个人主页" }).click();
+  await expect(page).toHaveURL(/\/profile\/701$/);
+
+  const target = page.locator("[data-profile-header-avatar]");
+  await expect(target).toHaveCount(1);
+  const cloneExistsWithinTwoFrames = await page.evaluate(async () => {
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    return document.querySelector("[data-profile-avatar-transition-clone]") !== null;
+  });
+  expect(cloneExistsWithinTwoFrames).toBe(true);
+  await expect(target).toHaveAttribute("data-profile-avatar-transition-hidden", "true");
+
+  await page.waitForTimeout(1000);
+  await expect(page.locator("[data-profile-avatar-transition-clone]")).toHaveCount(0);
+  await expect(target).not.toHaveAttribute("data-profile-avatar-transition-hidden");
+  await expect(page.getByRole("heading", { name: "Profile Listener" })).toHaveCount(0);
+
+  releaseOverview();
+  await expect(page.getByRole("heading", { name: "Profile Listener" })).toBeVisible();
+});
+
 test("shows the current-user entry, cancels the shared avatar movement, and respects Reduced Motion", async ({ page }) => {
   await installProfileRoutes(page, {
     overviewBody: success({ ...overview, isCurrentUser: true }),
@@ -198,13 +242,13 @@ test("shows the current-user entry, cancels the shared avatar movement, and resp
   await expect(page).toHaveURL(/\/profile\/701$/);
   await expect(page.getByRole("heading", { name: "Profile Listener" })).toBeVisible();
   await expect(page.getByRole("link", { name: "打开个人设置" })).toHaveAttribute("href", "/settings");
-  await expect(page.locator("[data-running='true']")).toBeVisible();
+  await expect(page.locator("[data-profile-avatar-transition-clone][data-running='true']")).toBeVisible();
   await page.mouse.wheel(0, 30);
-  await expect(page.locator("[data-running='true']")).toHaveCount(0);
+  await expect(page.locator("[data-profile-avatar-transition-clone]")).toHaveCount(0);
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.getByRole("link", { name: "Profile Listener的个人主页" }).click();
   await expect(page.getByRole("heading", { name: "Profile Listener" })).toBeVisible();
-  await expect(page.locator("[data-running='true']")).toHaveCount(0);
+  await expect(page.locator("[data-profile-avatar-transition-clone]")).toHaveCount(0);
 });

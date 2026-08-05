@@ -25,6 +25,7 @@ vi.mock("next/link", () => ({
 }));
 
 import { AvatarButton } from "../../src/features/auth/AvatarButton";
+import { ProfileAvatarTransitionLayer } from "../../src/features/profile/ProfileAvatarTransitionLayer";
 import { ProfileExperience } from "../../src/features/profile/ProfileExperience";
 import { requestProfileAvatarTransition } from "../../src/features/profile/profileAvatarTransition";
 import type {
@@ -184,7 +185,7 @@ describe("ProfileExperience", () => {
     expect(await screen.findByLabelText("Profile Listener的头像加载失败")).toHaveTextContent("P");
   });
 
-  it("cancels an in-progress avatar transition and omits it in Reduced Motion", async () => {
+  it("starts against the immediate target, hides the duplicate, cancels, and respects Reduced Motion", async () => {
     const requestAnimationFrame = vi.spyOn(window, "requestAnimationFrame")
       .mockImplementation((callback) => {
         callback(0);
@@ -197,6 +198,7 @@ describe("ProfileExperience", () => {
     ));
     const { container, rerender } = render(
       <>
+        <ProfileAvatarTransitionLayer />
         <AvatarButton user={profile} />
         <ProfileExperience userId="701" />
       </>,
@@ -204,15 +206,36 @@ describe("ProfileExperience", () => {
 
     fireEvent.click(screen.getByRole("link", { name: "Profile Listener的个人主页" }));
     await screen.findByRole("heading", { name: "Profile Listener" });
+    await waitFor(() => expect(container.querySelector("[data-profile-avatar-transition-clone]")).not.toBeNull());
+    expect(container.querySelector("[data-profile-header-avatar]"))
+      .toHaveAttribute("data-profile-avatar-transition-hidden", "true");
+    expect(container.querySelector("[data-running='true']")).not.toBeNull();
+    fireEvent.transitionEnd(container.querySelector("[data-profile-avatar-transition-clone]")!, {
+      propertyName: "transform",
+    });
+    await waitFor(() => expect(container.querySelector("[data-profile-avatar-transition-clone]")).toBeNull());
+    expect(container.querySelector("[data-profile-header-avatar]"))
+      .not.toHaveAttribute("data-profile-avatar-transition-hidden");
+
+    fireEvent.click(screen.getByRole("link", { name: "Profile Listener的个人主页" }));
     await waitFor(() => expect(container.querySelector("[data-running='true']")).not.toBeNull());
     fireEvent.wheel(window);
     await waitFor(() => expect(container.querySelector("[data-running='true']")).toBeNull());
     expect(requestAnimationFrame).toHaveBeenCalled();
 
     vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true })));
-    requestProfileAvatarTransition(profile.id);
-    rerender(<ProfileExperience userId="701" />);
+    requestProfileAvatarTransition({
+      avatar: { avatarUrl: profile.avatarUrl, nickname: profile.nickname },
+      source: { height: 32, left: 0, top: 0, width: 32 },
+      userId: profile.id,
+    });
+    rerender(
+      <>
+        <ProfileAvatarTransitionLayer />
+        <ProfileExperience userId="701" />
+      </>,
+    );
     await screen.findByRole("heading", { name: "Profile Listener" });
-    expect(container.querySelector("[data-running='true']")).toBeNull();
+    await waitFor(() => expect(container.querySelector("[data-profile-avatar-transition-clone]")).toBeNull());
   });
 });

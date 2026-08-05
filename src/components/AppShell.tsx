@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useLayoutEffect, useRef } from "react";
 
 import { FixedNavigation } from "./FixedNavigation";
+import { ProfileAvatarTransitionLayer } from "@/features/profile/ProfileAvatarTransitionLayer";
 import styles from "./AppShell.module.css";
 
 export type AppShellVariant =
@@ -96,6 +97,7 @@ export function AppShell({ children }: AppShellProps) {
       >
         {children}
       </main>
+      <ProfileAvatarTransitionLayer />
     </div>
   );
 }

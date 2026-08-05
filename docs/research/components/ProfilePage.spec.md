@@ -9,13 +9,16 @@
 - `src/app/profile/[id]/page.tsx` resolves a local profile identifier and renders
   `ProfileExperience`; it does not call an upstream API or read a Cookie.
 - `src/features/profile/` owns same-origin reads, page-state composition,
-  profile-specific styles, the avatar transition, and profile client validation.
+  profile-specific styles, transition state, target registration, and profile
+  client validation. `AppShell` mounts its transition layer so the clone survives
+  the local route replacement.
 - `src/lib/music/` owns normalized `UserProfileOverview` and
   `UserPlaylistCollection`, the provider methods, upstream mapping, and BFF
   request handling. Only whitelisted normalized fields reach the browser.
-- `AvatarButton` remains the local account entry. It marks an in-memory avatar
-  transition request before navigating to `/profile/[id]`; it does not put a user
-  ID, avatar URL, Cookie, or account data in browser storage.
+- `AvatarButton` remains the local account entry. On click, it synchronously
+  captures the source avatar bounds and starts an in-memory transition request
+  before navigating to `/profile/[id]`; it does not put a user ID, avatar URL,
+  Cookie, or account data in browser storage.
 - `PlaylistTile` remains a normalized local `/playlist/[id]` link. It may be
   used in the profile grid but owns neither profile fetching nor playlist writes.
 
@@ -58,8 +61,8 @@ or a statistics dashboard.
 
 | State | Required behavior |
 | --- | --- |
-| Initial (0-300ms) | Keep the application shell stable and do not flash a page spinner. |
-| Loading | Reserve the avatar, title, and playlist grid dimensions with local Skeletons. |
+| Initial (0-300ms) | Keep the application shell stable and do not flash a page spinner. When navigation originated from `AvatarButton`, immediately render a measurable profile-header avatar target at its final layout position. |
+| Loading | Reserve the avatar, title, and playlist grid dimensions with local Skeletons. The header target is present from the first client render, not delayed until the 300ms Skeleton threshold or the profile BFF response. It may use only the already-rendered source avatar presentation held in transient memory; it does not persist account data. |
 | Public user | Render normalized profile, liked entry when present, created and subscribed playlist summaries, and the truthful unavailable recent-play section. |
 | Current user | Mark the page as the current user's profile and show the local Settings entry. No edit control is introduced. |
 | Guest visitor | Public profile remains readable. Do not imply account ownership or show Settings. |
@@ -80,6 +83,20 @@ or a statistics dashboard.
   header avatar over approximately 600ms using a transform-only translation
   and scale.
   It never creates a full-screen circular mask.
+- `AvatarButton` captures the visible avatar element bounds synchronously in
+  the click event and writes one transient, in-memory request before Next.js
+  begins route navigation. The request contains only the local identifier,
+  source geometry, and the already-visible avatar presentation. It is never
+  written to storage, a URL, a Cookie, a fixture, or a log.
+- The persistent transition layer starts the clone as soon as the route's
+  measurable target registers. A deliberately delayed profile BFF response
+  must not delay clone creation: after the target route mounts, the clone is
+  present before the next two animation frames and can complete against the
+  header Skeleton.
+- While the clone is active, the destination target avatar remains measurable
+  but visually hidden. The layer reveals it only after the clone's `transform`
+  transition ends. A duration timeout is a cleanup fallback, not the primary
+  completion signal. This prevents a visible duplicate avatar at either end.
 - The transition is skipped for Reduced Motion and is cancellable immediately
   by pointer, wheel, touch, or keyboard interaction. Cancellation removes only
   the clone and leaves the destination page usable.
@@ -100,7 +117,12 @@ current-user determination, whitelisted normalization, liked derivation,
 404/auth/error mapping, and no Cookie or raw upstream fields in responses.
 Unit tests cover adapter/profile collection normalization and demo behavior.
 Component tests cover the state matrix, partial preservation, local links,
-avatar fallback, transition cancellation, keyboard focus, and Reduced Motion.
+avatar fallback, immediate measurable header target, transition cancellation,
+keyboard focus, and Reduced Motion. They also verify that the target remains
+hidden while an active clone exists and becomes visible on `transitionend`.
 E2E covers public/current/guest profile states, loading, empty, protected,
 404, error, avatar failure, 1440px/768px/390px layout, and no horizontal
-overflow. Tests use only synthetic values and local route interception.
+overflow. A 1000ms intercepted profile response must still produce the clone
+within two animation frames, complete it before the response resolves, and
+show no duplicate target avatar. Tests use only synthetic values and local
+route interception.

@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-08-05
-> 当前任务：`T018`（进行中）
+> 当前任务：`T019`（待开始）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -124,7 +124,7 @@
 ## 4. 当前执行卡
 
 - 当前任务：`T019 音乐库与 IndexedDB 播放历史`（待开始）
-- 状态：T018 已通过完整验收，待创建本地提交并等待用户确认推送；T019 尚未开始。
+- 状态：T018 与 T018R 已通过验收并完成本地提交；等待用户确认推送相关提交，T019 尚未开始。
 - 修改目标：实现 `/library` 的喜欢、专辑、歌单、历史 Tabs；用 IndexedDB 按 30 秒或 50% 阈值记录本地有效播放，支持去重、离线读取和清空。
 - 允许修改：Library/History 规格；`src/app/library/**`、`src/features/library/**`、本地存储 adapter、测试 fixtures 和测试。
 - 不允许修改：不把音源 URL 写入 IndexedDB；本地历史与网易云记录必须标明来源；未登录状态不能跳外站；清空历史属于删除数据，执行真实 UI 操作和实现前按 AGENTS 红线确认。
@@ -440,6 +440,20 @@
   验收：共享元素约 600ms 且可中断；第一视口信息层级正确；三视口/焦点/错误恢复通过；专项 tests 与 `npm run check` 通过。
 
   完成记录：新增 `GET /api/users/:id` 与 `GET /api/users/:id/playlists` 的只读同源 BFF、Provider 归一化模型和 Profile 页面。资料仅暴露 id、昵称、头像和签名；最近播放明确标记为上游契约未验证，不伪造记录。公共、本人与访客资料页分别处理设置入口、空集合、私密/无权限、404、局部接口错误和头像失败。头像转场使用约 600ms 的可中断 transform-only 圆形克隆，Reduced Motion 不创建转场层。验收通过：12 个单元测试文件/74 项、14 个组件测试文件/74 项、9 个契约测试文件/59 项、39 个应用 E2E 与 2 个 Foundation 视觉 E2E，以及 `npm.cmd run check`。主页 Canvas 三视口非空像素检查通过；仅保留既有两条 `<img>` 性能 warning，无 lint error。
+
+- [x] **T018R 头像共享转场时序修复**
+
+  目标：修复 T018 共享头像在资料 BFF 返回后才创建、页面与目标头像已先显示的问题；使克隆在路由导航时立即进入持久转场层，并在已预留的 Profile 头部骨架处完成。
+
+  允许修改：Profile 规格；`src/components/AppShell.tsx`、`AvatarButton`、`src/features/profile/**`、对应 component/E2E 测试和 `TODO.md`。
+
+  不允许破坏：不改变用户/歌单读取、登录/会话、音频、队列、路由、数据模型或外部写操作；不使用全屏遮罩、浏览器持久化或真实账户数据；不因转场阻塞资料 loading/error/empty 状态。
+
+  页面测试：点击自己的头像且 Profile 资料延迟 1000ms、正常资料、取消、Reduced Motion、直接访问、404、接口错误、头像失败和 1440/768/390。
+
+  验收：源几何在点击同步捕获；目标骨架在 BFF 返回前可测量；克隆在点击后两帧内开始、以 transform-only 约 600ms 完成，且源/目标不重复；`transitionend` 与超时兜底均能清理；专项 tests、`npm run check`、敏感扫描和 `git diff --check` 通过。
+
+  完成记录：源头像点击时同步采集几何并只保留在内存；Profile 页首帧注册稳定目标骨架，`AppShell` 持久克隆层在目标就绪后两帧内启动并以 `transitionend` 为主清理。资料 BFF 被拦截延迟 1000ms 时，克隆会在响应前完成且目标不重复显示；取消、Reduced Motion、直接访问、loading/empty/error 与三视口测试均通过。
 
 - [ ] **T019 音乐库与 IndexedDB 播放历史**
 
