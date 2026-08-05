@@ -181,7 +181,7 @@ export class LegacyNeteaseAdapter {
     cookie?: string,
   ): Promise<SearchPage<Track, "track"> | SearchPage<AlbumSummary, "album">
     | SearchPage<ArtistSummary, "artist">> {
-    const response = await this.invoke(this.api.search, withCookie({
+    const response = await this.invoke(this.api.cloudsearch, withCookie({
       keywords: text,
       type: upstreamSearchTypes[type],
       limit,

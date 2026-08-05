@@ -140,7 +140,9 @@ test.describe.configure({ mode: "serial" });
 
 test("shows empty-query discovery through local routes and removes it when a query begins", async ({ page }) => {
   await installBaseRoutes(page);
+  let receivedQuery = "";
   await page.route("**/api/search?*", async (route) => {
+    receivedQuery = new URL(route.request().url()).searchParams.get("q") ?? "";
     await fulfillJson(route, success(allResult()));
   });
   await page.setViewportSize(viewports[0]);
@@ -149,8 +151,9 @@ test("shows empty-query discovery through local routes and removes it when a que
   await expect(page.getByRole("heading", { name: "新歌" })).toBeVisible();
   await expect(page.getByRole("link", { name: "查看歌单 Discovery Playlist" }))
     .toHaveAttribute("href", "/playlist/playlist-001");
-  await page.getByLabel("搜索歌曲、歌手或专辑").fill("signal");
+  await page.getByLabel("搜索歌曲、歌手或专辑").fill("蛋堡 关于小熊");
   await expect(page.getByText("First Signal")).toBeVisible();
+  expect(receivedQuery).toBe("蛋堡 关于小熊");
   await expect(page.locator("[data-search-discovery]")).toHaveCount(0);
 });
 

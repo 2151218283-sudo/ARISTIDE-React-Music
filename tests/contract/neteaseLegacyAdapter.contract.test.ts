@@ -43,6 +43,7 @@ function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
     artist_top_song: method({ code: 200, songs: [] }),
     check_music: method({ code: 200, success: true }),
     comment_music: method({ code: 200, comments: [], total: 0, more: false }),
+    cloudsearch: method({ code: 200, result: { songs: [], songCount: 0 } }),
     login_qr_create: method({ code: 200, data: { qrimg: "data:image/png;base64,visual-stage-placeholder" } }),
     login_qr_check: method({ code: 801 }),
     login_qr_key: async () => response({
@@ -54,7 +55,6 @@ function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
     logout: method({ code: 200 }),
     personalized_newsong: method({ code: 200, result: [] }),
     recommend_songs: method({ code: 200, data: { dailySongs: [] } }),
-    search: method({ code: 200, result: { songs: [], songCount: 0 } }),
     song_detail: method({ code: 200, songs: [], privileges: [] }),
     song_url_v1: method({ code: 200, data: [] }),
     top_playlist: method({ code: 200, playlists: [], total: 0, more: false }),
@@ -232,12 +232,12 @@ describe("Legacy anonymous reads", () => {
       privileges: [{ id: 101, fee: 0, playMaxLevel: "lossless" }],
     }));
     const adapter = new LegacyNeteaseAdapter(makeApi({
-      search,
+      cloudsearch: search,
       song_detail: detail,
     }));
 
     const searchResult = await adapter.search({
-      text: "  Signal  ",
+      text: "  蛋堡 关于小熊  ",
       type: "track",
       limit: 20,
       offset: 0,
@@ -245,7 +245,7 @@ describe("Legacy anonymous reads", () => {
     const track = await adapter.getTrack("101");
 
     expect(search).toHaveBeenCalledWith({
-      keywords: "Signal",
+      keywords: "蛋堡 关于小熊",
       type: 1,
       limit: 20,
       offset: 0,
@@ -295,7 +295,7 @@ describe("Legacy anonymous reads", () => {
         result: { songs: [syntheticTrack()], songCount: 1 },
       });
     });
-    const adapter = new LegacyNeteaseAdapter(makeApi({ search }));
+    const adapter = new LegacyNeteaseAdapter(makeApi({ cloudsearch: search }));
 
     const result = await adapter.search({
       text: "Signal",
@@ -319,7 +319,7 @@ describe("Legacy anonymous reads", () => {
 
   it("normalizes the source-verified artist search shape", async () => {
     const adapter = new LegacyNeteaseAdapter(makeApi({
-      search: method({
+      cloudsearch: method({
         code: 200,
         result: {
           artists: [{
@@ -614,7 +614,7 @@ describe("Legacy error and QR normalization", () => {
 
   it("rejects a non-200 root business code even when HTTP status is 200", async () => {
     const adapter = new LegacyNeteaseAdapter(makeApi({
-      search: method({ code: 500, message: "synthetic raw failure" }),
+      cloudsearch: method({ code: 500, message: "synthetic raw failure" }),
     }));
 
     await expect(adapter.search({

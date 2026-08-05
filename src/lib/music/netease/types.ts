@@ -17,13 +17,13 @@ export interface LegacyNeteaseApi {
   artist_top_song: LegacyApiMethod;
   check_music: LegacyApiMethod;
   comment_music: LegacyApiMethod;
+  cloudsearch: LegacyApiMethod;
   login_qr_create: LegacyApiMethod;
   login_qr_check: LegacyApiMethod;
   login_qr_key: LegacyApiMethod;
   login_status: LegacyApiMethod;
   lyric_new: LegacyApiMethod;
   logout: LegacyApiMethod;
-  search: LegacyApiMethod;
   recommend_songs: LegacyApiMethod;
   personalized_newsong: LegacyApiMethod;
   song_detail: LegacyApiMethod;

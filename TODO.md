@@ -124,7 +124,7 @@
 ## 4. 当前执行卡
 
 - 当前任务：`T018 用户主页与只读用户歌单`（待开始）
-- 状态：T017 已通过完整验收，待创建本地提交；T018 尚未开始。
+- 状态：T017R 已通过完整验收，待创建本地提交；T018 尚未开始。
 - 修改目标：实现头像共享元素进入 `/profile/[id]`，展示必要资料、喜欢入口、创建/收藏歌单摘要、最近播放与真实数据不足状态。
 - 允许修改：Profile 规格；`src/app/profile/[id]/**`、`src/features/profile/**`、用户/歌单 BFF 读取、`AvatarButton`、`PlaylistTile` 和对应测试。
 - 不允许修改：`.env*`、CI/CD、生产部署、数据库、Git 历史、音频中转、第三方音源、解灰、下载、转码、持久音频缓存或外部写操作。真实 URL、Cookie、QR key、代理地址和用户数据不得进入浏览器状态、日志、fixture 或 Git。
@@ -410,6 +410,20 @@
   验收：本地路由和队列上下文正确；长列表策略明确；三个视口、键盘和状态测试通过；`npm run check` 通过。
 
   完成记录：新增专辑、歌手、新歌和热门歌单的同源只读 BFF 与本地详情路由；所有响应均归一化，ID/分页在服务端校验，公开元数据使用五分钟缓存。专辑最多渐进展示 50 首，歌手专辑支持分页；搜索空查询展示新歌与热门歌单，输入查询即卸载发现区并取消请求。不可播放曲目仍可查看且带原因，播放全部仅加入可执行曲目并保持有限本地队列。验收通过：`npm.cmd run test`（12 个单元测试文件/74 项、13 个组件测试文件/68 项、8 个契约测试文件/53 项、36 个应用 E2E 与 2 个 Foundation 视觉 E2E）以及 `npm.cmd run check`；仅保留既有 `AvatarButton.tsx` 和 `QrLoginDialog.tsx` 的两条 `<img>` 性能 warning，无 lint error。
+
+- [x] **T017R 中文真实搜索路径修复**
+
+  目标：修复固定 Legacy 包 `search` 路径对真实中文关键词返回无关歌曲的问题，改用同一固定包中经匿名真实读取验证的 `cloudsearch`，且保持 ECHOFORM 搜索 BFF 契约不变。
+
+  允许修改：`TODO.md`、API 契约、Legacy Adapter 的函数白名单/类型/搜索调用，以及对应 contract、component、E2E 测试。
+
+  不允许破坏：不改 `.env*`、代理、Provider 版本、登录、会话、音频、队列、首页 WebGL、路由、归一化搜索响应或 `all` 部分成功语义；不增加外部写操作或记录真实 Cookie、URL、用户数据。
+
+  页面测试：中文关键词搜索的 loading、正确歌曲结果、中文 URL 状态、空结果、接口错误、综合部分成功、三视口与页内播放。
+
+  验收：`cloudsearch` 仅在 server-only 白名单中使用；track/artist/album 映射保持归一化；用户给出的中文查询在 Adapter 边界精确保留；真实匿名读取仅记录脱敏结论；专项 tests、`npm run test`、`npm run check`、敏感信息扫描与 `git diff --check` 通过。
+
+  完成记录：固定 `NeteaseCloudMusicApi@4.32.0` 的 `search` 会在当前本地匿名传输链路中返回无关歌曲；同一包的 `cloudsearch` 以相同公开参数正确返回中文目标歌曲、歌手和专辑形状。Adapter 仅替换 server-only 白名单及内部调用，`GET /api/search` 的浏览器参数、归一化响应、缓存、`all` 部分成功与 UI 均未改变。通过真实本地 BFF 查询确认“蛋堡 关于小熊”的首条为“关于小熊 / 蛋堡”；`npm.cmd run test` 通过 12 个单元测试文件/74 项、13 个组件测试文件/68 项、8 个契约测试文件/53 项、36 个应用 E2E 与 2 个 Foundation 视觉 E2E；`npm.cmd run check` 通过。仅保留既有两条 `<img>` 性能 warning，无 lint error。
 
 ### Phase 5：用户主页、音乐库与本地历史
 

@@ -751,6 +751,7 @@ machine can currently reach every upstream route.
 
 | ECHOFORM capability | Fixed Legacy function | Validated request shape | Verification |
 | --- | --- | --- | --- |
+| Search tracks, artists, and albums | `cloudsearch` | `keywords`, `type`, `limit`, `offset` | `RUNTIME_ANON` |
 | Album detail and tracks | `album` | `id` | `SOURCE_VERIFIED` |
 | Artist identity | `artist_detail` | `id` | `SOURCE_VERIFIED` |
 | Artist hot tracks | `artist_top_song` | `id` | `SOURCE_VERIFIED` |
@@ -775,3 +776,20 @@ write operations available.
 No T017 endpoint reads an upstream Cookie, calls a mutation, resolves a media
 source, returns a source URL, or adds a similar-artist relation. Similar artists
 remain out of scope until their own source contract is frozen.
+
+### T017R Search Runtime Repair (2026-08-05)
+
+The fixed Legacy package exports both `search` and `cloudsearch`. In the current
+local transport environment, a real anonymous `search` call preserved the Chinese
+input at the Adapter boundary but returned unrelated songs. The same query through
+`cloudsearch` returned a `code: 200` result whose first normalized candidate was
+the requested public song and artist. The independently checked artist and album
+queries also returned nonempty, expected `result.artists` and `result.albums`
+shapes.
+
+ECHOFORM therefore uses only `cloudsearch` for its existing public `GET /api/search`
+surface. This changes neither browser parameters nor the normalized response
+contract: it only replaces the fixed-package internal request path. The probe used
+no login, Cookie, QR key, media URL, mutation, or persisted user data. It verifies
+this route for the current local anonymous transport only; future upstream changes
+remain recoverable provider failures rather than a guarantee of universal results.
