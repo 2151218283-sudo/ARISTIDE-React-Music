@@ -84,7 +84,35 @@ function failure(message: string): Response {
 }
 
 function renderSearch(fetchMock: (input: RequestInfo | URL) => Promise<Response>) {
-  vi.stubGlobal("fetch", vi.fn(fetchMock));
+  vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+    const url = new URL(String(input), "http://localhost");
+    if (url.pathname === "/api/discovery/new-songs") {
+      return Response.json({ ok: true, data: [track] });
+    }
+    if (url.pathname === "/api/discovery/popular-playlists") {
+      return Response.json({
+        ok: true,
+        data: {
+          items: [{
+            id: "playlist-001",
+            name: "Discovery Signal",
+            description: null,
+            artworkUrl: null,
+            owner: null,
+            visibility: "public",
+            trackCount: 1,
+            createdAt: null,
+            updatedAt: null,
+          }],
+          total: 1,
+          limit: 8,
+          offset: 0,
+          hasMore: false,
+        },
+      });
+    }
+    return fetchMock(input);
+  }));
   return render(
     <PlayerProvider sourceResolver={async () => source}>
       <SearchExperience />
@@ -116,12 +144,15 @@ afterEach(async () => {
 });
 
 describe("SearchExperience", () => {
-  it("keeps the honest empty-query landing state and focuses the visible input with slash", async () => {
+  it("renders independent discovery sections for an empty query and focuses the visible input with slash", async () => {
     const user = userEvent.setup();
     const fetchMock = vi.fn(async () => success(allResult()));
     renderSearch(fetchMock);
 
-    expect(screen.getByText("搜索历史和热搜将在发现数据接入后显示。")).toBeVisible();
+    expect(screen.getByText("输入歌曲、歌手或专辑关键词，开始查找音乐。")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "新歌" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看歌单 Discovery Signal" }))
+      .toHaveAttribute("href", "/playlist/playlist-001");
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
     await user.keyboard("/");
     expect(screen.getByLabelText("搜索歌曲、歌手或专辑")).toHaveFocus();

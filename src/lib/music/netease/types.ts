@@ -11,6 +11,10 @@ export type LegacyApiMethod = (
 ) => Promise<LegacyApiResponse>;
 
 export interface LegacyNeteaseApi {
+  album: LegacyApiMethod;
+  artist_album: LegacyApiMethod;
+  artist_detail: LegacyApiMethod;
+  artist_top_song: LegacyApiMethod;
   check_music: LegacyApiMethod;
   comment_music: LegacyApiMethod;
   login_qr_create: LegacyApiMethod;
@@ -21,8 +25,10 @@ export interface LegacyNeteaseApi {
   logout: LegacyApiMethod;
   search: LegacyApiMethod;
   recommend_songs: LegacyApiMethod;
+  personalized_newsong: LegacyApiMethod;
   song_detail: LegacyApiMethod;
   song_url_v1: LegacyApiMethod;
+  top_playlist: LegacyApiMethod;
   top_song: LegacyApiMethod;
 }
 

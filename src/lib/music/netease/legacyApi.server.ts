@@ -6,6 +6,10 @@ import type {
 } from "./types";
 
 const requiredMethods = [
+  "album",
+  "artist_album",
+  "artist_detail",
+  "artist_top_song",
   "check_music",
   "comment_music",
   "login_qr_create",
@@ -14,10 +18,12 @@ const requiredMethods = [
   "login_status",
   "lyric_new",
   "logout",
+  "personalized_newsong",
   "recommend_songs",
   "search",
   "song_detail",
   "song_url_v1",
+  "top_playlist",
   "top_song",
 ] as const satisfies readonly (keyof LegacyNeteaseApi)[];
 

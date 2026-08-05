@@ -32,6 +32,37 @@ describe("DemoMusicProvider scenarios", () => {
       total: 0,
       hasMore: false,
     });
+    await expect(provider.getNewSongs(12)).resolves.toEqual([]);
+    await expect(provider.getPopularPlaylists({ limit: 8, offset: 0 })).resolves.toMatchObject({
+      items: [],
+      total: 0,
+      hasMore: false,
+    });
+  });
+
+  it("returns normalized demo catalog details and bounded discovery data", async () => {
+    const provider = new DemoMusicProvider({ seed: "catalog-seed" });
+
+    const album = await provider.getAlbum("demo-album-001");
+    const artist = await provider.getArtist("demo-artist-001", page);
+    const newSongs = await provider.getNewSongs(2);
+    const playlists = await provider.getPopularPlaylists({ limit: 2, offset: 0 });
+
+    expect(album).toMatchObject({
+      album: { id: "demo-album-001", trackCount: 1 },
+      tracks: [{ id: "demo-track-001" }],
+    });
+    expect(artist).toMatchObject({
+      artist: { id: "demo-artist-001", albumCount: 2 },
+      hotTracks: [{ id: "demo-track-001" }, { id: "demo-track-004" }],
+      albums: {
+        items: [{ id: "demo-album-001" }, { id: "demo-album-004" }],
+        hasMore: false,
+      },
+    });
+    expect(newSongs).toHaveLength(2);
+    expect(playlists).toMatchObject({ limit: 2, offset: 0 });
+    expect(playlists.items[0]).toMatchObject({ id: "demo-playlist-1" });
   });
 
   it("maps the timeout scenario to a retryable AppError", async () => {

@@ -17,6 +17,7 @@ import { IconButton } from "@/components/IconButton";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusView } from "@/components/StatusView";
 import { TextButton } from "@/components/TextButton";
+import { TrackRow as SearchTrackRow } from "@/components/TrackRow";
 import { usePlayerSelector } from "@/features/player/playerContext";
 import type {
   AlbumSummary,
@@ -29,7 +30,7 @@ import type {
 import type { QueueItem } from "@/lib/player";
 
 import { SearchEntityTile } from "./SearchEntityTile";
-import { SearchTrackRow } from "./SearchTrackRow";
+import { SearchDiscoveryLanding } from "./SearchDiscoveryLanding";
 import {
   AvailabilityClientError,
   requestTrackAvailability,
@@ -444,14 +445,7 @@ function SearchResults({
 }
 
 function SearchLanding({ onFocusInput }: { onFocusInput: () => void }) {
-  return (
-    <section className={styles.landing} data-search-landing>
-      <p>输入歌曲、歌手或专辑关键词，开始查找音乐。</p>
-      <div className={styles.landingDivider} />
-      <p className={styles.landingSecondary}>搜索历史和热搜将在发现数据接入后显示。</p>
-      <TextButton onClick={onFocusInput} variant="secondary">开始搜索</TextButton>
-    </section>
-  );
+  return <SearchDiscoveryLanding onFocusInput={onFocusInput} />;
 }
 
 function ResultSkeleton() {

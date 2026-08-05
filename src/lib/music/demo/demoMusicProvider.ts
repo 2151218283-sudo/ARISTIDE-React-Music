@@ -5,9 +5,14 @@ import {
 } from "../../../data/demo/musicCatalog";
 import { AppError } from "../errors";
 import type {
+  Album,
+  AlbumDetail,
   AlbumSummary,
+  Artist,
+  ArtistDetail,
   ArtistSummary,
   AudioQuality,
+  CatalogPage,
   ChangePlaylistTracksInput,
   Comment,
   CommentPage,
@@ -72,6 +77,20 @@ function cloneTrack(track: Track): Track {
     album: { ...track.album },
     aliases: [...track.aliases],
     privilege: { ...track.privilege },
+  };
+}
+
+function cloneAlbum(album: Album): Album {
+  return {
+    ...album,
+    artists: album.artists.map((artist) => ({ ...artist })),
+  };
+}
+
+function cloneArtist(artist: Artist): Artist {
+  return {
+    ...artist,
+    aliases: [...artist.aliases],
   };
 }
 
@@ -151,6 +170,49 @@ function uniqueAlbums(tracks: Track[]): AlbumSummary[] {
   }
 
   return [...albums.values()];
+}
+
+function tracksForAlbum(tracks: Track[], albumId: string): Track[] {
+  return tracks.filter((track) => track.album.id === albumId);
+}
+
+function tracksForArtist(tracks: Track[], artistId: string): Track[] {
+  return tracks.filter((track) => track.artists.some((artist) => artist.id === artistId));
+}
+
+function demoAlbum(album: AlbumSummary, tracks: Track[]): Album {
+  const artists = uniqueArtists(tracks);
+  return {
+    ...album,
+    artists,
+    description: null,
+    publishedAt: null,
+    trackCount: tracks.length,
+  };
+}
+
+function demoArtist(artist: ArtistSummary, tracks: Track[], albumCount: number): Artist {
+  return {
+    ...artist,
+    aliases: [],
+    biography: null,
+    albumCount,
+    trackCount: tracks.length,
+  };
+}
+
+function demoPlaylists(tracks: Track[]): Playlist[] {
+  return uniqueAlbums(tracks).map((album, index) => ({
+    id: `demo-playlist-${index + 1}`,
+    name: `${album.name} Selections`,
+    description: null,
+    artworkUrl: album.artworkUrl,
+    owner: null,
+    visibility: "public",
+    trackCount: tracksForAlbum(tracks, album.id).length,
+    createdAt: null,
+    updatedAt: null,
+  }));
 }
 
 function throwDemoWriteUnavailable(): never {
@@ -249,6 +311,77 @@ export class DemoMusicProvider implements MusicProvider {
     return {
       type: "album",
       ...this.createPage(albums, query),
+    };
+  }
+
+  async getAlbum(albumId: string, sessionId?: string): Promise<AlbumDetail> {
+    void sessionId;
+    this.assertReadScenarioAvailable();
+    const tracks = tracksForAlbum(this.getScenarioTracks(), albumId);
+    const album = tracks[0]?.album;
+    if (!album) {
+      throw new AppError("TRACK_UNAVAILABLE", "未找到这个演示专辑。", {
+        retryable: false,
+      });
+    }
+    return {
+      album: cloneAlbum(demoAlbum(album, tracks)),
+      tracks: tracks.map(cloneTrack),
+    };
+  }
+
+  async getArtist(
+    artistId: string,
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<ArtistDetail> {
+    void sessionId;
+    this.assertReadScenarioAvailable();
+    validatePageQuery(page);
+    const tracks = tracksForArtist(this.getScenarioTracks(), artistId);
+    const artist = tracks.flatMap((track) => track.artists)
+      .find((candidate) => candidate.id === artistId);
+    if (!artist) {
+      throw new AppError("TRACK_UNAVAILABLE", "未找到这个演示音乐人。", {
+        retryable: false,
+      });
+    }
+
+    const albums = uniqueAlbums(tracks);
+    const albumPage = this.createPage(albums, page);
+    return {
+      artist: cloneArtist(demoArtist(artist, tracks, albums.length)),
+      hotTracks: tracks.map(cloneTrack),
+      albums: {
+        ...albumPage,
+        items: albumPage.items.map((album) => ({ ...album })),
+      },
+    };
+  }
+
+  async getNewSongs(limit: number, sessionId?: string): Promise<Track[]> {
+    void sessionId;
+    this.assertReadScenarioAvailable();
+    if (!Number.isInteger(limit) || limit < 1 || limit > 30) {
+      throw new AppError("VALIDATION_ERROR", "新歌数量参数无效。", { retryable: false });
+    }
+    return shuffleWithSeed(this.getScenarioTracks(), this.seed).slice(0, limit);
+  }
+
+  async getPopularPlaylists(
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<CatalogPage<Playlist>> {
+    void sessionId;
+    this.assertReadScenarioAvailable();
+    validatePageQuery(page);
+    const result = this.createPage(demoPlaylists(this.getScenarioTracks()), page);
+    return {
+      ...result,
+      items: result.items.map((playlist) => ({
+        ...playlist,
+        owner: playlist.owner ? cloneUserProfile(playlist.owner) : null,
+      })),
     };
   }
 

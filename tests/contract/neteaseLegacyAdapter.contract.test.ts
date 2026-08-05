@@ -37,6 +37,10 @@ function opaqueRuntimeValue(): string {
 
 function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
   return {
+    album: method({ code: 200, album: null, songs: [] }),
+    artist_album: method({ code: 200, hotAlbums: [], total: 0, more: false }),
+    artist_detail: method({ code: 200, data: { artist: null } }),
+    artist_top_song: method({ code: 200, songs: [] }),
     check_music: method({ code: 200, success: true }),
     comment_music: method({ code: 200, comments: [], total: 0, more: false }),
     login_qr_create: method({ code: 200, data: { qrimg: "data:image/png;base64,visual-stage-placeholder" } }),
@@ -48,10 +52,12 @@ function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
     login_status: method({ data: { code: 200, account: null, profile: null } }),
     lyric_new: method({ code: 200, lrc: { lyric: "" } }),
     logout: method({ code: 200 }),
+    personalized_newsong: method({ code: 200, result: [] }),
     recommend_songs: method({ code: 200, data: { dailySongs: [] } }),
     search: method({ code: 200, result: { songs: [], songCount: 0 } }),
     song_detail: method({ code: 200, songs: [], privileges: [] }),
     song_url_v1: method({ code: 200, data: [] }),
+    top_playlist: method({ code: 200, playlists: [], total: 0, more: false }),
     top_song: method({ code: 200, data: [] }),
     ...overrides,
   };
@@ -478,6 +484,105 @@ describe("Legacy anonymous reads", () => {
       total: 1,
       hasMore: false,
     });
+  });
+
+  it("normalizes public catalog and discovery reads without exposing source fields", async () => {
+    const album = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      album: {
+        id: 301,
+        name: "Synthetic Album",
+        picUrl: "https://example.invalid/album-art",
+        artists: [{ id: 201, name: "Synthetic Artist" }],
+        description: "Synthetic album description",
+        publishTime: 1_700_000_000_000,
+        size: 1,
+      },
+      songs: [syntheticTrack()],
+    }));
+    const artistDetail = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      data: {
+        artist: {
+          id: 201,
+          name: "Synthetic Artist",
+          cover: "https://example.invalid/artist-art",
+          alias: ["Synthetic Alias"],
+          briefDesc: "Synthetic biography",
+          albumSize: 1,
+          musicSize: 1,
+        },
+      },
+    }));
+    const artistTopSong = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      songs: [syntheticTrack()],
+    }));
+    const artistAlbum = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      hotAlbums: [{
+        id: 301,
+        name: "Synthetic Album",
+        picUrl: "https://example.invalid/album-art",
+      }],
+      total: 1,
+      more: false,
+    }));
+    const newSongs = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      result: [{ song: syntheticTrack(102) }],
+    }));
+    const playlists = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      playlists: [{
+        id: 801,
+        name: "Synthetic Playlist",
+        description: "Synthetic public playlist",
+        coverImgUrl: "https://example.invalid/playlist-art",
+        creator: { userId: 601, nickname: "Synthetic Listener" },
+        trackCount: 10,
+        createTime: 1_700_000_000_000,
+        updateTime: 1_700_000_100_000,
+      }],
+      total: 1,
+      more: false,
+    }));
+    const adapter = new LegacyNeteaseAdapter(makeApi({
+      album,
+      artist_album: artistAlbum,
+      artist_detail: artistDetail,
+      artist_top_song: artistTopSong,
+      personalized_newsong: newSongs,
+      top_playlist: playlists,
+    }));
+
+    const albumDetail = await adapter.getAlbum("301");
+    const artist = await adapter.getArtist("201", { limit: 20, offset: 0 });
+    const discoveryTracks = await adapter.getNewSongs(12);
+    const popularPlaylists = await adapter.getPopularPlaylists({ limit: 8, offset: 0 });
+
+    expect(album).toHaveBeenCalledWith({ id: "301" });
+    expect(artistDetail).toHaveBeenCalledWith({ id: "201" });
+    expect(artistTopSong).toHaveBeenCalledWith({ id: "201" });
+    expect(artistAlbum).toHaveBeenCalledWith({ id: "201", limit: 20, offset: 0 });
+    expect(newSongs).toHaveBeenCalledWith({ limit: 12 });
+    expect(playlists).toHaveBeenCalledWith({ cat: "全部", limit: 8, offset: 0 });
+    expect(albumDetail).toMatchObject({
+      album: { id: "301", artists: [{ id: "201" }], trackCount: 1 },
+      tracks: [{ id: "101" }],
+    });
+    expect(artist).toMatchObject({
+      artist: { id: "201", aliases: ["Synthetic Alias"] },
+      hotTracks: [{ id: "101" }],
+      albums: { items: [{ id: "301" }], hasMore: false },
+    });
+    expect(discoveryTracks).toMatchObject([{ id: "102" }]);
+    expect(popularPlaylists).toMatchObject({
+      items: [{ id: "801", owner: { id: "601" }, visibility: "public" }],
+      hasMore: false,
+    });
+    expect(JSON.stringify({ albumDetail, artist, discoveryTracks, popularPlaylists }))
+      .not.toContain("song_url_v1");
   });
 });
 

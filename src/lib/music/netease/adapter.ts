@@ -3,11 +3,15 @@ import {
   isAppError,
 } from "../errors";
 import type {
+  AlbumDetail,
+  ArtistDetail,
   AudioQuality,
+  CatalogPage,
   CommentPage,
   LyricDocument,
   PageQuery,
   PlaybackSource,
+  Playlist,
   SearchAllResult,
   SearchKind,
   SearchPage,
@@ -30,6 +34,10 @@ import {
   mapTracks,
   mapTrackDetail,
   asRecord,
+  mapAlbumDetail,
+  mapArtistDetail,
+  mapNewSongs,
+  mapPlaylistPage,
   unwrapLegacyBody,
   unwrapLegacyQrBody,
 } from "./normalize";
@@ -88,6 +96,12 @@ function validatePage(page: PageQuery, maximum: number): void {
   }
   if (!Number.isInteger(page.offset) || page.offset < 0) {
     throw validationError("offset 必须是非负整数。");
+  }
+}
+
+function validateLimit(limit: number, maximum: number): void {
+  if (!Number.isInteger(limit) || limit < 1 || limit > maximum) {
+    throw validationError(`limit 必须是 1 至 ${maximum} 的整数。`);
   }
 }
 
@@ -248,6 +262,48 @@ export class LegacyNeteaseAdapter {
       partialErrors,
     };
     return response;
+  }
+
+  async getAlbum(albumId: string): Promise<AlbumDetail> {
+    const id = validateTrackId(albumId);
+    const response = await this.invoke(this.api.album, { id });
+    return mapAlbumDetail(unwrapLegacyBody(response));
+  }
+
+  async getArtist(artistId: string, page: PageQuery): Promise<ArtistDetail> {
+    const id = validateTrackId(artistId);
+    validatePage(page, 30);
+    const [detailResponse, tracksResponse, albumsResponse] = await Promise.all([
+      this.invoke(this.api.artist_detail, { id }),
+      this.invoke(this.api.artist_top_song, { id }),
+      this.invoke(this.api.artist_album, {
+        id,
+        limit: page.limit,
+        offset: page.offset,
+      }),
+    ]);
+    return mapArtistDetail(
+      unwrapLegacyBody(detailResponse),
+      unwrapLegacyBody(tracksResponse),
+      unwrapLegacyBody(albumsResponse),
+      page,
+    );
+  }
+
+  async getNewSongs(limit: number): Promise<Track[]> {
+    validateLimit(limit, 30);
+    const response = await this.invoke(this.api.personalized_newsong, { limit });
+    return mapNewSongs(unwrapLegacyBody(response)).slice(0, limit);
+  }
+
+  async getPopularPlaylists(page: PageQuery): Promise<CatalogPage<Playlist>> {
+    validatePage(page, 30);
+    const response = await this.invoke(this.api.top_playlist, {
+      cat: "全部",
+      limit: page.limit,
+      offset: page.offset,
+    });
+    return mapPlaylistPage(unwrapLegacyBody(response), page);
   }
 
   async getPersonalDailyRecommendations(upstreamCookie: string): Promise<Track[]> {

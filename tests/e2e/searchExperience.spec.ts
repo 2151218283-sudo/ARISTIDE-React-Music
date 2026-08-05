@@ -109,9 +109,50 @@ async function installBaseRoutes(page: Page): Promise<void> {
   await page.route("**/e2e-search-audio.wav", async (route) => {
     await route.fulfill({ body: createSilentWav(), contentType: "audio/wav", status: 200 });
   });
+  await page.route("**/api/discovery/new-songs?*", async (route) => {
+    await fulfillJson(route, JSON.stringify({ ok: true, data: [track] }));
+  });
+  await page.route("**/api/discovery/popular-playlists?*", async (route) => {
+    await fulfillJson(route, JSON.stringify({
+      ok: true,
+      data: {
+        items: [{
+          id: "playlist-001",
+          name: "Discovery Playlist",
+          description: null,
+          artworkUrl: null,
+          owner: null,
+          visibility: "public",
+          trackCount: 1,
+          createdAt: null,
+          updatedAt: null,
+        }],
+        total: 1,
+        limit: 8,
+        offset: 0,
+        hasMore: false,
+      },
+    }));
+  });
 }
 
 test.describe.configure({ mode: "serial" });
+
+test("shows empty-query discovery through local routes and removes it when a query begins", async ({ page }) => {
+  await installBaseRoutes(page);
+  await page.route("**/api/search?*", async (route) => {
+    await fulfillJson(route, success(allResult()));
+  });
+  await page.setViewportSize(viewports[0]);
+  await page.goto("/search");
+
+  await expect(page.getByRole("heading", { name: "新歌" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "查看歌单 Discovery Playlist" }))
+    .toHaveAttribute("href", "/playlist/playlist-001");
+  await page.getByLabel("搜索歌曲、歌手或专辑").fill("signal");
+  await expect(page.getByText("First Signal")).toBeVisible();
+  await expect(page.locator("[data-search-discovery]")).toHaveCount(0);
+});
 
 test("renders all-search partial success, local result routes, and in-place playback", async ({ page }) => {
   await installBaseRoutes(page);

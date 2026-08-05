@@ -498,3 +498,22 @@ For the approved local single-instance runtime, the in-memory session Store is
 published once on the Node process global. This keeps session-bound relay
 registrations shared when development Route Handlers are evaluated from separate
 bundles, while retaining the existing restart-clears-session behavior.
+
+## T017 Catalog And Discovery Architecture Record
+
+T017 adds four read-only Route Handler families: album detail, artist detail,
+new songs, and popular playlists. They use the existing `PublicReadRouteHandlers`
+timeout, one retry for retryable reads, normalized envelopes, request IDs, and
+public metadata cache policy. Browser code calls only these same-origin routes.
+
+Artist detail is composed server-side from fixed provider methods for identity,
+hot tracks, and paged albums. A partial provider result is not silently filled
+with invented catalog data: an unavailable detail request fails as one
+recoverable page state. Album tracks are a normalized document and the client
+reveals a maximum of 50 rows at a time; artist albums use BFF pagination.
+
+Search's empty-query discovery surface starts independent new-song and popular
+playlist reads. It aborts them when a query begins and keeps a successful
+subsection visible when the other subsection fails. Neither surface creates an
+Audio element, owns source URLs, changes queue semantics, accesses sessions, or
+introduces external navigation.

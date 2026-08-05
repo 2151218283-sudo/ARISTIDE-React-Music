@@ -1,0 +1,30 @@
+.tile {
+  display: grid;
+  min-width: 0;
+  gap: var(--ef-space-3);
+  align-content: start;
+}
+
+.tile:hover .name,
+.tile:focus-visible .name {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.name,
+.meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name {
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-semibold) var(--ef-type-body) var(--ef-font-body);
+}
+
+.meta {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-label) var(--ef-font-body);
+}

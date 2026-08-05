@@ -1,7 +1,7 @@
 # ECHOFORM 网易云 API 契约
 
-> 状态：Primary Baseline + T008 Installed Legacy Adapter + T017A Guest Credential Measured + Candidate Provider
-> 核验日期：2026-07-29
+> 状态：Primary Baseline + T008 Installed Legacy Adapter + T017A Guest Credential Measured + T017 Catalog SOURCE_VERIFIED + Candidate Provider
+> 核验日期：2026-08-05
 > 当前主 Provider：`NeteaseCloudMusicApi@4.32.0`
 > 候选替代 Provider：`@neteasecloudmusicapienhanced/api@4.38.0`
 > 登录态写操作：待专用账号验收，不得标记完成
@@ -741,3 +741,37 @@ This evidence proves local transport feasibility only. It does not prove rights,
 VIP, region access, a particular user account, future availability, production
 hosting, or unrestricted playback. T017B does not use Enhanced, unblock,
 third-party matching, anonymous credentials, or write operations.
+
+## T017 Catalog And Discovery Read Contract
+
+T017 extends only fixed-package, anonymous public reads. Package-export and
+module-source inspection verified the following Legacy 4.32.0 functions and
+their parameter names; this is `SOURCE_VERIFIED`, not a claim that the local
+machine can currently reach every upstream route.
+
+| ECHOFORM capability | Fixed Legacy function | Validated request shape | Verification |
+| --- | --- | --- | --- |
+| Album detail and tracks | `album` | `id` | `SOURCE_VERIFIED` |
+| Artist identity | `artist_detail` | `id` | `SOURCE_VERIFIED` |
+| Artist hot tracks | `artist_top_song` | `id` | `SOURCE_VERIFIED` |
+| Artist albums | `artist_album` | `id`, `limit`, `offset` | `SOURCE_VERIFIED` |
+| New songs | `personalized_newsong` | `limit`, `areaId=0` | `SOURCE_VERIFIED` |
+| Popular playlists | `top_playlist` | `cat`, `order`, `limit`, `offset` | `SOURCE_VERIFIED` |
+
+The normalized BFF surface is limited to `GET /api/albums/:id`,
+`GET /api/artists/:id?limit&offset`, `GET /api/discovery/new-songs?limit`, and
+`GET /api/discovery/popular-playlists?limit&offset`. Every identifier and page
+parameter is validated server-side. Successful public metadata uses the
+existing five-minute cache policy; validation and provider failures use
+`no-store` and the existing normalized error envelope.
+
+`album` maps one `Album` plus its normalized Track array. `artist_detail`,
+`artist_top_song`, and `artist_album` compose one `ArtistDetail` without
+leaking their upstream field names. `personalized_newsong` maps its embedded
+song record to Track. `top_playlist` maps only the normalized display fields
+needed by `PlaylistTile`; it does not make playlist tracks, subscription, or
+write operations available.
+
+No T017 endpoint reads an upstream Cookie, calls a mutation, resolves a media
+source, returns a source URL, or adds a similar-artist relation. Similar artists
+remain out of scope until their own source contract is frozen.

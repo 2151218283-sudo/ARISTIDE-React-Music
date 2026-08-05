@@ -153,6 +153,23 @@ export interface PageQuery {
   offset: number;
 }
 
+export interface CatalogPage<T> extends PageQuery {
+  items: T[];
+  total: number | null;
+  hasMore: boolean;
+}
+
+export interface AlbumDetail {
+  album: Album;
+  tracks: Track[];
+}
+
+export interface ArtistDetail {
+  artist: Artist;
+  hotTracks: Track[];
+  albums: CatalogPage<AlbumSummary>;
+}
+
 export interface CommentPage extends PageQuery {
   items: Comment[];
   total: number | null;

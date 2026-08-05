@@ -1,13 +1,19 @@
 import { AppError } from "../errors";
 import { parseLyrics } from "../lyricParser";
 import type {
+  Album,
+  AlbumDetail,
   AlbumSummary,
+  Artist,
+  ArtistDetail,
   ArtistSummary,
   AudioQuality,
+  CatalogPage,
   Comment,
   CommentPage,
   LyricDocument,
   PlaybackSource,
+  Playlist,
   SearchKind,
   SearchPage,
   Track,
@@ -126,7 +132,7 @@ function quality(value: unknown): AudioQuality | null {
     : null;
 }
 
-function mapArtist(value: unknown): ArtistSummary | null {
+export function mapArtist(value: unknown): ArtistSummary | null {
   const artist = asRecord(value);
   const id = artist ? entityId(artist.id) : null;
   const name = artist ? text(artist.name) : null;
@@ -136,11 +142,11 @@ function mapArtist(value: unknown): ArtistSummary | null {
   return {
     id,
     name,
-    avatarUrl: publicMediaUrl(artist.picUrl ?? artist.img1v1Url),
+    avatarUrl: publicMediaUrl(artist.picUrl ?? artist.img1v1Url ?? artist.cover),
   };
 }
 
-function mapAlbum(value: unknown): AlbumSummary | null {
+export function mapAlbum(value: unknown): AlbumSummary | null {
   const album = asRecord(value);
   const id = album ? entityId(album.id) : null;
   const name = album ? text(album.name) : null;
@@ -234,6 +240,143 @@ function mapRows<T>(
 
 export function mapTracks(value: unknown): Track[] {
   return mapRows(value, (row) => mapTrack(row));
+}
+
+function unavailableCatalogEntity(): AppError {
+  return new AppError(
+    "TRACK_UNAVAILABLE",
+    "未找到这个公开音乐条目。",
+    { retryable: false },
+  );
+}
+
+function mapArtistProfile(value: unknown): Artist {
+  const rawArtist = asRecord(value);
+  const summary = mapArtist(rawArtist);
+  if (!rawArtist || !summary) {
+    throw unavailableCatalogEntity();
+  }
+
+  return {
+    ...summary,
+    aliases: stringArray(rawArtist.alias ?? rawArtist.aliases),
+    biography: text(rawArtist.briefDesc ?? rawArtist.description),
+    albumCount: nonNegativeNumber(rawArtist.albumSize),
+    trackCount: nonNegativeNumber(rawArtist.musicSize),
+  };
+}
+
+function mapAlbumDocument(value: unknown, tracks: Track[]): Album {
+  const rawAlbum = asRecord(value);
+  const summary = mapAlbum(rawAlbum);
+  if (!rawAlbum || !summary) {
+    throw unavailableCatalogEntity();
+  }
+
+  const artists = (childArray(rawAlbum, "artists", "artist") ?? []).flatMap((artist) => {
+    const normalized = mapArtist(artist);
+    return normalized ? [normalized] : [];
+  });
+
+  return {
+    ...summary,
+    artists,
+    description: text(rawAlbum.description),
+    publishedAt: nonNegativeNumber(rawAlbum.publishTime ?? rawAlbum.publishDate),
+    trackCount: nonNegativeNumber(rawAlbum.size) ?? tracks.length,
+  };
+}
+
+function mapPlaylist(value: unknown): Playlist | null {
+  const playlist = asRecord(value);
+  const id = playlist ? entityId(playlist.id) : null;
+  const name = playlist ? text(playlist.name) : null;
+  if (!playlist || !id || !name) {
+    return null;
+  }
+
+  return {
+    id,
+    name,
+    description: text(playlist.description),
+    artworkUrl: publicMediaUrl(playlist.coverImgUrl ?? playlist.picUrl),
+    owner: mapUser(playlist.creator),
+    visibility: playlist.privacy === 10 ? "private" : "public",
+    trackCount: nonNegativeNumber(playlist.trackCount) ?? 0,
+    createdAt: nonNegativeNumber(playlist.createTime),
+    updatedAt: nonNegativeNumber(playlist.updateTime),
+  };
+}
+
+export function mapAlbumDetail(body: UnknownRecord): AlbumDetail {
+  const tracks = mapTracks(body.songs ?? []);
+  const rawAlbum = childRecord(body, "album");
+  if (!rawAlbum) {
+    throw unavailableCatalogEntity();
+  }
+
+  return {
+    album: mapAlbumDocument(rawAlbum, tracks),
+    tracks,
+  };
+}
+
+export function mapArtistDetail(
+  detailBody: UnknownRecord,
+  hotTracksBody: UnknownRecord,
+  albumsBody: UnknownRecord,
+  page: { limit: number; offset: number },
+): ArtistDetail {
+  const detailData = childRecord(detailBody, "data") ?? detailBody;
+  const rawArtist = childRecord(detailData, "artist") ?? childRecord(detailBody, "artist");
+  if (!rawArtist) {
+    throw unavailableCatalogEntity();
+  }
+
+  const hotTracks = mapTracks(hotTracksBody.songs ?? hotTracksBody.data ?? []);
+  const albumItems = mapRows(albumsBody.hotAlbums ?? albumsBody.albums ?? [], mapAlbum);
+  const total = nonNegativeNumber(albumsBody.total);
+  const upstreamHasMore = typeof albumsBody.more === "boolean" ? albumsBody.more : null;
+
+  return {
+    artist: mapArtistProfile(rawArtist),
+    hotTracks,
+    albums: {
+      items: albumItems,
+      total,
+      limit: page.limit,
+      offset: page.offset,
+      hasMore: upstreamHasMore ?? hasMore(total, page.offset, albumItems.length, page.limit),
+    },
+  };
+}
+
+export function mapNewSongs(body: UnknownRecord): Track[] {
+  const rows = body.result ?? body.data ?? [];
+  if (!Array.isArray(rows)) {
+    throw upstreamError();
+  }
+  return mapRows(rows, (row) => {
+    const record = asRecord(row);
+    return mapTrack(record?.song ?? record);
+  });
+}
+
+export function mapPlaylistPage(
+  body: UnknownRecord,
+  page: { limit: number; offset: number },
+): CatalogPage<Playlist> {
+  const items = mapRows(body.playlists ?? [], mapPlaylist);
+  const total = nonNegativeNumber(body.total);
+  const upstreamHasMore = typeof body.more === "boolean" ? body.more : null;
+
+  return {
+    items,
+    total,
+    limit: page.limit,
+    offset: page.offset,
+    hasMore: upstreamHasMore ?? hasMore(total, page.offset, items.length, page.limit),
+  };
 }
 
 function hasMore(total: number | null, offset: number, count: number, limit: number) {

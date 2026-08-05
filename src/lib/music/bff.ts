@@ -7,12 +7,16 @@ import {
 } from "./apiResult";
 import { AppError, isAppError, type AppErrorCode } from "./errors";
 import type {
+  AlbumDetail,
+  ArtistDetail,
   AudioQuality,
+  CatalogPage,
   CommentPage,
   LyricDocument,
   PageQuery,
   PlaybackAvailability,
   PlaybackSource,
+  Playlist,
   SearchQuery,
   SearchResponse,
   Track,
@@ -48,6 +52,20 @@ export interface PublicReadRouteHandlers {
   comments(request: Request, trackId: string): Promise<Response>;
 }
 
+export interface CatalogReadProvider {
+  getAlbum(albumId: string): Promise<AlbumDetail>;
+  getArtist(artistId: string, page: PageQuery): Promise<ArtistDetail>;
+  getNewSongs(limit: number): Promise<Track[]>;
+  getPopularPlaylists(page: PageQuery): Promise<CatalogPage<Playlist>>;
+}
+
+export interface CatalogReadRouteHandlers {
+  album(request: Request, albumId: string): Promise<Response>;
+  artist(request: Request, artistId: string): Promise<Response>;
+  newSongs(request: Request): Promise<Response>;
+  popularPlaylists(request: Request): Promise<Response>;
+}
+
 export interface PublicReadRouteDependencies {
   createProvider: () => PublicReadProvider;
   createRequestId?: () => string;
@@ -61,12 +79,24 @@ export interface PublicReadRouteDependencies {
   };
 }
 
-interface ResolvedDependencies {
-  createProvider: () => PublicReadProvider;
-  createRequestId: () => string;
+export interface CatalogReadRouteDependencies {
+  createProvider: () => CatalogReadProvider;
+  createRequestId?: () => string;
+  now?: () => number;
+  retryDelay?: (delayMs: number) => Promise<void>;
+  random?: () => number;
+  timeoutMs?: number;
+}
+
+interface ReadDependencies {
   now: () => number;
   retryDelay: (delayMs: number) => Promise<void>;
   random: () => number;
+}
+
+interface ResolvedDependencies extends ReadDependencies {
+  createProvider: () => PublicReadProvider;
+  createRequestId: () => string;
   resolvePlaybackCredential: (request: Request) => string | undefined;
   timeoutMs: {
     default: number;
@@ -74,12 +104,19 @@ interface ResolvedDependencies {
   };
 }
 
+interface ResolvedCatalogDependencies extends ReadDependencies {
+  createProvider: () => CatalogReadProvider;
+  createRequestId: () => string;
+  timeoutMs: number;
+}
+
 interface ReadRouteOptions<T> {
   cacheControl: string;
   requestId: string;
   timeoutMs: number;
-  dependencies: ResolvedDependencies;
+  dependencies: ReadDependencies;
   execute: (signal: AbortSignal) => Promise<T>;
+  statusForError?: (code: AppErrorCode) => number;
 }
 
 function defaultRetryDelay(delayMs: number): Promise<void> {
@@ -132,6 +169,14 @@ function parseTrackId(trackId: string): string {
   return normalized;
 }
 
+function parseCatalogId(value: string, label: string): string {
+  const normalized = value.trim();
+  if (!trackIdPattern.test(normalized)) {
+    throw validationError(`${label} ID 格式无效。`);
+  }
+  return normalized;
+}
+
 function parseSearchQuery(request: Request): SearchQuery {
   const params = new URL(request.url).searchParams;
   const text = params.get("q")?.trim() ?? "";
@@ -157,6 +202,26 @@ function parseCommentsPage(request: Request): PageQuery {
     limit: parsePositiveInteger(params.get("limit"), 20, 100, "limit"),
     offset: parseNonNegativeInteger(params.get("offset"), 0, Number.MAX_SAFE_INTEGER, "offset"),
   };
+}
+
+function parseCatalogPage(
+  request: Request,
+  defaultLimit: number,
+): PageQuery {
+  const params = new URL(request.url).searchParams;
+  return {
+    limit: parsePositiveInteger(params.get("limit"), defaultLimit, 30, "limit"),
+    offset: parseNonNegativeInteger(params.get("offset"), 0, Number.MAX_SAFE_INTEGER, "offset"),
+  };
+}
+
+function parseNewSongLimit(request: Request): number {
+  return parsePositiveInteger(
+    new URL(request.url).searchParams.get("limit"),
+    12,
+    30,
+    "limit",
+  );
 }
 
 function parseAudioQuality(request: Request): AudioQuality {
@@ -210,6 +275,10 @@ function statusForError(code: AppErrorCode): number {
     case "UNKNOWN_ERROR":
       return 500;
   }
+}
+
+function catalogStatusForError(code: AppErrorCode): number {
+  return code === "TRACK_UNAVAILABLE" ? 404 : statusForError(code);
 }
 
 async function withTimeout<T>(
@@ -291,7 +360,7 @@ async function respondToRead<T>(options: ReadRouteOptions<T>): Promise<Response>
     const appError = toAppError(error);
     return jsonResponse(
       createApiFailure(appError, options.requestId),
-      statusForError(appError.code),
+      options.statusForError?.(appError.code) ?? statusForError(appError.code),
       noStoreCacheControl,
     );
   }
@@ -311,6 +380,19 @@ function resolveDependencies(
       default: 10_000,
       source: 15_000,
     },
+  };
+}
+
+function resolveCatalogDependencies(
+  dependencies: CatalogReadRouteDependencies,
+): ResolvedCatalogDependencies {
+  return {
+    createProvider: dependencies.createProvider,
+    createRequestId: dependencies.createRequestId ?? randomUUID,
+    now: dependencies.now ?? Date.now,
+    retryDelay: dependencies.retryDelay ?? defaultRetryDelay,
+    random: dependencies.random ?? Math.random,
+    timeoutMs: dependencies.timeoutMs ?? 10_000,
   };
 }
 
@@ -483,6 +565,90 @@ export function createPublicReadRouteHandlers(
           statusForError(appError.code),
           noStoreCacheControl,
         );
+      }
+    },
+  };
+}
+
+export function createCatalogReadRouteHandlers(
+  inputDependencies: CatalogReadRouteDependencies,
+): CatalogReadRouteHandlers {
+  const dependencies = resolveCatalogDependencies(inputDependencies);
+
+  const failure = (error: unknown, requestId: string): Response => {
+    const appError = toAppError(error);
+    return jsonResponse(
+      createApiFailure(appError, requestId),
+      catalogStatusForError(appError.code),
+      noStoreCacheControl,
+    );
+  };
+
+  return {
+    async album(_request, albumId) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const id = parseCatalogId(albumId, "专辑");
+        return await respondToRead({
+          cacheControl: publicMetadataCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs,
+          dependencies,
+          statusForError: catalogStatusForError,
+          execute: () => dependencies.createProvider().getAlbum(id),
+        });
+      } catch (error) {
+        return failure(error, requestId);
+      }
+    },
+
+    async artist(request, artistId) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const id = parseCatalogId(artistId, "歌手");
+        const page = parseCatalogPage(request, 20);
+        return await respondToRead({
+          cacheControl: publicMetadataCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs,
+          dependencies,
+          statusForError: catalogStatusForError,
+          execute: () => dependencies.createProvider().getArtist(id, page),
+        });
+      } catch (error) {
+        return failure(error, requestId);
+      }
+    },
+
+    async newSongs(request) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const limit = parseNewSongLimit(request);
+        return await respondToRead({
+          cacheControl: publicMetadataCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs,
+          dependencies,
+          execute: () => dependencies.createProvider().getNewSongs(limit),
+        });
+      } catch (error) {
+        return failure(error, requestId);
+      }
+    },
+
+    async popularPlaylists(request) {
+      const requestId = dependencies.createRequestId();
+      try {
+        const page = parseCatalogPage(request, 8);
+        return await respondToRead({
+          cacheControl: publicMetadataCacheControl,
+          requestId,
+          timeoutMs: dependencies.timeoutMs,
+          dependencies,
+          execute: () => dependencies.createProvider().getPopularPlaylists(page),
+        });
+      } catch (error) {
+        return failure(error, requestId);
       }
     },
   };

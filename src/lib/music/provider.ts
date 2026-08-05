@@ -1,5 +1,8 @@
 import type {
   AudioQuality,
+  AlbumDetail,
+  ArtistDetail,
+  CatalogPage,
   ChangePlaylistTracksInput,
   Comment,
   CommentPage,
@@ -25,6 +28,17 @@ export interface MusicProvider {
 
   getDailyRecommendations(sessionId: string): Promise<Track[]>;
   search(query: SearchQuery, sessionId?: string): Promise<SearchResponse>;
+  getAlbum(albumId: string, sessionId?: string): Promise<AlbumDetail>;
+  getArtist(
+    artistId: string,
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<ArtistDetail>;
+  getNewSongs(limit: number, sessionId?: string): Promise<Track[]>;
+  getPopularPlaylists(
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<CatalogPage<Playlist>>;
   getTrack(trackId: string, sessionId?: string): Promise<Track>;
   getPlaybackSource(
     trackId: string,

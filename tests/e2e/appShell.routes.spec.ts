@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 const productRoutes = [
-  ["/album/demo-album", "专辑", "ALBUM"],
-  ["/artist/demo-artist", "艺术家", "ARTIST"],
   ["/library", "音乐库", "LIBRARY"],
   ["/playlist/demo-playlist", "歌单", "PLAYLIST"],
   ["/profile/demo-user", "用户主页", "PROFILE"],
@@ -44,6 +42,21 @@ test("keeps every product route local and explicit", async ({ page }) => {
       body: JSON.stringify({ ok: true, data: { kind: "unavailable", lines: [] } }),
     });
   });
+  await page.route("**/api/discovery/new-songs?*", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, data: [] }),
+    });
+  });
+  await page.route("**/api/discovery/popular-playlists?*", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        data: { items: [], total: 0, limit: 8, offset: 0, hasMore: false },
+      }),
+    });
+  });
 
   for (const [path, title, context] of productRoutes) {
     const response = await page.goto(path);
@@ -60,7 +73,7 @@ test("keeps every product route local and explicit", async ({ page }) => {
   expect(searchResponse?.ok()).toBe(true);
   await expect(page.getByRole("heading", { level: 1, name: "搜索" })).toBeVisible();
   await expect(page.getByLabel("搜索歌曲、歌手或专辑")).toBeVisible();
-  await expect(page.getByText("搜索历史和热搜将在发现数据接入后显示。")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "暂时没有公开精选" })).toBeVisible();
 
   const trackResponse = await page.goto("/track/demo-track");
   expect(trackResponse?.ok()).toBe(true);
