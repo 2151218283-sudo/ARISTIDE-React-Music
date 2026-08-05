@@ -404,6 +404,12 @@ RootLayout
 - 页面卸载只取消页面订阅，不能调用 `audio.pause()` 或清空 `src`。
 - 精确状态和恢复规则见 `PLAYER_STATE_MACHINE.md`。
 
+### 11.1 高低频状态边界
+
+- 队列、歌曲、模式、网络、错误和命令意图属于语义快照；它们只在真实语义变化时通知通用 UI。
+- `audio.currentTime`、buffered 等展示时间允许以高频时间线发布，但必须经独立外部 store、等价 selector 缓存或局部 DOM 更新隔离。通用 `PlayerPublicSnapshot`、AppShell 与非时间消费者不得因每个媒体帧获得新快照。
+- ProgressRail 订阅时间/缓冲，LyricsViewport 订阅当前命中行或词；播放按钮、导航、队列和 TrackRow 只订阅自身语义字段。时间线不得绕开现有 `loadRevision`、Seek、暂停、错误或 Audio 事件校验。
+
 ## 12. Demo Mode
 
 Demo Mode 是答辩容灾，不是 Real Provider 的自动降级：
@@ -429,6 +435,10 @@ Demo Mode 是答辩容灾，不是 Real Provider 的自动降级：
 - 歌词高亮以真实 `audio.currentTime` 为基准，不使用延迟性视觉缓动修正时间。
 - 后台标签页不依赖 `requestAnimationFrame` 推进播放状态。
 - 所有播放命令和错误变化通过受控 live region 提供可访问反馈。
+- WebGL 场景必须实现可观察的调度状态：`entering`、`interacting`、`previewing`、`settling` 可连续渲染；`idle` 完成一次最终绘制后休眠；`hidden` 停止 rAF。输入、布局或可见性恢复只能唤醒一条待处理帧，销毁后不得残留帧或监听器。
+- WebGL 的受限质量层级按顺序降低 DPR、抗锯齿和纹理各向异性/不可见工作；无法达到最低交互目标或初始化失败时进入既有 DOM fallback，不把性能模式作为静默失败。
+- 纹理所有权与驻留窗口由场景管理：仅保留可见项及相邻 2-3 项，窗口外请求可取消，已脱离窗口且不被预览引用的纹理必须 `dispose`。路由卸载仍负责完整释放 geometry、material、renderer 与剩余纹理。
+- raycast 由脏标记驱动，只有 Pointer、相机、封面变换或交互可用性变化后执行；命中结果变化才更新光标或悬停样式。
 
 ## 14. 测试架构
 
@@ -440,6 +450,8 @@ Demo Mode 是答辩容灾，不是 Real Provider 的自动降级：
 - Contract fixtures：固定、脱敏的上游 Response 夹具，验证归一化模型。
 - Live contract probe：显式手动命令，只做匿名读取；登录态和写操作使用专用测试账号。
 - Playwright：QR 状态模拟、持久播放、路由切换、滚轮退出、搜索和响应式关键路径。
+
+性能任务额外使用可替换时钟/帧调度与计数器证明 idle/hidden 不续帧、Pointer 静止不 raycast、纹理窗口正确释放；浏览器在固定本地生产构建和固定夹具下记录帧数与 React 更新时间边界。开发服务器的 HMR 和机器瞬时负载只作诊断，不作为绝对性能门槛。
 
 Live Probe 不能成为默认 CI 的稳定性门槛，因为上游没有 SLA 且存在风控。
 
@@ -469,6 +481,9 @@ Live Probe 不能成为默认 CI 的稳定性门槛，因为上游没有 SLA 且
 - `ARCH-AC-08`：日志不含 Cookie、QR、评论正文、音源 URL 和原始用户 Response。
 - `ARCH-AC-09`：所有写操作在契约登录态实测通过后才标记完成。
 - `ARCH-AC-10`：`npm run check` 通过；引入测试后对应测试命令同时通过。
+- `ARCH-AC-11`：画廊在 idle 或 hidden 状态没有残留连续 rAF；恢复后只有一条调度链并保持有限轨道几何。
+- `ARCH-AC-12`：纹理窗口、质量层级和 DOM fallback 不泄露 renderer/纹理资源，也不改变 BFF、音频、队列或路由边界。
+- `ARCH-AC-13`：可见播放态的高频时间更新不会重渲染 AppShell 或非时间订阅者；ProgressRail、LyricsViewport 仍以真实 Audio 时间更新。
 ## T017B Change Record: Session-Bound Audio Relay
 
 This section supersedes earlier statements that prohibited every form of audio

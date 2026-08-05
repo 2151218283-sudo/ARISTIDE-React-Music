@@ -418,6 +418,8 @@ flowchart TD
 - playing 且页面可见时用 `requestAnimationFrame` 读取以保证视觉顺滑。
 - 页面隐藏或 Reduced Motion 时用 `timeupdate` 事件即可。
 - 不对时间做 easing；动画只作用于文字透明度/位置，不改变命中时间。
+- 可见播放态允许每帧采样，但高频时间线必须与队列、命令、错误和路由的语义快照隔离；它只能唤醒 ProgressRail 与 LyricsViewport 等时间消费者。
+- LyricsViewport 以实际命中行/词变化为最小 React 更新范围；ProgressRail 可通过窄订阅或受控 DOM 值持续更新。两者不得为减少重渲染而降低真实时间精度。
 
 ### 15.2 活动行
 
@@ -466,6 +468,7 @@ type SleepTimer =
 - 标签页隐藏后音频继续播放，除非用户设置或系统策略暂停。
 - 隐藏时停止歌词 rAF 和非必要 WebGL；依赖 Audio 事件更新进度。
 - 回到前台立即读取 currentTime、duration、paused 和 buffered 校正快照。
+- WebGL 画廊在 `hidden` 状态停止调度，在恢复可见时以当前画廊/预览状态完成一次校正绘制；音频、队列和当前歌曲不因图形休眠发生改变。
 - Media Session 的 play/pause/next/previous/seek handler 发送同一 PlayerCommand。
 - 系统耳机拔出、来电或浏览器策略造成 pause 时，接受 `MEDIA_PAUSE` 并进入 paused；不自动
   抢回播放。
@@ -494,6 +497,9 @@ type SleepTimer =
 - 队列和 Track 对象保持稳定引用，只有实际改变时发布新快照。
 - WebGL 读取分析数据时必须检查 `corsMode`；unavailable 时使用非音频数据的静态/低动效
   降级，不能破坏播放。
+- 高低频发布须分层：时间线更新不能使 `PlayerPublicSnapshot` 每帧成为新的通用订阅值。语义订阅只在 status、intent、currentTrack、queue、mode、error、Seek 或 source 生命周期变化时通知。
+- selector 返回对象时必须保持稳定引用或采用明确比较；禁止在页面级组件订阅整个播放器快照来间接读取少数时间字段。
+- 进度、缓冲和 ARIA 数值的高频更新只驻留在 ProgressRail；歌词只订阅实际活动行/词。任何按帧 UI 更新都不得包含 AppShell、导航、队列、封面列表或不相关页面。
 
 ## 21. 可访问性
 
@@ -519,6 +525,9 @@ type SleepTimer =
 - yrc 有/无、翻译合并、Seek 后歌词定位。
 - Sleep duration、end-of-track、最后 3 秒渐弱、取消恢复音量、刷新清除和后台触发。
 - 旧 revision 的 ended/error/canplay 被忽略。
+- 可替换帧调度验证画廊 entering/interacting/previewing/settling 连续渲染，而 idle/hidden 无后续 rAF；唤醒和销毁不产生重复调度链。
+- Pointer 不变时 raycast 计数保持不变；Pointer、布局或相机变更后只在下一帧完成必要命中。
+- 高密度 `MEDIA_TIME`/时间线输入下，ProgressRail 和歌词命中保持准确，但 AppShell、队列与非时间选择器的渲染/通知计数不按帧增长。
 
 ### 22.2 组件与 E2E
 
@@ -551,6 +560,9 @@ type SleepTimer =
 - `PLAYER-AC-16`：错误提供可执行恢复动作且不只依赖 Toast。
 - `PLAYER-AC-17`：音源 URL 不进入持久存储或日志。
 - `PLAYER-AC-18`：状态机单元测试、关键 E2E 和 `npm run check` 全部通过。
+- `PLAYER-AC-19`：可见播放态的歌词和进度以真实 Audio 时间保持准确；隐藏或 Reduced Motion 时回退浏览器事件频率且回前台立即校正。
+- `PLAYER-AC-20`：高频时间线不导致 AppShell、导航、队列和非时间播放器组件按帧重渲染。
+- `PLAYER-AC-21`：性能调度不改变 `loadRevision`、暂停优先级、Seek、音源恢复、队列边界或单一 Audio 实例。
 ## T017B Change Record: Relay Source Boundary
 
 For Real Mode, a resolved `PlaybackSource.url` given to the Audio host is a
