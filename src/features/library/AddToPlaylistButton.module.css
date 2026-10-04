@@ -1,0 +1,11 @@
+.root { position: relative; display: inline-flex; align-items: center; }
+.menu { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; display: grid; width: min(280px, calc(100vw - 32px)); max-height: 280px; overflow-y: auto; border: 1px solid var(--ef-border-subtle); border-radius: 4px; padding: var(--ef-space-2); background: var(--ef-surface-primary, #17191a); box-shadow: 0 12px 28px rgb(0 0 0 / .25); }
+.menu p, .menu span { margin: 0; padding: var(--ef-space-2); color: var(--ef-text-secondary); font: var(--ef-weight-regular) var(--ef-type-label) var(--ef-font-body); }
+.menu button { min-height: 44px; border: 0; border-radius: 3px; padding: var(--ef-space-2); background: transparent; color: var(--ef-text-primary); cursor: pointer; text-align: left; }
+.menu button:hover, .menu button:focus-visible { background: rgb(255 255 255 / .08); }
+.menu button:disabled { opacity: .5; cursor: wait; }
+.message { display: block; max-width: 240px; color: var(--ef-text-secondary); font: var(--ef-weight-regular) var(--ef-type-caption) var(--ef-font-body); }
+
+@media (max-width: 767px) {
+  .menu { position: fixed; top: auto; right: 16px; bottom: calc(var(--ef-player-bar-height-mobile) + env(safe-area-inset-bottom) + 8px); left: 16px; width: auto; max-height: min(280px, calc(100dvh - var(--ef-player-bar-height-mobile) - 32px)); }
+}

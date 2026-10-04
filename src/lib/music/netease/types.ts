@@ -30,6 +30,14 @@ export interface LegacyNeteaseApi {
   logout: LegacyApiMethod;
   recommend_songs: LegacyApiMethod;
   personalized_newsong: LegacyApiMethod;
+  playlist_create: LegacyApiMethod;
+  playlist_delete: LegacyApiMethod;
+  playlist_detail: LegacyApiMethod;
+  playlist_name_update: LegacyApiMethod;
+  playlist_desc_update: LegacyApiMethod;
+  playlist_tags_update: LegacyApiMethod;
+  playlist_privacy: LegacyApiMethod;
+  playlist_tracks: LegacyApiMethod;
   song_detail: LegacyApiMethod;
   song_url_v1: LegacyApiMethod;
   top_playlist: LegacyApiMethod;

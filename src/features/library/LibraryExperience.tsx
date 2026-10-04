@@ -1,6 +1,6 @@
 "use client";
 
-import { Disc3, Heart, History, ListMusic } from "lucide-react";
+import { Disc3, Heart, History, ListMusic, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -35,6 +35,7 @@ import {
   requestUserPlaylists,
 } from "@/features/profile/profileClient";
 import { ClearHistoryDialog } from "./ClearHistoryDialog";
+import { CreatePlaylistDialog } from "./CreatePlaylistDialog";
 import { LibraryActionButton } from "./LibraryActionButton";
 import {
   useLibraryMutations,
@@ -335,11 +336,13 @@ export function LibraryExperience() {
   const [showHistorySkeleton, setShowHistorySkeleton] = useState(false);
   const [visibleHistoryCount, setVisibleHistoryCount] = useState(historyPageSize);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [clearFailure, setClearFailure] = useState<string | null>(null);
   const [clearPending, setClearPending] = useState(false);
   const [historyAnnouncement, setHistoryAnnouncement] = useState("");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const clearHistoryTriggerRef = useRef<HTMLButtonElement>(null);
+  const createTriggerRef = useRef<HTMLButtonElement>(null);
 
   const refreshHistory = useCallback(() => {
     setHistoryFailure(null);
@@ -422,6 +425,12 @@ export function LibraryExperience() {
       controller?.abort();
     };
   }, [collectionRevision, status, user]);
+
+  useEffect(() => {
+    const refreshPlaylists = (): void => setCollectionRevision((revision) => revision + 1);
+    window.addEventListener("echoform:library-changed", refreshPlaylists);
+    return () => window.removeEventListener("echoform:library-changed", refreshPlaylists);
+  }, []);
 
   const visibleEntries = useMemo(
     () => entries.slice(0, visibleHistoryCount),
@@ -513,6 +522,11 @@ export function LibraryExperience() {
       >
         <div className={styles.panelHeading}>
           <h2>{activeTabSpec.label}</h2>
+          {activeTab === "playlists" && mode === "real" && user ? (
+            <TextButton className={styles.createButton} onClick={() => setCreateDialogOpen(true)} ref={createTriggerRef} variant="secondary">
+              <Plus aria-hidden="true" />创建歌单
+            </TextButton>
+          ) : null}
           {activeTab === "history" ? (
             <div className={styles.historyHeadingActions}>
               <span>{entries.length} 条本地记录</span>
@@ -586,6 +600,15 @@ export function LibraryExperience() {
         open={clearDialogOpen}
         pending={clearPending}
         triggerRef={clearHistoryTriggerRef}
+      />
+      <CreatePlaylistDialog
+        onClose={() => setCreateDialogOpen(false)}
+        onCreated={() => {
+          setCreateDialogOpen(false);
+          setCollectionRevision((revision) => revision + 1);
+        }}
+        open={createDialogOpen}
+        triggerRef={createTriggerRef}
       />
     </div>
   );

@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { AlbumArtwork } from "@/components/AlbumArtwork";
 import { IconButton } from "@/components/IconButton";
+import { AddToPlaylistButton } from "@/features/library/AddToPlaylistButton";
 import { usePlayerDispatch, usePlayerSelector } from "@/features/player/playerContext";
 import type { QueueItem } from "@/lib/player";
 import type { Track } from "@/lib/music/models";
@@ -134,6 +135,7 @@ export function SearchTrackRow({
         <span className={styles.duration}>{formatTrackDuration(track.durationMs)}</span>
       </Link>
       <span className={styles.playback}>
+        <AddToPlaylistButton trackId={track.id} trackName={track.name} />
         {statusLabel ? <span className={styles.status}>{statusLabel}</span> : null}
         <IconButton
           disabled={playbackDisabled}

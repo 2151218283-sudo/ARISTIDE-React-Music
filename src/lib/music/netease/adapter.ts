@@ -12,6 +12,7 @@ import type {
   PageQuery,
   PlaybackSource,
   Playlist,
+  PlaylistDetail,
   SearchAllResult,
   SearchKind,
   SearchPage,
@@ -21,6 +22,10 @@ import type {
   Track,
   AlbumSummary,
   ArtistSummary,
+  ChangePlaylistTracksInput,
+  CreatePlaylistInput,
+  UpdatePlaylistInput,
+  DeletePlaylistInput,
   UserPlaylistCollection,
   UserProfile,
 } from "../models";
@@ -40,6 +45,8 @@ import {
   mapArtistDetail,
   mapNewSongs,
   mapPlaylistPage,
+  mapPlaylistDetail,
+  mapPlaylist,
   mapSavedAlbumPage,
   mapUserPlaylistCollection,
   mapUserProfile,
@@ -319,6 +326,15 @@ export class LegacyNeteaseAdapter {
     return mapPlaylistPage(unwrapLegacyBody(response), page);
   }
 
+  async getPlaylist(playlistId: string, cookie?: string): Promise<PlaylistDetail> {
+    const id = validateTrackId(playlistId);
+    const response = await this.invoke(this.api.playlist_detail, withCookie({ id }, cookie));
+    if (response.status === 404 || asRecord(response.body)?.code === 404) {
+      throw new AppError("TRACK_UNAVAILABLE", "未找到这个歌单。", { retryable: false });
+    }
+    return mapPlaylistDetail(unwrapLegacyBody(response));
+  }
+
   async getUserProfile(userId: string, cookie?: string): Promise<UserProfile> {
     const id = validateUserId(userId);
     const response = await this.invoke(this.api.user_detail, withCookie({ uid: id }, cookie));
@@ -537,6 +553,109 @@ export class LegacyNeteaseAdapter {
     const response = await this.invoke(this.api.album_sub, {
       id,
       t: collected ? 1 : 0,
+      cookie: upstreamCookie,
+    });
+    unwrapLegacyBody(response);
+  }
+
+  async createPlaylist(
+    input: CreatePlaylistInput,
+    upstreamCookie: string,
+  ): Promise<Playlist> {
+    const name = input.name.trim();
+    if (!name || name.length > 40) {
+      throw validationError("歌单名称长度必须是 1 至 40 个字符。");
+    }
+    if (!upstreamCookie) {
+      throw new AppError("AUTH_REQUIRED", "请先完成扫码登录。", { retryable: false });
+    }
+    const response = await this.invoke(this.api.playlist_create, {
+      name,
+      privacy: input.visibility === "private" ? 10 : 0,
+      type: "NORMAL",
+      cookie: upstreamCookie,
+    });
+    const body = unwrapLegacyBody(response);
+    const raw = asRecord(body.playlist ?? body.data);
+    const id = raw?.id;
+    const playlistId = typeof id === "number" && Number.isSafeInteger(id)
+      ? String(id)
+      : typeof id === "string" ? id : "";
+    if (!trackIdPattern.test(playlistId)) {
+      throw new AppError("UPSTREAM_UNAVAILABLE", "歌单创建结果无法识别。", { retryable: true });
+    }
+    const mapped = mapPlaylist(raw);
+    if (mapped) {
+      return { ...mapped, visibility: raw?.privacy === undefined ? input.visibility : mapped.visibility };
+    }
+    return {
+      id: playlistId,
+      name,
+      description: null,
+      tags: [],
+      artworkUrl: null,
+      owner: null,
+      visibility: input.visibility,
+      trackCount: 0,
+      createdAt: null,
+      updatedAt: null,
+    };
+  }
+
+  async changePlaylistTracks(
+    input: ChangePlaylistTracksInput,
+    upstreamCookie: string,
+  ): Promise<void> {
+    const playlistId = validateTrackId(input.playlistId);
+    if (!upstreamCookie) {
+      throw new AppError("AUTH_REQUIRED", "请先完成扫码登录。", { retryable: false });
+    }
+    const trackIds = input.trackIds.map(validateTrackId);
+    if (trackIds.length === 0 || trackIds.length > 100) {
+      throw validationError("曲目数量必须是 1 至 100 首。");
+    }
+    const response = await this.invoke(this.api.playlist_tracks, {
+      op: input.operation === "add" ? "add" : "del",
+      pid: playlistId,
+      tracks: trackIds.join(","),
+      cookie: upstreamCookie,
+    });
+    const outer = asRecord(response.body);
+    const nested = outer ? asRecord(outer.body) : null;
+    const body = nested ?? outer;
+    if (response.status !== 200 || body?.code !== 200) {
+      throw new AppError("UPSTREAM_UNAVAILABLE", "歌单曲目操作未完成。", { retryable: true });
+    }
+  }
+
+  async updatePlaylist(input: UpdatePlaylistInput, upstreamCookie: string): Promise<void> {
+    const id = validateTrackId(input.playlistId);
+    if (!upstreamCookie) {
+      throw new AppError("AUTH_REQUIRED", "请先完成扫码登录。", { retryable: false });
+    }
+    const { update } = input;
+    const method = update.field === "name" ? this.api.playlist_name_update
+      : update.field === "description" ? this.api.playlist_desc_update
+        : update.field === "tags" ? this.api.playlist_tags_update
+          : this.api.playlist_privacy;
+    const fields = update.field === "name" ? { name: update.value }
+      : update.field === "description" ? { desc: update.value }
+        : update.field === "tags" ? { tags: update.value.join(",") }
+          : {};
+    const response = await this.invoke(method, { id, ...fields, cookie: upstreamCookie });
+    unwrapLegacyBody(response);
+  }
+
+  async deletePlaylist(
+    input: DeletePlaylistInput,
+    upstreamCookie: string,
+  ): Promise<void> {
+    const playlistId = validateTrackId(input.playlistId);
+    if (!upstreamCookie) {
+      throw new AppError("AUTH_REQUIRED", "请先完成扫码登录。", { retryable: false });
+    }
+    const response = await this.invoke(this.api.playlist_delete, {
+      id: playlistId,
       cookie: upstreamCookie,
     });
     unwrapLegacyBody(response);

@@ -7,6 +7,10 @@ import { TrackPlayerPage } from "../../src/features/player/TrackPlayerPage";
 import { PlayerProvider } from "../../src/features/player/PlayerProvider";
 import type { PlaybackSource, Track } from "../../src/lib/music/models";
 
+vi.mock("../../src/features/library/AddToPlaylistButton", () => ({
+  AddToPlaylistButton: () => <button aria-label="加入歌单" type="button" />,
+}));
+
 const track: Track = {
   id: "track-001",
   name: "First Signal",

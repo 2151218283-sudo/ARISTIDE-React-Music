@@ -4,7 +4,7 @@
 > 核验日期：2026-10-04
 > 当前主 Provider：`NeteaseCloudMusicApi@4.32.0`
 > 候选替代 Provider：`@neteasecloudmusicapienhanced/api@4.38.0`
-> 登录态写操作：固定 Provider 路径已分项实测；T021 喜欢歌曲与收藏专辑的 ECHOFORM 写入层已接入并通过本地验收；T022-T023 仍待执行
+> 登录态写操作：固定 Provider 路径已分项实测；T021 与 T022 的应用写入层已完成本地验收；T023 仍待执行
 
 ## 1. 结论
 
@@ -333,6 +333,8 @@ type UpstreamQrCode = 800 | 801 | 802 | 803;
 | 搜索歌手 | `search` / `/search` | `type=100` | `SOURCE_VERIFIED` |
 | 歌曲详情 | `song_detail` / `/song/detail` | `ids` | `RUNTIME_ANON` |
 | 用户歌单 | `user_playlist` / `/user/playlist` | `uid`, `limit`, `offset` | `RUNTIME_AUTH`：`playlist` 非空 |
+| 歌单详情 | `playlist_detail` / `/playlist/detail` | `id`, `cookie?` | `RUNTIME_AUTH`：既有歌单详情 HTTP 200 / code 200；140 首内嵌曲目与 `trackIds` 均等于 `trackCount`。临时私密歌单带 Cookie 为 200，匿名为 401 |
+| 全曲目限量读取 | `playlist_track_all` / `/playlist/track/all` | `id`, `limit`, `offset`, `cookie?` | `RUNTIME_AUTH`：既有歌单限量 50 首返回 `songs` 50 项；应用暂不使用该补充路径 |
 
 `keywords` 去除首尾空白后长度为 1 至 100；`limit` 最大 30；`offset` 最小 0。搜索
 类型只能由 ECHOFORM 枚举映射，禁止把客户端任意数字直接传给上游。
@@ -368,7 +370,11 @@ type AudioQuality =
 | 发布评论 | `comment` / `/comment` | `t=1`, `type=0`, `id`, `content`, `cookie` | `MUTATION_ROLLED_BACK`：创建及删除均 HTTP 200 / code 200 |
 | 回复评论 | `comment` / `/comment` | `t=2`, `type=0`, `id`, `commentId`, `content`, `cookie` | `MUTATION_NOT_RUN` |
 | 喜欢/取消喜欢 | `like` / `/like` | `id`, `like`, `cookie` | `MUTATION_ROLLED_BACK`：添加与取消均 HTTP 200 / code 200 |
-| 创建歌单 | `playlist_create` / `/playlist/create` | `name`, `privacy`, `type`, `cookie` | `MUTATION_ROLLED_BACK`：创建和删除均 HTTP 200 / code 200 |
+| 创建歌单 | `playlist_create` / `/playlist/create` | `name`, `privacy`, `type`, `cookie` | `MUTATION_ROLLED_BACK`：`privacy=0` 与 `privacy=10` 均已独立创建和删除，HTTP 200 / code 200 |
+| 编辑歌单 | `playlist_name_update`、`playlist_desc_update`、`playlist_tags_update` | `id`, `name` / `desc` / `tags`, `cookie` | `MUTATION_ROLLED_BACK`：独立方法各 HTTP 200 / code 200，并经详情读取确认；仅操作同轮临时歌单，最终删除 |
+| 批量编辑歌单 | `playlist_update` / `/api/batch` | `id`, `name`, `desc`, `tags`, `cookie` | `BLOCKED`：固定包拼接 JSON 字符串，未执行运行 Probe，应用不接入 |
+| 私密歌单改为公开 | `playlist_privacy` / `/api/playlist/update/privacy` | `id`, `cookie` | `MUTATION_ROLLED_BACK`：HTTP 200 / code 200，详情确认 `privacy=0`，临时歌单最终删除 |
+| 公开歌单改为私密 | 固定 Legacy 包无对应方法 | `id`, `privacy=10` | `BLOCKED`：不能宣称双向切换 |
 | 添加/移除歌曲 | `playlist_tracks` / `/playlist/tracks` | `op`, `pid`, `tracks`, `cookie` | `MUTATION_ROLLED_BACK`：两项均 HTTP 200 / 嵌套 code 200，临时歌单已删除 |
 | 收藏/取消歌单 | `playlist_subscribe` / `/playlist/subscribe` | `id`, `t`, `cookie` | `MUTATION_WRITE_FAILED`：添加 HTTP 405 / code 405，未取得回滚目标 |
 | 收藏/取消专辑 | `album_sub` / `/album/sub` | `id`, `t`, `cookie` | `MUTATION_ROLLED_BACK`：添加与取消均 HTTP 200 / code 200 |
@@ -379,6 +385,10 @@ JSON `POST`/`PUT`/`DELETE`，不得将评论或歌单名称放在 Query String�
 
 `playlist_tracks.js` 的成功 Response 可能出现额外嵌套，且 code 512 时会用重复
 `trackIds` 再请求。Adapter 必须用夹具覆盖这两种形状，不能把原始 Response 透传。
+T022 专用账号 Probe 已验证 `privacy=10`、独立编辑方法和私密转公开，见 11.4 节。
+应用只允许接入这些已验证的独立方法。固定包的 `playlist_update` 批量方法用字符串插值
+构造 JSON，仍不接入。`playlist_privacy` 仅支持私密转公开；公开转私密、封面更新和收藏歌单
+均不能据此宣称完成，后者的 HTTP 405 仍保持阻塞。
 
 ## 6. 内部归一化模型
 
@@ -766,8 +776,8 @@ Probe 的已验证评论路径，不覆盖该历史遗留不确定性。
 
 这些结果只升级固定 Legacy Provider 的契约等级。T021 已在此基础上接入
 `like`/`likelist` 与 `album_sub`/`album_sublist` 的 ECHOFORM Provider、同源 BFF、
-Session 内幂等记录和页面共享状态；应用层没有接入收藏歌单 405。评论与歌单写入仍由
-T022-T023 独立实现和验收。
+Session 内幂等记录和页面共享状态；应用层没有接入收藏歌单 405。歌单由 T022 独立实现
+和验收，评论仍由 T023 后续实现。
 
 ### 11.3 T021 应用写入层（2026-10-04）
 
@@ -779,6 +789,28 @@ Session 内返回第一次归一化结果，不会再次调用上游；BFF 不�
 本地 unit、component、contract 和 `npm.cmd run check` 用脱敏夹具覆盖 Demo/Real、
 匿名 QR、401、重复点击、写入失败和跨组件状态；没有把实时账号数据或 Live Probe
 接入默认测试。
+
+### 11.4 T022 专用账号歌单 Probe（2026-10-04）
+
+运行 `scripts/netease-playlist-management-probe.mjs`，仅向专用账号写入随机命名的临时歌单。
+QR `801/802/803`、`login_status`、`user_account`、个人日推和用户歌单读取均成功；日推 33 项、
+初始歌单 6 项。既有歌单 `playlist_detail` 返回 HTTP 200 / code 200，`trackCount`、内嵌曲目和
+`trackIds` 均为 140；`playlist_track_all` 限量 50 首返回 50 项。临时歌单以 `privacy=10`
+创建成功，带 Cookie 的详情读取为 200，匿名读取为 401。独立的名称、描述、标签更新，以及
+`playlist_privacy` 私密转公开均返回 HTTP 200 / code 200；每步后详情读取确认目标状态。
+临时歌单删除为 HTTP 200 / code 200，账号列表由 7 项回到 6 项，随后 `logout` 为 200。
+未输出或保存 QR 内容、Cookie、账号信息、歌单名称/ID、原始上游响应；未修改任何原有歌单。
+
+### 11.5 T022 应用写入层（2026-10-04）
+
+Real Provider 只加载本节已验证的独立歌单方法；`playlist_update` 批量方法未接入。
+同源 BFF 对创建、曲目、编辑、删除与发布检查 Session、输入和所有者，使用
+`clientMutationId` 合并同一 Session 内重复写入，不自动重试。名称、描述、标签按独立
+请求顺序提交，失败即停止并刷新详情；私密转公开需用户确认，公开转私密不展示。
+
+最终组合 `npm.cmd run test` 通过 unit 82、component 98、contract 102、应用 E2E 52、
+基础视觉 E2E 2；`npm.cmd run check` 的 lint、typecheck、build 通过，lint 保留既有 QR
+`<img>` 一条警告。应用 E2E 使用本地脱敏夹具，未对真实账号执行应用端到端写入。
 
 ## 12. 契约验收门槛
 

@@ -9,10 +9,13 @@ import type {
   CommentPage,
   CreateCommentInput,
   CreatePlaylistInput,
+  UpdatePlaylistInput,
   LyricDocument,
   PageQuery,
+  DeletePlaylistInput,
   PlaybackSource,
   Playlist,
+  PlaylistDetail,
   QrChallenge,
   QrLoginState,
   SearchQuery,
@@ -57,6 +60,7 @@ export interface MusicProvider {
     page: PageQuery,
     sessionId?: string,
   ): Promise<CatalogPage<Playlist>>;
+  getPlaylist(playlistId: string, sessionId?: string): Promise<PlaylistDetail>;
   getTrack(trackId: string, sessionId?: string): Promise<Track>;
   getPlaybackSource(
     trackId: string,
@@ -80,8 +84,13 @@ export interface MusicProvider {
     input: CreatePlaylistInput,
     sessionId: string,
   ): Promise<Playlist>;
+  updatePlaylist(input: UpdatePlaylistInput, sessionId: string): Promise<void>;
   changePlaylistTracks(
     input: ChangePlaylistTracksInput,
+    sessionId: string,
+  ): Promise<void>;
+  deletePlaylist(
+    input: DeletePlaylistInput,
     sessionId: string,
   ): Promise<void>;
   createComment(

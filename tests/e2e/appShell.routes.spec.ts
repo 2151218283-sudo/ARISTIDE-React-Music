@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 const productRoutes = [
-  ["/playlist/demo-playlist", "歌单", "PLAYLIST"],
   ["/settings", "设置", "SETTINGS"],
 ] as const;
 
@@ -66,6 +65,20 @@ test("keeps every product route local and explicit", async ({ page }) => {
     await expect(page.getByRole("navigation", { name: "ECHOFORM 主导航" })).toBeVisible();
     await expect(page.locator("[data-route-context]")).toHaveText(context);
   }
+
+  await page.route("**/api/playlists/801", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, data: {
+        playlist: { id: "801", name: "Route Playlist", description: null, tags: [], artworkUrl: null, owner: null, visibility: "public", trackCount: 0, createdAt: null, updatedAt: null },
+        tracks: [], canEdit: false,
+      } }),
+    });
+  });
+  const playlistResponse = await page.goto("/playlist/801");
+  expect(playlistResponse?.ok()).toBe(true);
+  await expect(page.getByRole("heading", { level: 1, name: "Route Playlist" })).toBeVisible();
+  await expect(page.locator("[data-route-context]")).toHaveText("PLAYLIST");
 
   const libraryResponse = await page.goto("/library");
   expect(libraryResponse?.ok()).toBe(true);

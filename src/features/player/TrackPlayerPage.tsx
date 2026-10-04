@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { StatusView } from "@/components/StatusView";
 import { TextButton } from "@/components/TextButton";
 import { LibraryActionButton } from "@/features/library/LibraryActionButton";
+import { AddToPlaylistButton } from "@/features/library/AddToPlaylistButton";
 import type { Track, TrackAvailability } from "@/lib/music/models";
 
 import { LyricsViewport } from "./LyricsViewport";
@@ -161,6 +162,7 @@ function TrackPagePlayback({ track }: { track: Track }) {
           tooltip={restriction ?? (isPlayingIntent ? "暂停" : "播放")}
         />
         <LibraryActionButton entity={track} kind="track" size="lg" />
+        <AddToPlaylistButton trackId={track.id} trackName={track.name} />
       </div>
       <p aria-live="polite" className={styles.playbackStatus} data-busy={busy || undefined}>
         {status}

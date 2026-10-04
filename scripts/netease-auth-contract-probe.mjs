@@ -392,7 +392,7 @@ export function closeTransientQrServer(server) {
   });
 }
 
-async function createTransientQrPage(port) {
+export async function createTransientQrPage(port) {
   let imageDataUrl = null;
   const server = createServer((request, response) => {
     if (request.method !== "GET" || request.url !== "/") {

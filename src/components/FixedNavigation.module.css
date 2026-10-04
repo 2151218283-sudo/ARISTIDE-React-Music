@@ -13,6 +13,8 @@
   pointer-events: none;
 }
 
+.navigation[data-opaque="true"] { background: var(--ef-surface-canvas); }
+
 .brand,
 .actions {
   pointer-events: auto;

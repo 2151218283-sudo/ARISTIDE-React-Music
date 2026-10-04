@@ -64,6 +64,7 @@ const playlistPage: CatalogPage<Playlist> = {
     id: "801",
     name: "Synthetic Playlist",
     description: null,
+    tags: [],
     artworkUrl: null,
     owner: null,
     visibility: "public",

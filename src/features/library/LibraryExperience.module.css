@@ -119,6 +119,9 @@
   gap: var(--ef-space-3);
 }
 
+.createButton { margin-left: auto; }
+.createButton svg { width: 18px; height: 18px; }
+
 .panelHeading > span,
 .sectionHeading > span {
   margin-left: auto;

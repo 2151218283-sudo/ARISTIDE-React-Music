@@ -14,6 +14,7 @@ import type {
   LyricDocument,
   PlaybackSource,
   Playlist,
+  PlaylistDetail,
   SearchKind,
   SearchPage,
   Track,
@@ -296,7 +297,7 @@ function mapAlbumDocument(value: unknown, tracks: Track[]): Album {
   };
 }
 
-function mapPlaylist(value: unknown): Playlist | null {
+export function mapPlaylist(value: unknown): Playlist | null {
   const playlist = asRecord(value);
   const id = playlist ? entityId(playlist.id) : null;
   const name = playlist ? text(playlist.name) : null;
@@ -308,12 +309,32 @@ function mapPlaylist(value: unknown): Playlist | null {
     id,
     name,
     description: text(playlist.description),
+    tags: Array.isArray(playlist.tags)
+      ? playlist.tags.filter((tag): tag is string => typeof tag === "string" && tag.trim().length > 0).map((tag) => tag.trim())
+      : [],
     artworkUrl: publicMediaUrl(playlist.coverImgUrl ?? playlist.picUrl),
     owner: mapUser(playlist.creator),
     visibility: playlist.privacy === 10 ? "private" : "public",
     trackCount: nonNegativeNumber(playlist.trackCount) ?? 0,
     createdAt: nonNegativeNumber(playlist.createTime),
     updatedAt: nonNegativeNumber(playlist.updateTime),
+  };
+}
+
+export function mapPlaylistDetail(body: UnknownRecord): PlaylistDetail {
+  const rawPlaylist = childRecord(body, "playlist") ?? body;
+  const playlist = mapPlaylist(rawPlaylist);
+  if (!playlist) {
+    throw unavailableCatalogEntity();
+  }
+  const tracks = mapRows(
+    childArray(rawPlaylist, "tracks") ?? [],
+    (row) => mapTrack(asRecord(row)?.song ?? row),
+  );
+  return {
+    playlist,
+    tracks,
+    canEdit: rawPlaylist.specialType === 0 && playlist.owner !== null,
   };
 }
 

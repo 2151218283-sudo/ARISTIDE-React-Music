@@ -18,10 +18,13 @@ import type {
   CommentPage,
   CreateCommentInput,
   CreatePlaylistInput,
+  UpdatePlaylistInput,
+  DeletePlaylistInput,
   LyricDocument,
   PageQuery,
   PlaybackSource,
   Playlist,
+  PlaylistDetail,
   QrChallenge,
   QrLoginState,
   SearchQuery,
@@ -208,6 +211,7 @@ function demoPlaylists(tracks: Track[]): Playlist[] {
     id: `demo-playlist-${index + 1}`,
     name: `${album.name} Selections`,
     description: null,
+    tags: [],
     artworkUrl: album.artworkUrl,
     owner: null,
     visibility: "public",
@@ -282,6 +286,7 @@ export class DemoMusicProvider implements MusicProvider {
         id: `demo-liked-${userId}`,
         name: "喜欢的音乐",
         description: null,
+        tags: [],
         artworkUrl: this.getScenarioTracks()[0]?.artworkUrl ?? null,
         owner: null,
         visibility: "private",
@@ -448,6 +453,26 @@ export class DemoMusicProvider implements MusicProvider {
     };
   }
 
+  async getPlaylist(playlistId: string, sessionId?: string): Promise<PlaylistDetail> {
+    void sessionId;
+    this.assertReadScenarioAvailable();
+    const tracks = this.getScenarioTracks();
+    const playlists = demoPlaylists(tracks);
+    const playlist = playlists.find((item) => item.id === playlistId);
+    if (!playlist) {
+      throw new AppError("TRACK_UNAVAILABLE", "未找到这个演示歌单。", { retryable: false });
+    }
+    const playlistTracks = tracks.filter((track) => track.album.name === playlist.name.replace(/ Selections$/, ""));
+    return {
+      playlist: {
+        ...playlist,
+        owner: playlist.owner ? cloneUserProfile(playlist.owner) : null,
+      },
+      tracks: playlistTracks.map(cloneTrack),
+      canEdit: false,
+    };
+  }
+
   async getTrack(trackId: string, sessionId?: string): Promise<Track> {
     void sessionId;
     this.assertReadScenarioAvailable();
@@ -578,10 +603,22 @@ export class DemoMusicProvider implements MusicProvider {
     return throwDemoWriteUnavailable();
   }
 
+  async updatePlaylist(input: UpdatePlaylistInput, sessionId: string): Promise<void> {
+    void input;
+    void sessionId;
+    throwDemoWriteUnavailable();
+  }
+
   async changePlaylistTracks(
     input: ChangePlaylistTracksInput,
     sessionId: string,
   ): Promise<void> {
+    void input;
+    void sessionId;
+    throwDemoWriteUnavailable();
+  }
+
+  async deletePlaylist(input: DeletePlaylistInput, sessionId: string): Promise<void> {
     void input;
     void sessionId;
     throwDemoWriteUnavailable();

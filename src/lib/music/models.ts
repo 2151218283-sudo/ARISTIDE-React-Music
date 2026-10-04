@@ -91,12 +91,19 @@ export interface Playlist {
   id: string;
   name: string;
   description: string | null;
+  tags: string[];
   artworkUrl: string | null;
   owner: UserProfile | null;
   visibility: PlaylistVisibility;
   trackCount: number;
   createdAt: number | null;
   updatedAt: number | null;
+}
+
+export interface PlaylistDetail {
+  playlist: Playlist;
+  tracks: Track[];
+  canEdit: boolean;
 }
 
 export interface UserPlaylistCollection {
@@ -261,10 +268,27 @@ export interface CreatePlaylistInput {
   clientMutationId: string;
 }
 
+export type PlaylistUpdate =
+  | { field: "name"; value: string }
+  | { field: "description"; value: string }
+  | { field: "tags"; value: string[] }
+  | { field: "publish" };
+
+export interface UpdatePlaylistInput {
+  playlistId: string;
+  update: PlaylistUpdate;
+  clientMutationId: string;
+}
+
 export interface ChangePlaylistTracksInput {
   playlistId: string;
   trackIds: string[];
   operation: "add" | "remove";
+  clientMutationId: string;
+}
+
+export interface DeletePlaylistInput {
+  playlistId: string;
   clientMutationId: string;
 }
 
