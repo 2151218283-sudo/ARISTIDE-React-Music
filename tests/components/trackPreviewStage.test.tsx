@@ -139,7 +139,7 @@ describe("TrackPreviewStage", () => {
     expect(onExplore).toHaveBeenCalledWith(expect.objectContaining({ id: "track-001" }));
     expect(screen.getByRole("link", { name: "打开 First Signal 的完整播放页" }))
       .toHaveAttribute("href", "/track/track-001");
-    expect(screen.getByRole("button", { name: "喜欢功能尚未开放" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "喜欢 First Signal" })).toBeEnabled();
   });
 
   it("retains daily metadata when detail and lyric reads fail, then retries", async () => {

@@ -31,6 +31,7 @@ vi.mock("../../src/lib/listeningHistory", async (importOriginal) => ({
 }));
 
 import { LibraryExperience } from "../../src/features/library/LibraryExperience";
+import { LibraryMutationProvider } from "../../src/features/library/LibraryMutationProvider";
 import { PlayerProvider } from "../../src/features/player/PlayerProvider";
 import type { ListeningHistoryEntry } from "../../src/lib/listeningHistory";
 import type { PlaybackSource, Track, UserPlaylistCollection } from "../../src/lib/music/models";
@@ -110,10 +111,25 @@ const collection: UserPlaylistCollection = {
   subscribed: [],
 };
 
+const likedTrack = track("liked-track");
+const savedAlbum = { id: "saved-album", name: "Saved Album", artworkUrl: null };
+
+function libraryPage<T>(items: T[]) {
+  return {
+    items,
+    total: items.length,
+    limit: 50,
+    offset: 0,
+    hasMore: false,
+  };
+}
+
 function renderLibrary() {
   return render(
     <PlayerProvider sourceResolver={async () => source}>
-      <LibraryExperience />
+      <LibraryMutationProvider>
+        <LibraryExperience />
+      </LibraryMutationProvider>
     </PlayerProvider>,
   );
 }
@@ -150,17 +166,35 @@ describe("LibraryExperience", () => {
     expect(profile.playlists).not.toHaveBeenCalled();
   });
 
-  it("reads the verified playlist collection and states unavailable album data truthfully", async () => {
+  it("reads likes and saved albums while keeping playlist collection separate", async () => {
     auth.user = { avatarUrl: null, id: "user-1", nickname: "Listener", signature: null };
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/library/likes")) {
+        return Promise.resolve(Response.json({ ok: true, data: libraryPage([likedTrack]) }));
+      }
+      if (url.includes("/api/library/albums")) {
+        return Promise.resolve(Response.json({ ok: true, data: libraryPage([savedAlbum]) }));
+      }
+      return Promise.reject(new Error(`Unexpected request: ${url}`));
+    }));
     renderLibrary();
 
-    expect(await screen.findByRole("link", { name: "查看歌单 Liked signals" }))
-      .toHaveAttribute("href", "/playlist/liked-1");
+    expect(await screen.findByText("Track liked-track")).toBeVisible();
+    expect(screen.getByRole("button", { name: "取消喜欢 Track liked-track" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await userEvent.setup().click(screen.getByRole("tab", { name: "专辑" }));
+    expect(await screen.findByRole("link", { name: "查看专辑 Saved Album" }))
+      .toHaveAttribute("href", "/album/saved-album");
+    expect(screen.getByRole("button", { name: "取消收藏专辑 Saved Album" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     await userEvent.setup().click(screen.getByRole("tab", { name: "歌单" }));
     expect(await screen.findByRole("link", { name: "查看歌单 Created signals" }))
       .toHaveAttribute("href", "/playlist/created-1");
-    await userEvent.setup().click(screen.getByRole("tab", { name: "专辑" }));
-    expect(await screen.findByRole("heading", { name: "收藏专辑暂不可读取" })).toBeVisible();
   });
 
   it("reads local history offline, preserves the first segment, and reveals more rows", async () => {

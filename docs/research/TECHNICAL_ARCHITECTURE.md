@@ -254,8 +254,12 @@ type ApiFailure = {
 | `GET` | `/api/tracks/:id/lyrics` | 否 | 普通、翻译和逐字歌词 |
 | `GET` | `/api/tracks/:id/comments` | 否 | 评论分页 |
 | `POST` | `/api/tracks/:id/comments` | 是 | 发布或回复评论 |
+| `GET` | `/api/library/likes` | 是 | 当前用户喜欢的歌曲 |
 | `PUT` | `/api/library/likes/:id` | 是 | 喜欢歌曲 |
 | `DELETE` | `/api/library/likes/:id` | 是 | 取消喜欢 |
+| `GET` | `/api/library/albums` | 是 | 当前用户收藏的专辑 |
+| `PUT` | `/api/library/albums/:id` | 是 | 收藏专辑 |
+| `DELETE` | `/api/library/albums/:id` | 是 | 取消收藏专辑 |
 | `GET` | `/api/users/:id` | 否 | 用户主页数据 |
 | `GET` | `/api/users/:id/playlists` | 否 | 用户歌单 |
 | `POST` | `/api/playlists` | 是 | 创建歌单 |
@@ -263,7 +267,8 @@ type ApiFailure = {
 | `DELETE` | `/api/playlists/:id/tracks/:trackId` | 是 | 移除歌曲 |
 
 写接口在 `NETEASE_API_CONTRACT.md` 标记“登录态实测通过”之前不得进入 Real Provider 的
-完成验收，可先在 Demo Provider 内实现 UI 流程。
+完成验收。T021 的喜欢歌曲与收藏专辑已满足该门槛；收藏歌单的 HTTP 405 仍保持阻塞，
+评论和歌单写入继续等待后续任务。
 
 ## 7. Session 与登录
 
@@ -458,8 +463,9 @@ Demo Mode 是答辩容灾，不是 Real Provider 的自动降级：
   规则停止；固定包失败时的原始标准输出已在 Probe 边界抑制。详情记录见 API 契约。写入 scope
   始终要求脚本开关与当轮用户授权，且必须在同一进程完成回滚和登出。
 
-  架构路由表中的写接口是 T021-T023 的目标接口，不表示当前源码已经提供这些 Route Handler；
-  T020 只升级固定 Provider 的契约等级，不接入页面、BFF 或产品写入行为。
+  T021 已提供 `/api/library/likes` 与 `/api/library/albums` 的 Route Handler、Real/Demo
+  Provider 适配和页面共享状态；T020 的 Probe 仍不进入默认测试，T022/T023 的其他写接口
+  继续作为后续任务，不因 T021 的完成而提前接线。
 - Playwright：QR 状态模拟、持久播放、路由切换、滚轮退出、搜索和响应式关键路径。
 
 性能任务额外使用可替换时钟/帧调度与计数器证明可见 `ambient` 只做轻量 GPU 时间更新、hidden/Reduced Motion 不续帧、Pointer 静止不 raycast、完整缩略纹理受并发上限加载并完整释放；浏览器在固定本地生产构建和固定夹具下记录帧数与 React 更新时间边界。开发服务器的 HMR 和机器瞬时负载只作诊断，不作为绝对性能门槛。

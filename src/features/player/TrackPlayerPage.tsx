@@ -2,7 +2,6 @@
 
 import {
   CircleAlert,
-  Heart,
   Pause,
   Play,
   RefreshCw,
@@ -14,6 +13,7 @@ import { IconButton } from "@/components/IconButton";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusView } from "@/components/StatusView";
 import { TextButton } from "@/components/TextButton";
+import { LibraryActionButton } from "@/features/library/LibraryActionButton";
 import type { Track, TrackAvailability } from "@/lib/music/models";
 
 import { LyricsViewport } from "./LyricsViewport";
@@ -160,13 +160,7 @@ function TrackPagePlayback({ track }: { track: Track }) {
           size="lg"
           tooltip={restriction ?? (isPlayingIntent ? "暂停" : "播放")}
         />
-        <IconButton
-          disabled
-          icon={<Heart aria-hidden="true" />}
-          label="喜欢功能尚未开放"
-          size="lg"
-          tooltip="喜欢功能尚未开放"
-        />
+        <LibraryActionButton entity={track} kind="track" size="lg" />
       </div>
       <p aria-live="polite" className={styles.playbackStatus} data-busy={busy || undefined}>
         {status}

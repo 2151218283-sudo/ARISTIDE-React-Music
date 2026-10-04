@@ -13,6 +13,7 @@ import {
 } from "react";
 
 import { PlaylistTile } from "@/components/PlaylistTile";
+import { AlbumArtwork } from "@/components/AlbumArtwork";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusView } from "@/components/StatusView";
 import { TextButton } from "@/components/TextButton";
@@ -26,6 +27,7 @@ import {
   type ListeningHistoryEntry,
 } from "@/lib/listeningHistory";
 import type { UserPlaylistCollection } from "@/lib/music/models";
+import type { AlbumSummary, Track } from "@/lib/music/models";
 import type { QueueItem } from "@/lib/player";
 
 import {
@@ -33,6 +35,11 @@ import {
   requestUserPlaylists,
 } from "@/features/profile/profileClient";
 import { ClearHistoryDialog } from "./ClearHistoryDialog";
+import { LibraryActionButton } from "./LibraryActionButton";
+import {
+  useLibraryMutations,
+  type LibraryCollectionStatus,
+} from "./LibraryMutationProvider";
 import styles from "./LibraryExperience.module.css";
 
 const historyPageSize = 50;
@@ -102,6 +109,51 @@ function PlaylistGrid({
   );
 }
 
+function SavedAlbumGrid({ albums }: { albums: readonly AlbumSummary[] }) {
+  if (albums.length === 0) {
+    return <p className={styles.emptyCopy}>收藏的专辑会保存在这里。</p>;
+  }
+  return (
+    <div className={styles.albumGrid}>
+      {albums.map((album) => (
+        <div className={styles.albumItem} key={album.id}>
+          <Link aria-label={`查看专辑 ${album.name}`} href={`/album/${encodeURIComponent(album.id)}`}>
+            <AlbumArtwork
+              alt={`${album.name} 封面`}
+              src={album.artworkUrl}
+              status={album.artworkUrl ? "loaded" : "empty"}
+              variant="tile"
+            />
+            <span>{album.name}</span>
+          </Link>
+          <LibraryActionButton entity={album} kind="album" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LikedTrackList({ tracks }: { tracks: readonly Track[] }) {
+  if (tracks.length === 0) {
+    return null;
+  }
+  const queue = tracks.map((track, index) => ({
+    queueItemId: `liked:${track.id}:${index}`,
+    sourceContext: "manual" as const,
+    track,
+  }));
+  return (
+    <div className={styles.likedTrackList}>
+      {tracks.map((track) => (
+        <div className={styles.likedTrackItem} key={track.id}>
+          <TrackRow queue={queue} track={track} />
+          <LibraryActionButton entity={track} kind="track" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function formatPlayedAt(playedAt: number): string {
   return new Intl.DateTimeFormat("zh-CN", {
     day: "numeric",
@@ -163,6 +215,12 @@ function AccountTab({
   onOpenLogin,
   onRetry,
   onNavigate,
+  likedTracks,
+  savedAlbums,
+  libraryError,
+  libraryLoading,
+  libraryStatus,
+  onRetryLibrary,
   tab,
   userReady,
 }: {
@@ -172,6 +230,12 @@ function AccountTab({
   onOpenLogin: () => void;
   onRetry: () => void;
   onNavigate: (href: string) => void;
+  likedTracks: readonly Track[];
+  savedAlbums: readonly AlbumSummary[];
+  libraryError: LibraryFailure | null;
+  libraryLoading: boolean;
+  libraryStatus: LibraryCollectionStatus;
+  onRetryLibrary: () => void;
   tab: Exclude<LibraryTab, "history">;
   userReady: boolean;
 }) {
@@ -184,6 +248,35 @@ function AccountTab({
         tone="info"
       />
     );
+  }
+
+  if (tab === "likes" || tab === "albums") {
+    if (libraryLoading && libraryStatus !== "ready") {
+      return <CollectionSkeleton />;
+    }
+    if (libraryError && likedTracks.length === 0 && savedAlbums.length === 0) {
+      return (
+        <StatusView
+          action={libraryError.retryable ? { label: "重试", onClick: onRetryLibrary } : undefined}
+          description={libraryError.message}
+          title="无法读取收藏状态"
+          tone="error"
+        />
+      );
+    }
+    if (tab === "likes") {
+      return likedTracks.length > 0 ? (
+        <LikedTrackList tracks={likedTracks} />
+      ) : (
+        <StatusView
+          action={{ label: "去搜索", onClick: () => onNavigate("/search") }}
+          description="喜欢的音乐会保存在这里。"
+          title="还没有可显示的喜欢音乐"
+          tone="empty"
+        />
+      );
+    }
+    return <SavedAlbumGrid albums={savedAlbums} />;
   }
 
   if (loading && !collection) {
@@ -201,33 +294,8 @@ function AccountTab({
     );
   }
 
-  if (tab === "albums") {
-    return (
-      <StatusView
-        description="收藏专辑的读取接口尚未完成验证，因此这里不会显示猜测或演示内容。"
-        title="收藏专辑暂不可读取"
-        tone="unavailable"
-      />
-    );
-  }
-
   if (!collection) {
     return null;
-  }
-
-  if (tab === "likes") {
-    return collection.liked ? (
-      <div className={styles.likedGrid}>
-        <PlaylistTile playlist={collection.liked} />
-      </div>
-    ) : (
-      <StatusView
-        action={{ label: "去搜索", onClick: () => onNavigate("/search") }}
-        description="喜欢的音乐会保存在这里。"
-        title="还没有可显示的喜欢音乐"
-        tone="empty"
-      />
-    );
   }
 
   return (
@@ -251,7 +319,8 @@ function AccountTab({
 }
 
 export function LibraryExperience() {
-  const { openLogin, status, user } = useAuth();
+  const { mode, openLogin, status, user } = useAuth();
+  const library = useLibraryMutations();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<LibraryTab>("likes");
   const [collection, setCollection] = useState<UserPlaylistCollection | null>(null);
@@ -360,9 +429,12 @@ export function LibraryExperience() {
   );
   const activeTabSpec = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const tabPanelId = `library-panel-${activeTab}`;
-  const userReady = status === "ready" && user !== null;
+  const userReady = status === "ready" && (user !== null || mode === "demo");
 
   const retryCollection = (): void => setCollectionRevision((revision) => revision + 1);
+  const retryLibrary = (): void => {
+    void library.refresh();
+  };
   const retryHistory = (): void => setHistoryRevision((revision) => revision + 1);
   const closeClearDialog = (): void => {
     if (clearPending) {
@@ -484,10 +556,16 @@ export function LibraryExperience() {
           <AccountTab
             collection={collection}
             failure={collectionFailure}
+            likedTracks={library.likedTracks}
+            libraryError={library.error ? toFailure(library.error, "无法读取收藏状态。") : null}
+            libraryLoading={library.loading}
+            libraryStatus={library.status}
             loading={collectionLoading}
             onOpenLogin={openLogin}
             onNavigate={(href) => router.push(href)}
             onRetry={retryCollection}
+            onRetryLibrary={retryLibrary}
+            savedAlbums={library.albums}
             tab={activeTab}
             userReady={userReady}
           />

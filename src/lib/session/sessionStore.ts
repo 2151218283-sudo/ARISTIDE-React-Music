@@ -30,6 +30,7 @@ export interface ServerSession {
   qr: ServerQrChallenge | null;
   dailyRecommendations: Map<string, DailyRecommendations>;
   audioRelaySources: Map<string, PlaybackSource>;
+  libraryMutations: Map<string, { operation: string; result: unknown }>;
 }
 
 export interface PublicSessionState {
@@ -80,6 +81,7 @@ export class InMemorySessionStore {
       qr: null,
       dailyRecommendations: new Map(),
       audioRelaySources: new Map(),
+      libraryMutations: new Map(),
     };
     this.sessions.set(session.id, session);
     return session;
@@ -187,6 +189,7 @@ export class InMemorySessionStore {
     session.qr = null;
     session.dailyRecommendations.clear();
     session.audioRelaySources.clear();
+    session.libraryMutations.clear();
     return true;
   }
 
@@ -198,6 +201,7 @@ export class InMemorySessionStore {
     session.user = user;
     session.dailyRecommendations.clear();
     session.audioRelaySources.clear();
+    session.libraryMutations.clear();
     return true;
   }
 
@@ -222,6 +226,7 @@ export class InMemorySessionStore {
       session.mode = mode;
       session.dailyRecommendations.clear();
       session.audioRelaySources.clear();
+      session.libraryMutations.clear();
     }
     return true;
   }
@@ -302,6 +307,27 @@ export class InMemorySessionStore {
       return false;
     }
     session.audioRelaySources.clear();
+    return true;
+  }
+
+  getLibraryMutation(
+    sessionId: string,
+    clientMutationId: string,
+  ): { operation: string; result: unknown } | null {
+    return this.get(sessionId)?.libraryMutations.get(clientMutationId) ?? null;
+  }
+
+  setLibraryMutation(
+    sessionId: string,
+    clientMutationId: string,
+    operation: string,
+    result: unknown,
+  ): boolean {
+    const session = this.get(sessionId);
+    if (!session) {
+      return false;
+    }
+    session.libraryMutations.set(clientMutationId, { operation, result });
     return true;
   }
 

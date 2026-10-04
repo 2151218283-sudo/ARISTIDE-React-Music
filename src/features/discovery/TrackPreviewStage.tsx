@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Heart, Pause, Play, RefreshCw } from "lucide-react";
+import { ArrowLeft, Pause, Play, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
@@ -13,6 +13,7 @@ import {
   usePlayerSelector,
 } from "@/features/player/playerContext";
 import { formatPlayerTime } from "@/features/player/playerView";
+import { LibraryActionButton } from "@/features/library/LibraryActionButton";
 
 import { useTrackPreviewDetails } from "./useTrackPreviewDetails";
 import styles from "./TrackPreviewStage.module.css";
@@ -262,13 +263,7 @@ export function TrackPreviewStage({
             size="lg"
             tooltip={restriction ?? (isPlayingIntent ? "暂停" : "播放")}
           />
-          <IconButton
-            disabled
-            icon={<Heart aria-hidden="true" />}
-            label="喜欢功能尚未开放"
-            size="lg"
-            tooltip="喜欢功能尚未开放"
-          />
+          <LibraryActionButton entity={resolvedTrack} kind="track" size="lg" />
           <Link
             aria-label={`打开 ${resolvedTrack.name} 的完整播放页`}
             className={styles.explore}

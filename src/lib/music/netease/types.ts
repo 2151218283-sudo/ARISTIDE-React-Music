@@ -12,6 +12,8 @@ export type LegacyApiMethod = (
 
 export interface LegacyNeteaseApi {
   album: LegacyApiMethod;
+  album_sub: LegacyApiMethod;
+  album_sublist: LegacyApiMethod;
   artist_album: LegacyApiMethod;
   artist_detail: LegacyApiMethod;
   artist_top_song: LegacyApiMethod;
@@ -22,6 +24,8 @@ export interface LegacyNeteaseApi {
   login_qr_check: LegacyApiMethod;
   login_qr_key: LegacyApiMethod;
   login_status: LegacyApiMethod;
+  like: LegacyApiMethod;
+  likelist: LegacyApiMethod;
   lyric_new: LegacyApiMethod;
   logout: LegacyApiMethod;
   recommend_songs: LegacyApiMethod;

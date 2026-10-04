@@ -124,4 +124,22 @@ describe("DemoMusicProvider scenarios", () => {
       offset: -1,
     })).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
   });
+
+  it("keeps Demo likes and album collections isolated per session", async () => {
+    const provider = new DemoMusicProvider();
+    const firstSession = "demo-library-first";
+    const secondSession = "demo-library-second";
+
+    await provider.setTrackLiked("demo-track-001", true, firstSession);
+    await provider.setAlbumCollected("demo-album-001", true, firstSession);
+
+    await expect(provider.getLikedTracks("demo-user", page, firstSession))
+      .resolves.toMatchObject({ items: [{ id: "demo-track-001" }], total: 1 });
+    await expect(provider.getSavedAlbums(page, firstSession))
+      .resolves.toMatchObject({ items: [{ id: "demo-album-001" }], total: 1 });
+    await expect(provider.getLikedTracks("demo-user", page, secondSession))
+      .resolves.toMatchObject({ items: [], total: 0 });
+    await expect(provider.setTrackLiked("missing-track", true, firstSession))
+      .rejects.toMatchObject({ code: "TRACK_UNAVAILABLE" });
+  });
 });

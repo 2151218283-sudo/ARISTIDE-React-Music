@@ -31,6 +31,7 @@ import {
   requestUserPlaylists,
   requestUserProfile,
 } from "./profileClient";
+import { libraryChangedEventName } from "@/features/library/LibraryMutationProvider";
 import styles from "./ProfileExperience.module.css";
 
 interface ProfileExperienceProps {
@@ -332,6 +333,16 @@ export function ProfileExperience({ userId }: ProfileExperienceProps) {
       });
     return () => controller.abort();
   }, [collectionRevision, userId]);
+
+  useEffect(() => {
+    const refreshCurrentCollection = (): void => {
+      if (overview?.isCurrentUser) {
+        setCollectionRevision((current) => current + 1);
+      }
+    };
+    window.addEventListener(libraryChangedEventName, refreshCurrentCollection);
+    return () => window.removeEventListener(libraryChangedEventName, refreshCurrentCollection);
+  }, [overview?.isCurrentUser]);
 
   const retryProfile = (): void => {
     setShowSkeleton(false);

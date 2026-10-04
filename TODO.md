@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-10-04
-> 当前任务：T021 喜欢歌曲与收藏专辑（待开始）
+> 当前任务：T022 歌单创建、编辑、曲目管理与分享（待开始）
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,13 +123,13 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：T020 已完成，下一任务为 T021 喜欢歌曲与收藏专辑（待开始）
-- 状态：T020 已完成验收。Legacy `4.32.0` 手动 Probe 已通过新的专用账号会话重新验证 QR `801/802/803`、`login_status`、`user_account`、个人日推、用户歌单和上游登出；个人日推字段存在且有 33 项，用户歌单有 6 项。`like`、评论创建/删除、临时歌单创建/加歌/移除/删除和专辑收藏添加/取消均已在独立会话完成回滚。收藏歌单添加在新的独立会话中仍为 HTTP 405 / business code 405，Probe 在失败点停止并正常登出，记录为 `MUTATION_WRITE_FAILED` / `BLOCKED`。Probe 的实时输出仍只包含脱敏状态码、业务码、字段存在性和数量；T020 不接入页面、BFF 或真实产品写接口。
-- 修改目标：验证 QR `802/803`、登录态恢复和个人日推；为喜欢、评论、歌单和收藏建立受显式写入开关保护的独立 Probe 路径，并只把实测通过的端点升级契约等级。
-- 允许修改：`scripts/` 手动 Probe、脱敏报告模板、`docs/research/NETEASE_API_CONTRACT.md`、`docs/research/TECHNICAL_ARCHITECTURE.md`、`tests/contract/**` 和本执行卡。
-- 不允许修改：不修改页面、BFF、播放器、Session 数据结构或真实写接口实现；不安装或启用 Enhanced；不修改 `.env*`、CI/CD、部署或数据库；不保存二维码截图、Cookie、昵称、评论正文、歌单名或音源 URL；不把实时网络 Probe 加入默认测试。
-- 不允许破坏：唯一 Audio、现有队列和播放时间源、Real/Demo 语义、登录/Session、既有 BFF/API 归一化边界、播放器可访问性、有限画廊和已通过路由。
-- 验收标准：手动脚本默认只运行登录态只读 Probe，输出仅包含端点、HTTP 状态、业务码、字段存在性与数量；写入路径必须同时要求显式命令开关和本轮外部写入授权；离线测试证明敏感值不会出现在报告或退出错误中；成功路径结束时销毁临时 Session 并调用上游登出；每个端点独立报告验证等级；专项 tests、`npm run check`、敏感信息扫描和 `git diff --check` 全部通过。页面状态测试不适用。
+- 当前任务：T022 歌单创建、编辑、曲目管理与分享（待开始）
+- 状态：T021 已完成验收。收藏歌单上游添加仍为 HTTP 405 / business code 405，保持 `MUTATION_WRITE_FAILED` / `BLOCKED`。
+- 修改目标：实现歌单创建、编辑、删除、曲目增删、公开状态和本站分享链接；当前轮尚未开始编码。
+- 允许修改：T022 规格、歌单页面与对应 BFF/Provider、Dialog/Menu 和测试；开始前需重新读取控制文档并确认精确文件范围。
+- 不允许修改：收藏歌单 405 未重新验证前不得接入；不修改 `.env*`、CI/CD、数据库、部署或真实外部数据；不自动重试写请求。
+- 不允许破坏：T021 喜欢/专辑收藏、唯一 Audio、现有队列和播放时间源、Real/Demo 语义、登录/Session 边界、既有 BFF/API 归一化边界和已通过路由。
+- 验收标准：T022 规格先行；覆盖读取与写入的 loading/empty/error/权限/重复提交/确认/回退状态，专项 tests、`npm.cmd run test`、`npm.cmd run check`、敏感扫描和 `git diff --check` 全部通过后再决定是否收口。
 
 ### T017A 归档执行卡
 - 状态：T017A 已完成验收；下一任务为 T017，尚未开始。
@@ -525,7 +525,7 @@
 
   完成记录：T020 的脚本、脱敏规则和 15 项离线安全测试完成。2026-10-04 新的专用账号 Probe 重新通过 QR `801/802/803`、登录态、账号信息、个人日推、用户歌单和登出；专辑收藏也完成 HTTP 200 / business code 200 的添加与取消回滚。喜欢、评论和临时歌单路径再次完成同会话回滚。收藏歌单添加连续会话仍返回 HTTP 405 / business code 405，未执行取消请求并正常登出。固定 Provider 证据已写回 API/Architecture 文档；产品写入层按 T021-T023 单独实现。
 
-- [ ] **T021 喜欢歌曲与收藏专辑**
+- [x] **T021 喜欢歌曲与收藏专辑**
 
   目标：实现喜欢/取消喜欢、收藏/取消收藏专辑，以及未登录时打开 QR；成功后 Profile/Library/当前歌曲状态一致。
 
@@ -536,6 +536,16 @@
   页面测试：未登录、提交中、成功、取消、重复点击、401、验证错误、上游错误、网络超时、跨页面一致性。
 
   验收：写入幂等/防重复策略清楚；错误就地显示；Demo/Real 分别验收；专项 tests 与 `npm run check` 通过。
+
+  完成记录：新增 `LibraryWrite` 规格、Legacy 4.32.0 的 `like`/`likelist` 与
+  `album_sub`/`album_sublist` 归一化 Provider、同源 likes/albums BFF Route Handler、
+  Session 内 `clientMutationId` 幂等记录和显式 Demo 会话状态。歌曲页、专辑页、预览、
+  音乐库和当前用户 Profile 共用 `LibraryMutationProvider`；写入确认前保持原状态，
+  重复点击只发一次，401/Session 失效打开 QR，失败就地显示并可重试。收藏歌单 HTTP 405
+  仍保持阻塞，未接入 T021。unit 82、component 87、contract 83、应用 E2E 47、
+  Foundation visual E2E 2 全部通过；`npm.cmd run lint` 0 errors/1 个既有 `QrLoginDialog.tsx`
+  原生 `<img>` warning，`npm.cmd run typecheck`、`npm.cmd run build`、`npm.cmd run test:e2e`
+  和 `git diff --check` 通过。未运行 Live Probe；未修改 `.env*`、Cookie、Token 或真实账号数据。
 
 - [ ] **T022 歌单创建、编辑、曲目管理与分享**
 

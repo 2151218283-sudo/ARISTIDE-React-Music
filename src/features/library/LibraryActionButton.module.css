@@ -1,0 +1,19 @@
+.container {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.error {
+  color: var(--ef-color-danger, #a33a32);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  max-width: 13rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container {
+    transition: none;
+  }
+}

@@ -1,6 +1,7 @@
 import type {
   AudioQuality,
   AlbumDetail,
+  AlbumSummary,
   ArtistDetail,
   CatalogPage,
   ChangePlaylistTracksInput,
@@ -33,6 +34,15 @@ export interface MusicProvider {
     page: PageQuery,
     sessionId?: string,
   ): Promise<UserPlaylistCollection>;
+  getLikedTracks(
+    userId: string,
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<CatalogPage<Track>>;
+  getSavedAlbums(
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<CatalogPage<AlbumSummary>>;
 
   getDailyRecommendations(sessionId: string): Promise<Track[]>;
   search(query: SearchQuery, sessionId?: string): Promise<SearchResponse>;
@@ -59,6 +69,11 @@ export interface MusicProvider {
   setTrackLiked(
     trackId: string,
     liked: boolean,
+    sessionId: string,
+  ): Promise<void>;
+  setAlbumCollected(
+    albumId: string,
+    collected: boolean,
     sessionId: string,
   ): Promise<void>;
   createPlaylist(

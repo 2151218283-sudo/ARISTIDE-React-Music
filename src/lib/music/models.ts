@@ -193,6 +193,14 @@ export interface CommentPage extends PageQuery {
   hasMore: boolean;
 }
 
+export type LibraryMutationKind = "track-like" | "album-collection";
+
+export interface LibraryMutationResult {
+  kind: LibraryMutationKind;
+  id: string;
+  active: boolean;
+}
+
 export type SearchKind = "track" | "album" | "artist";
 export type SearchType = SearchKind | "all";
 

@@ -388,6 +388,35 @@ export function mapPlaylistPage(
   };
 }
 
+export function mapSavedAlbumPage(
+  body: UnknownRecord,
+  page: { limit: number; offset: number },
+): CatalogPage<AlbumSummary> {
+  const data = asRecord(body.data);
+  const rows = Array.isArray(body.data)
+    ? body.data
+    : Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(body.albums)
+        ? body.albums
+        : [];
+  const items = mapRows(rows, mapAlbum);
+  const total = nonNegativeNumber(body.count)
+    ?? nonNegativeNumber(data?.count)
+    ?? nonNegativeNumber(body.total);
+  const upstreamHasMore = typeof body.more === "boolean"
+    ? body.more
+    : typeof data?.more === "boolean" ? data.more : null;
+
+  return {
+    items,
+    total,
+    limit: page.limit,
+    offset: page.offset,
+    hasMore: upstreamHasMore ?? hasMore(total, page.offset, items.length, page.limit),
+  };
+}
+
 function playlistOwnerId(value: unknown): string | null {
   const playlist = asRecord(value);
   const creator = playlist ? asRecord(playlist.creator) : null;

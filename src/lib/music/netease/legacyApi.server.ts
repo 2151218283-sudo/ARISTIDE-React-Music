@@ -7,6 +7,8 @@ import type {
 
 const requiredMethods = [
   "album",
+  "album_sub",
+  "album_sublist",
   "artist_album",
   "artist_detail",
   "artist_top_song",
@@ -17,6 +19,8 @@ const requiredMethods = [
   "login_qr_check",
   "login_qr_key",
   "login_status",
+  "like",
+  "likelist",
   "lyric_new",
   "logout",
   "personalized_newsong",

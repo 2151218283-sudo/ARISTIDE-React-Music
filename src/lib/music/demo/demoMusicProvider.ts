@@ -30,6 +30,7 @@ import type {
   UserProfile,
   UserPlaylistCollection,
 } from "../models";
+import { getDemoLibraryState } from "./demoLibraryStore";
 import type { MusicProvider } from "../provider";
 
 export const demoScenarios = [
@@ -271,11 +272,51 @@ export class DemoMusicProvider implements MusicProvider {
     page: PageQuery,
     sessionId?: string,
   ): Promise<UserPlaylistCollection> {
-    void userId;
     void page;
-    void sessionId;
     this.assertReadScenarioAvailable();
-    return { liked: null, created: [], subscribed: [] };
+    const state = getDemoLibraryState(sessionId ?? "anonymous");
+    const likedCount = this.getScenarioTracks()
+      .filter((track) => state.likedTrackIds.has(track.id)).length;
+    return {
+      liked: likedCount > 0 ? {
+        id: `demo-liked-${userId}`,
+        name: "喜欢的音乐",
+        description: null,
+        artworkUrl: this.getScenarioTracks()[0]?.artworkUrl ?? null,
+        owner: null,
+        visibility: "private",
+        trackCount: likedCount,
+        createdAt: null,
+        updatedAt: null,
+      } : null,
+      created: [],
+      subscribed: [],
+    };
+  }
+
+  async getLikedTracks(
+    userId: string,
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<CatalogPage<Track>> {
+    void userId;
+    this.assertReadScenarioAvailable();
+    validatePageQuery(page);
+    const state = getDemoLibraryState(sessionId ?? "anonymous");
+    const tracks = this.getScenarioTracks().filter((track) => state.likedTrackIds.has(track.id));
+    return this.createPage(tracks, page);
+  }
+
+  async getSavedAlbums(
+    page: PageQuery,
+    sessionId?: string,
+  ): Promise<CatalogPage<AlbumSummary>> {
+    this.assertReadScenarioAvailable();
+    validatePageQuery(page);
+    const state = getDemoLibraryState(sessionId ?? "anonymous");
+    const albums = uniqueAlbums(this.getScenarioTracks())
+      .filter((album) => state.collectedAlbumIds.has(album.id));
+    return this.createPage(albums, page);
   }
 
   async getDailyRecommendations(sessionId: string): Promise<Track[]> {
@@ -497,10 +538,35 @@ export class DemoMusicProvider implements MusicProvider {
     liked: boolean,
     sessionId: string,
   ): Promise<void> {
-    void trackId;
-    void liked;
-    void sessionId;
-    throwDemoWriteUnavailable();
+    this.assertReadScenarioAvailable();
+    const track = this.getScenarioTracks().find((item) => item.id === trackId);
+    if (!track) {
+      throw new AppError("TRACK_UNAVAILABLE", "未找到这首演示曲目。", { retryable: false });
+    }
+    const state = getDemoLibraryState(sessionId);
+    if (liked) {
+      state.likedTrackIds.add(trackId);
+    } else {
+      state.likedTrackIds.delete(trackId);
+    }
+  }
+
+  async setAlbumCollected(
+    albumId: string,
+    collected: boolean,
+    sessionId: string,
+  ): Promise<void> {
+    this.assertReadScenarioAvailable();
+    const album = uniqueAlbums(this.getScenarioTracks()).find((item) => item.id === albumId);
+    if (!album) {
+      throw new AppError("TRACK_UNAVAILABLE", "未找到这个演示专辑。", { retryable: false });
+    }
+    const state = getDemoLibraryState(sessionId);
+    if (collected) {
+      state.collectedAlbumIds.add(albumId);
+    } else {
+      state.collectedAlbumIds.delete(albumId);
+    }
   }
 
   async createPlaylist(

@@ -40,6 +40,7 @@ import {
   mapArtistDetail,
   mapNewSongs,
   mapPlaylistPage,
+  mapSavedAlbumPage,
   mapUserPlaylistCollection,
   mapUserProfile,
   unwrapLegacyBody,
@@ -339,6 +340,63 @@ export class LegacyNeteaseAdapter {
     return mapUserPlaylistCollection(unwrapLegacyBody(response), id);
   }
 
+  async getLikedTracks(
+    userId: string,
+    page: PageQuery,
+    cookie?: string,
+  ): Promise<CatalogPage<Track>> {
+    const id = validateUserId(userId);
+    validatePage(page, 50);
+    const likedResponse = await this.invoke(this.api.likelist, withCookie({
+      uid: id,
+    }, cookie));
+    const likedBody = unwrapLegacyBody(likedResponse);
+    const rawIds = Array.isArray(likedBody.ids) ? likedBody.ids : [];
+    const ids = rawIds.flatMap((value) => {
+      if (typeof value === "string" && /^\d{1,20}$/.test(value)) {
+        return [value];
+      }
+      if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) {
+        return [String(value)];
+      }
+      return [];
+    });
+    const selectedIds = ids.slice(page.offset, page.offset + page.limit);
+    if (selectedIds.length === 0) {
+      return {
+        items: [],
+        total: ids.length,
+        limit: page.limit,
+        offset: page.offset,
+        hasMore: false,
+      };
+    }
+    const detailResponse = await this.invoke(this.api.song_detail, withCookie({
+      ids: selectedIds.join(","),
+    }, cookie));
+    const detailBody = unwrapLegacyBody(detailResponse);
+    const items = mapTracks(detailBody.songs ?? []);
+    return {
+      items,
+      total: ids.length,
+      limit: page.limit,
+      offset: page.offset,
+      hasMore: page.offset + items.length < ids.length,
+    };
+  }
+
+  async getSavedAlbums(
+    page: PageQuery,
+    cookie?: string,
+  ): Promise<CatalogPage<AlbumSummary>> {
+    validatePage(page, 50);
+    const response = await this.invoke(this.api.album_sublist, withCookie({
+      limit: page.limit,
+      offset: page.offset,
+    }, cookie));
+    return mapSavedAlbumPage(unwrapLegacyBody(response), page);
+  }
+
   async getPersonalDailyRecommendations(upstreamCookie: string): Promise<Track[]> {
     if (!upstreamCookie) {
       throw new AppError("AUTH_REQUIRED", "请先完成扫码登录后再查看个人日推。", {
@@ -448,6 +506,40 @@ export class LegacyNeteaseAdapter {
       offset: page.offset,
     }, cookie));
     return mapCommentPage(unwrapLegacyBody(response), page.limit, page.offset);
+  }
+
+  async setTrackLiked(
+    trackId: string,
+    liked: boolean,
+    upstreamCookie: string,
+  ): Promise<void> {
+    const id = validateTrackId(trackId);
+    if (!upstreamCookie) {
+      throw new AppError("AUTH_REQUIRED", "请先完成扫码登录。", { retryable: false });
+    }
+    const response = await this.invoke(this.api.like, {
+      id,
+      like: liked ? 1 : 0,
+      cookie: upstreamCookie,
+    });
+    unwrapLegacyBody(response);
+  }
+
+  async setAlbumCollected(
+    albumId: string,
+    collected: boolean,
+    upstreamCookie: string,
+  ): Promise<void> {
+    const id = validateTrackId(albumId);
+    if (!upstreamCookie) {
+      throw new AppError("AUTH_REQUIRED", "请先完成扫码登录。", { retryable: false });
+    }
+    const response = await this.invoke(this.api.album_sub, {
+      id,
+      t: collected ? 1 : 0,
+      cookie: upstreamCookie,
+    });
+    unwrapLegacyBody(response);
   }
 
   async startQrLogin(): Promise<LegacyQrChallenge> {

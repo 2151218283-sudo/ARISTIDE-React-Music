@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { AppShell } from "@/components/AppShell";
 import { AuthProvider } from "@/features/auth/AuthProvider";
 import { ListeningHistoryRecorder } from "@/features/library/ListeningHistoryRecorder";
+import { LibraryMutationProvider } from "@/features/library/LibraryMutationProvider";
 import { PlayerProvider } from "@/features/player/PlayerProvider";
 
 import "./globals.css";
@@ -33,7 +34,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <PlayerProvider>
           <ListeningHistoryRecorder />
           <AuthProvider>
-            <AppShell>{children}</AppShell>
+            <LibraryMutationProvider>
+              <AppShell>{children}</AppShell>
+            </LibraryMutationProvider>
           </AuthProvider>
         </PlayerProvider>
       </body>

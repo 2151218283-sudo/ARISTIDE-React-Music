@@ -137,6 +137,52 @@
   gap: var(--ef-space-6);
 }
 
+.likedTrackList {
+  display: grid;
+  gap: var(--ef-space-3);
+}
+
+.likedTrackItem {
+  display: flex;
+  align-items: center;
+  gap: var(--ef-space-3);
+}
+
+.likedTrackItem > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.albumGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ef-space-6);
+}
+
+.albumItem {
+  display: grid;
+  min-width: 0;
+  gap: var(--ef-space-2);
+}
+
+.albumItem > a {
+  display: grid;
+  min-width: 0;
+  gap: var(--ef-space-2);
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-semibold) var(--ef-type-body) var(--ef-font-body);
+}
+
+.albumItem > a > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.albumItem > .container {
+  justify-self: start;
+}
+
 .historySkeleton,
 .historyList,
 .playlistSections,
@@ -232,9 +278,14 @@
 
   .collectionSkeleton,
   .playlistGrid,
-  .likedGrid {
+  .likedGrid,
+  .albumGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--ef-space-4);
+  }
+
+  .likedTrackItem {
+    align-items: flex-start;
   }
 
   .historyEntry .historyMeta {

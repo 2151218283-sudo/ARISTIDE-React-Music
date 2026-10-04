@@ -4,7 +4,7 @@
 > 核验日期：2026-10-04
 > 当前主 Provider：`NeteaseCloudMusicApi@4.32.0`
 > 候选替代 Provider：`@neteasecloudmusicapienhanced/api@4.38.0`
-> 登录态写操作：固定 Provider 路径已分项实测；ECHOFORM 产品写入层仍待 T021-T023
+> 登录态写操作：固定 Provider 路径已分项实测；T021 喜欢歌曲与收藏专辑的 ECHOFORM 写入层已接入并通过本地验收；T022-T023 仍待执行
 
 ## 1. 结论
 
@@ -764,8 +764,21 @@ Probe 的已验证评论路径，不覆盖该历史遗留不确定性。
   点停止，不发送取消收藏请求，随后正常登出；该路径保持 `MUTATION_WRITE_FAILED` / `BLOCKED`。
 - 本轮 QR 页面、Cookie、评论正文、歌单名、用户/曲目/专辑/歌单 ID 和原始 Response 均未保存或输出。
 
-这些结果只升级固定 Legacy Provider 的契约等级，不代表 ECHOFORM 的 BFF、Provider 写方法或页面
-已经接入。应用写入功能继续由 T021-T023 独立实现和验收。
+这些结果只升级固定 Legacy Provider 的契约等级。T021 已在此基础上接入
+`like`/`likelist` 与 `album_sub`/`album_sublist` 的 ECHOFORM Provider、同源 BFF、
+Session 内幂等记录和页面共享状态；应用层没有接入收藏歌单 405。评论与歌单写入仍由
+T022-T023 独立实现和验收。
+
+### 11.3 T021 应用写入层（2026-10-04）
+
+T021 的 Real Provider 只调用本节已升级的四条 Legacy 路径。浏览器只访问同源
+`/api/library/likes` 与 `/api/library/albums`，写入 body 只包含
+`clientMutationId`；上游 Cookie 保留在服务端 Session。重复 mutation ID 在同一
+Session 内返回第一次归一化结果，不会再次调用上游；BFF 不自动重试超时或上游失败。
+
+本地 unit、component、contract 和 `npm.cmd run check` 用脱敏夹具覆盖 Demo/Real、
+匿名 QR、401、重复点击、写入失败和跨组件状态；没有把实时账号数据或 Live Probe
+接入默认测试。
 
 ## 12. 契约验收门槛
 

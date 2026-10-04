@@ -38,6 +38,8 @@ function opaqueRuntimeValue(): string {
 function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
   return {
     album: method({ code: 200, album: null, songs: [] }),
+    album_sub: method({ code: 200 }),
+    album_sublist: method({ code: 200, data: [], count: 0 }),
     artist_album: method({ code: 200, hotAlbums: [], total: 0, more: false }),
     artist_detail: method({ code: 200, data: { artist: null } }),
     artist_top_song: method({ code: 200, songs: [] }),
@@ -51,6 +53,8 @@ function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
       data: { unikey: opaqueRuntimeValue() },
     }),
     login_status: method({ data: { code: 200, account: null, profile: null } }),
+    like: method({ code: 200 }),
+    likelist: method({ code: 200, ids: [] }),
     lyric_new: method({ code: 200, lrc: { lyric: "" } }),
     logout: method({ code: 200 }),
     personalized_newsong: method({ code: 200, result: [] }),
@@ -216,6 +220,59 @@ describe("Legacy anonymous reads", () => {
       offset: 0,
       cookie: "server-only-cookie",
     });
+  });
+
+  it("normalizes liked tracks and saved albums through the verified authenticated paths", async () => {
+    const likelist = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      ids: [101, 102],
+    }));
+    const songDetail = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      songs: [syntheticTrack(101)],
+      privileges: [],
+    }));
+    const albumSublist = vi.fn<LegacyApiMethod>(async () => response({
+      code: 200,
+      data: [{
+        id: 301,
+        name: "Synthetic Album",
+        picUrl: "https://example.invalid/album-artwork",
+      }],
+      count: 1,
+      more: false,
+    }));
+    const adapter = new LegacyNeteaseAdapter(makeApi({
+      likelist,
+      song_detail: songDetail,
+      album_sublist: albumSublist,
+    }));
+
+    const liked = await adapter.getLikedTracks("701", { limit: 1, offset: 0 }, "server-cookie");
+    const albums = await adapter.getSavedAlbums({ limit: 50, offset: 0 }, "server-cookie");
+
+    expect(liked).toMatchObject({ items: [{ id: "101" }], total: 2, hasMore: true });
+    expect(albums).toMatchObject({ items: [{ id: "301", name: "Synthetic Album" }], total: 1 });
+    expect(likelist).toHaveBeenCalledWith({ uid: "701", cookie: "server-cookie" });
+    expect(songDetail).toHaveBeenCalledWith({ ids: "101", cookie: "server-cookie" });
+    expect(albumSublist).toHaveBeenCalledWith({ limit: 50, offset: 0, cookie: "server-cookie" });
+    expect(JSON.stringify(liked)).not.toContain("server-cookie");
+  });
+
+  it("maps like and album collection mutations without changing their verified parameters", async () => {
+    const like = vi.fn<LegacyApiMethod>(async () => response({ code: 200 }));
+    const albumSub = vi.fn<LegacyApiMethod>(async () => response({ code: 200 }));
+    const adapter = new LegacyNeteaseAdapter(makeApi({ like, album_sub: albumSub }));
+
+    await adapter.setTrackLiked("101", true, "server-cookie");
+    await adapter.setTrackLiked("101", false, "server-cookie");
+    await adapter.setAlbumCollected("301", true, "server-cookie");
+    await adapter.setAlbumCollected("301", false, "server-cookie");
+
+    expect(like).toHaveBeenNthCalledWith(1, { id: "101", like: 1, cookie: "server-cookie" });
+    expect(like).toHaveBeenNthCalledWith(2, { id: "101", like: 0, cookie: "server-cookie" });
+    expect(albumSub).toHaveBeenNthCalledWith(1, { id: "301", t: 1, cookie: "server-cookie" });
+    expect(albumSub).toHaveBeenNthCalledWith(2, { id: "301", t: 0, cookie: "server-cookie" });
   });
 
   it("normalizes public and authenticated daily recommendation shapes", async () => {

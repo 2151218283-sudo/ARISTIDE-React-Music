@@ -17,6 +17,7 @@ import { StatusView } from "@/components/StatusView";
 import { TextButton } from "@/components/TextButton";
 import { TrackRow } from "@/components/TrackRow";
 import { usePlayerDispatch } from "@/features/player/playerContext";
+import { LibraryActionButton } from "@/features/library/LibraryActionButton";
 import type {
   AlbumDetail,
   AlbumSummary,
@@ -169,7 +170,10 @@ function AlbumHeader({ detail, onPlayAll }: {
         ) : null}
         {publishedAt ? <p className={styles.metadata}>{publishedAt}</p> : null}
         {detail.album.description ? <p className={styles.description}>{detail.album.description}</p> : null}
-        <TextButton onClick={onPlayAll} variant="primary">播放全部</TextButton>
+        <div className={styles.headerActions}>
+          <TextButton onClick={onPlayAll} variant="primary">播放全部</TextButton>
+          <LibraryActionButton entity={detail.album} kind="album" />
+        </div>
       </div>
     </header>
   );
