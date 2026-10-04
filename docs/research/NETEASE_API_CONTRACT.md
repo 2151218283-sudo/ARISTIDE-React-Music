@@ -1,10 +1,10 @@
 # ECHOFORM 网易云 API 契约
 
-> 状态：Primary Baseline + T008 Installed Legacy Adapter + T017A Guest Credential Measured + T017 Catalog SOURCE_VERIFIED + Candidate Provider
-> 核验日期：2026-08-05
+> 状态：Primary Baseline + T008 Installed Legacy Adapter + T017A Guest Credential Measured + T017 Catalog SOURCE_VERIFIED + T020 Auth/Mutation Probe Complete
+> 核验日期：2026-10-04
 > 当前主 Provider：`NeteaseCloudMusicApi@4.32.0`
 > 候选替代 Provider：`@neteasecloudmusicapienhanced/api@4.38.0`
-> 登录态写操作：待专用账号验收，不得标记完成
+> 登录态写操作：固定 Provider 路径已分项实测；ECHOFORM 产品写入层仍待 T021-T023
 
 ## 1. 结论
 
@@ -12,8 +12,9 @@
 `@neteasecloudmusicapienhanced/api@4.38.0` 作为原包失效时的候选替代 Provider。
 两者都不能被视为稳定、有 SLA 的正式服务。原包的二维码、搜索、歌曲详情、歌词、评论
 读取和音源 Response 已通过固定版本源码核验，其中匿名只读路径已实际运行。增强版已完成
-发布包、哈希与核心模块源码核验，但尚未完成相同运行测试。完整扫码成功、个性化日推和
-所有写操作仍需专用测试账号做第二阶段验收。
+发布包、哈希与核心模块源码核验，但尚未完成相同运行测试。T020 已使用专用测试账号完成
+QR 801/802/803、登录态、个人日推、用户歌单、登出，以及喜欢、评论创建/删除、临时歌单、
+曲目增删和专辑收藏的独立写入回滚验证；收藏歌单添加连续返回 HTTP 405，保持阻塞。
 
 ECHOFORM 必须通过 `MusicProvider` 隔离该包。组件不得引用本文件列出的任何上游字段，
 也不得因为根 `code === 200` 就判定音源可播。
@@ -130,18 +131,23 @@ Standalone 构建中无法正确打包，再评估受限 sidecar；该变更必�
   不透明 `challengeId`、二维码图片和白名单 `UserProfile`。
 - 默认测试均为离线脱敏测试：不写入 QR key、二维码正文、Cookie、真实用户资料或原始上游
   Response。802/803 仅覆盖映射与 UI 状态，不能视为登录态实测。
-- 实现不改变第 4 节运行证据：801 保持 `RUNTIME_ANON`；802/803、成功 Cookie、账号验证与
-  上游登出仍为 `PENDING_AUTH`，须使用专用测试账号按第 11 节单独验收。
+- T020 的手动 Probe 已实际记录专用测试账号的 QR `801/802/803`、登录态、账号元数据、个人
+  日推、用户歌单与上游 `logout`（均不输出敏感值）。这些登录态只读路径已具有运行证据；外部
+  写操作仍须在获得精确 scope 和回滚授权后单独验收。
 
 ## 3. 核验等级
 
 | 等级 | 含义 | 能否据此实现 |
 | --- | --- | :---: |
 | `RUNTIME_ANON` | 固定包实际启动并完成匿名只读请求 | 是，但仅限同类匿名路径 |
+| `RUNTIME_AUTH` | 固定包以专用测试账号完成登录态只读请求 | 是，但不代表外部写入成功 |
 | `SOURCE_VERIFIED` | 模块源码、参数和路由存在 | 可以适配，不代表账号或写入成功 |
 | `PENDING_AUTH` | 需要真实登录态，尚未用专用账号实测 | 只能实现保护与模拟，不能完成验收 |
 | `PENDING_ANON_GUEST` | 需要匿名访客注册与匿名音源组合运行探测 | 只能完成 server-only 隔离与离线契约，不能宣称改善可播率 |
-| `MUTATION_NOT_RUN` | 会改变网易云外部状态，刻意未执行 | 不得宣称真实写入可用 |
+| `MUTATION_NOT_RUN` | 会改变网易云外部状态，尚未执行或因先前 scope 停止前未执行 | 不得宣称真实写入可用 |
+| `MUTATION_ROLLED_BACK` | 专用测试账号中的写入及同一进程内回滚均实际成功 | 只证明该 Provider 路径可用，不等同于产品写接口已实现 |
+| `MUTATION_ROLLBACK_UNCONFIRMED` | 写入响应成功，但回滚请求失败或无法确认 | 不得宣称该写入或清理可用；不得在未授权时重试 |
+| `MUTATION_WRITE_FAILED` | 写请求已发出但业务码失败，未取得可回滚目标 | 不得自动重试；不得宣称写入成功 |
 | `BLOCKED` | 已知上游缺陷或无法稳定归一化 | 不得用于 P0 |
 
 验证等级按“Provider + 固定版本 + 路径”分别记录。Legacy 的 `RUNTIME_ANON` 不能继承给
@@ -186,11 +192,11 @@ Enhanced，Enhanced 的源码修复也不能反向证明 Legacy 可用。
 
 ### 4.2 尚未运行的路径
 
-- QR 状态 `802` 和 `803`，以及成功返回 Cookie。
-- 登录后的 `/login/status`、`/user/account` 和 `/user/detail`。
-- 登录账号的真实个人 `/recommend/songs`。
+- 登录后的 `/user/detail`。
 - VIP、地区限制和不同音质账户的音源结果。
-- 评论发布/回复、喜欢、创建歌单、添加歌曲、收藏歌单等外部写操作。
+- 登录态评论回复和评论点赞等尚未执行的外部写操作。
+- 收藏歌单添加已在多个独立会话中返回 HTTP 405 / business code 405，作为上游阻塞保留；不能据此宣称收藏歌单可用。
+- 固定 Provider 的成功写入证据不等同于 ECHOFORM 产品写接口已经实现。
 
 这些项目必须使用专用测试账号，不使用个人主账号，并在执行前明确写入范围与回滚方式。
 
@@ -268,8 +274,10 @@ Legacy Adapter 可在服务启动时读取可选 `NETEASE_UPSTREAM_PROXY`。
 - 该传输代理不转发音频正文，不修改 `song_url_v1` 参数，不改变版权、VIP、地区和账号权限
   语义，也不等同于本节之后禁止的上游 `proxyUrl` 音源响应。
 
-运行验收仅记录“QR key 可创建”；802/803、真实账户资料和任何写操作仍为 `PENDING_AUTH`，
-不得据此标记为已实测。
+运行验收已记录 QR `801/802/803`、登录态读取、账号元数据、个人日推、用户歌单和上游登出；
+`like` 添加及取消、评论创建及删除、临时歌单创建/加歌/移除/删除、专辑收藏添加及取消均已在
+独立专用账号会话中实测并回滚。收藏歌单添加在独立会话中仍返回 HTTP 405 / business code 405；
+`user_detail`、受限音源结果、评论回复和评论点赞仍未实测，不得据此标记为已验证。
 
 ### 4.6 增强版禁止能力
 
@@ -294,9 +302,10 @@ ECHOFORM 不使用增强版的解灰、第三方音源匹配或代理 URL：
 | --- | --- | --- | --- |
 | 创建 QR key | `login_qr_key` / `/login/qr/key` | `timestamp` | `RUNTIME_ANON` |
 | 生成 QR | `login_qr_create` / `/login/qr/create` | `key`, `qrimg=true` | `RUNTIME_ANON` |
-| 查询 QR | `login_qr_check` / `/login/qr/check` | `key`, `timestamp` | 801 已实测；802/803 `PENDING_AUTH` |
-| 登录状态 | `login_status` / `/login/status` | `cookie`, `timestamp` | 匿名已实测；登录态 `PENDING_AUTH` |
-| 账号信息 | `user_account` / `/user/account` | `cookie` | `SOURCE_VERIFIED` |
+| 查询 QR | `login_qr_check` / `/login/qr/check` | `key`, `timestamp` | `RUNTIME_AUTH`：`801/802/803` 均已在专用测试会话实测 |
+| 登录状态 | `login_status` / `/login/status` | `cookie`, `timestamp` | `RUNTIME_AUTH`：内层 `data.code=200`、`data.account/profile` 存在 |
+| 账号信息 | `user_account` / `/user/account` | `cookie` | `RUNTIME_AUTH`：根层 `account/profile` 存在 |
+| 上游登出 | `logout` / `/logout` | `cookie`, `timestamp` | `RUNTIME_AUTH` |
 | 用户详情 | `user_detail` / `/user/detail` | `uid`, `cookie?` | `SOURCE_VERIFIED` |
 
 QR 状态定义来自固定发布包文档：
@@ -318,12 +327,12 @@ type UpstreamQrCode = 800 | 801 | 802 | 803;
 
 | 能力 | 上游函数 / 路由 | 关键参数 | 验证等级 |
 | --- | --- | --- | --- |
-| 个人日推 | `recommend_songs` / `/recommend/songs` | `cookie` | 匿名 `RUNTIME_ANON`；个人 `PENDING_AUTH` |
+| 个人日推 | `recommend_songs` / `/recommend/songs` | `cookie` | 匿名 `RUNTIME_ANON`；个人 `RUNTIME_AUTH`：`data.dailySongs` 非空 |
 | 搜索歌曲 | `search` / `/search` | `keywords`, `type=1`, `limit`, `offset` | `RUNTIME_ANON` |
 | 搜索专辑 | `search` / `/search` | `type=10` | `SOURCE_VERIFIED` |
 | 搜索歌手 | `search` / `/search` | `type=100` | `SOURCE_VERIFIED` |
 | 歌曲详情 | `song_detail` / `/song/detail` | `ids` | `RUNTIME_ANON` |
-| 用户歌单 | `user_playlist` / `/user/playlist` | `uid`, `limit`, `offset` | `SOURCE_VERIFIED` |
+| 用户歌单 | `user_playlist` / `/user/playlist` | `uid`, `limit`, `offset` | `RUNTIME_AUTH`：`playlist` 非空 |
 
 `keywords` 去除首尾空白后长度为 1 至 100；`limit` 最大 30；`offset` 最小 0。搜索
 类型只能由 ECHOFORM 枚举映射，禁止把客户端任意数字直接传给上游。
@@ -356,12 +365,13 @@ type AudioQuality =
 | 能力 | 上游函数 / 路由 | 参数 | 验证等级 |
 | --- | --- | --- | --- |
 | 读取歌曲评论 | `comment_music` / `/comment/music` | `id`, `limit`, `offset`, `before?` | `RUNTIME_ANON` |
-| 发布评论 | `comment` / `/comment` | `t=1`, `type=0`, `id`, `content`, `cookie` | `MUTATION_NOT_RUN` |
+| 发布评论 | `comment` / `/comment` | `t=1`, `type=0`, `id`, `content`, `cookie` | `MUTATION_ROLLED_BACK`：创建及删除均 HTTP 200 / code 200 |
 | 回复评论 | `comment` / `/comment` | `t=2`, `type=0`, `id`, `commentId`, `content`, `cookie` | `MUTATION_NOT_RUN` |
-| 喜欢/取消喜欢 | `like` / `/like` | `id`, `like`, `cookie` | `MUTATION_NOT_RUN` |
-| 创建歌单 | `playlist_create` / `/playlist/create` | `name`, `privacy`, `type`, `cookie` | `MUTATION_NOT_RUN` |
-| 添加/移除歌曲 | `playlist_tracks` / `/playlist/tracks` | `op`, `pid`, `tracks`, `cookie` | `MUTATION_NOT_RUN` |
-| 收藏/取消歌单 | `playlist_subscribe` / `/playlist/subscribe` | `id`, `t`, `cookie` | `MUTATION_NOT_RUN` |
+| 喜欢/取消喜欢 | `like` / `/like` | `id`, `like`, `cookie` | `MUTATION_ROLLED_BACK`：添加与取消均 HTTP 200 / code 200 |
+| 创建歌单 | `playlist_create` / `/playlist/create` | `name`, `privacy`, `type`, `cookie` | `MUTATION_ROLLED_BACK`：创建和删除均 HTTP 200 / code 200 |
+| 添加/移除歌曲 | `playlist_tracks` / `/playlist/tracks` | `op`, `pid`, `tracks`, `cookie` | `MUTATION_ROLLED_BACK`：两项均 HTTP 200 / 嵌套 code 200，临时歌单已删除 |
+| 收藏/取消歌单 | `playlist_subscribe` / `/playlist/subscribe` | `id`, `t`, `cookie` | `MUTATION_WRITE_FAILED`：添加 HTTP 405 / code 405，未取得回滚目标 |
+| 收藏/取消专辑 | `album_sub` / `/album/sub` | `id`, `t`, `cookie` | `MUTATION_ROLLED_BACK`：添加与取消均 HTTP 200 / code 200 |
 
 评论正文 1 至 1000 字符；歌单名 1 至 40 字符。最终限制以登录态实测为准。写操作只接收
 JSON `POST`/`PUT`/`DELETE`，不得将评论或歌单名称放在 Query String。所有写操作禁止
@@ -684,7 +694,7 @@ BFF 在单个 Session 内短期记录 `clientMutationId`，重复提交返回第
 5. `login_qr_check` 和 `playlist_tracks` 存在源码级异常/形状风险，必须由 Adapter 隔离。
 6. CDN CORS 只验证了一个 mp3 样本；Web Audio 可视化必须准备
    `corsMode: unavailable` 降级。
-7. 外部写操作没有执行验证，当前不能承诺评论、收藏和歌单管理真实可用。
+7. 喜欢/取消喜欢、评论发布/删除、创建/删除歌单、歌单曲目和专辑收藏已完成专用账号写入与回滚验证；收藏歌单添加连续遭上游 HTTP 405 / code 405 拒绝，当前不能承诺该上游能力真实可用。
 8. Enhanced 虽然持续维护，但其新增 `xeapi`、解灰依赖和写接口加密方式会产生新的兼容与
    合规风险，不能把“版本更新”理解成无条件更稳定。
 9. GitHub 标签可能先于 npm 发布；实现只能锁定已验证的发布物，不跟随 `main` 或未发布
@@ -692,16 +702,70 @@ BFF 在单个 Session 内短期记录 `clientMutationId`，重复提交返回第
 
 ## 11. 第二阶段登录态验收脚本要求
 
-脚本尚未创建；实现时必须满足：
+手动脚本为 `scripts/netease-auth-contract-probe.mjs`。它是独立 server-only 工具，不会被
+应用代码、默认测试、CI 或浏览器调用。它默认只执行登录态只读验证；必须显式传入 `--live`
+才会访问上游。
 
-- 只在手动命令中运行，不进默认 CI。
+扫码阶段由终端启动一个临时的 loopback QR 页面。二维码只在该进程内存和本机回环响应中存在，
+进程结束立即关闭页面，不保存二维码截图或正文。标准输出最终只输出下列脱敏字段：端点、HTTP
+状态、业务码、字段存在性和数组数量；标准错误流只显示固定的执行阶段。两者均不输出 Cookie、
+QR key、二维码正文、昵称、头像 URL、歌曲 URL、评论正文、歌单名、用户 ID 或原始上游 Response。
+
+写入功能默认关闭。只有命令同时带有 `--writes`、`--confirm-external-writes`、明确的
+`--write-scope` 和对应公开测试 ID，或在已完成只读预检后带有受同等约束的
+`--auto-select-candidates` 时，才会尝试外部写入；该命令行开关不能替代本任务内的用户书面授权。
+每个写入 scope 均先检查测试账号的现有状态，只测试可恢复的空关系；评论、
+临时歌单、歌单曲目、喜欢和收藏在同一次进程中立即回滚。若无法确认回滚目标或回滚失败，脚本
+停止并将该项保持为未验证，不能升级契约等级。
+
 - 使用专用测试账号，并在终端交互扫码，不保存二维码截图。
 - Legacy 与 Enhanced 分别运行并分别报告，禁止合并成一个“Real Provider 通过”。
-- 输出只包含端点、HTTP 状态、业务码、字段存在性和数量。
-- 测试评论使用唯一前缀，验收后通过同一接口删除。
-- 测试歌单使用唯一名称，验收结束后删除；删除属于外部写入，执行前再次确认范围。
-- 不打印 Cookie、用户昵称、头像 URL、歌曲 URL、评论正文或歌单名称。
-- 结束时销毁本地 Session 并调用上游登出。
+- 测试评论使用内存中的唯一前缀，验收后通过同一接口删除。
+- 测试歌单使用内存中的唯一名称，验收结束后删除；删除属于外部写入，执行前再次确认范围。
+- 结束时清除进程内上游 Cookie，并调用上游登出。
+
+### 11.1 T020 应用级会话实测（2026-08-06）
+
+在专用测试会话中，ECHOFORM 本地网页登录层已完成一次实际扫码确认。可观察结果为：账户入口
+从登录按钮切换为用户头像，首页从公开精选切换为带非零曲目的“个人每日推荐”；随后通过账户
+菜单退出，页面恢复访客态和公开精选。该流程证明了应用的 QR 授权、服务端会话绑定、个人日推
+接线和登出清理能够协同运行。
+
+这不是逐端点 Provider Contract Probe 的替代品：后续手动 Probe 已从宿主运行时取得 QR
+`801/802/803`、`login_status`、`user_account`、`recommend_songs`、`user_playlist` 与 `logout`
+的完整脱敏状态报告。所有上述登录态只读端点均为 HTTP 200 / business code 200，所需字段存在；
+仅未测试的 `user_detail`、受限音源和其余写操作继续保持原验证等级；`like`、评论发布、临时歌单及歌单曲目已完成同会话回滚，收藏歌单添加已记录为业务失败。
+
+二维码轮询在 `801/802` 阶段也可能返回非空的传输 Cookie。认证结论只由 `803` 及其后的
+`login_status`、`user_account` 等登录态读取成功共同确定，不能只依据 Cookie 字段存在性判断。
+
+本次恢复网络后的授权写入 Probe 完成 `comment` 创建及删除（均 HTTP 200 / business code 200），并确认临时评论已按本次进程定位后删除。临时歌单名缩短至 30 字符并重新验收后，`playlist_create`、`playlist_tracks:add`、`playlist_tracks:remove` 与 `playlist_delete` 均为 HTTP 200 / code 200；曲目接口的成功码从固定包额外嵌套的 Response 中脱敏读取。随后 `playlist_subscribe:add` 返回 HTTP 405 / business code 405；没有获得回滚目标，脚本立即停止，未执行 `album`。在新的独立登录会话中重试 `collection` 仍得到 HTTP 405 / business code 405，因此不再自动重试。歌单创建值、评论正文和实体 ID 从未输出或保存；Session 随后正常登出。
+
+第二次评论删除不能追溯确认第一次 Probe 中删除返回 404 的临时评论：该次评论 ID 与正文均未持久化，
+因此不能确认其是否仍在上游，也不能在未获专门清理授权时定向处理。`MUTATION_ROLLED_BACK` 仅描述第二次
+Probe 的已验证评论路径，不覆盖该历史遗留不确定性。
+
+### 11.2 T020 renewed dedicated-account Probe（2026-10-04）
+
+本轮重新启动 Legacy `4.32.0` 手动 Probe，未保存实时结果文件。只读会话均在退出前调用上游
+`logout`，标准输出只保留脱敏端点、HTTP 状态、business code、字段存在性和数量。
+
+- 新的只读会话实测 `login_qr_key`、`login_qr_create`、QR `801/802/803`、`login_status`、
+  `user_account`、`recommend_songs`、`user_playlist` 和 `logout`。个人日推 `data.dailySongs`
+  为 33 项，用户歌单 `playlist` 为 6 项。
+- 只读候选预检实测喜欢列表、收藏专辑列表和公开热门歌单；喜欢列表数量为 324/325（不同会话），
+  收藏专辑列表为 0，公开热门歌单为 50。数量只用于候选判断，不作为写入回滚的全局等价性证明。
+- 独立专用账号会话中，`album_sub:add` 与 `album_sub:remove` 均为 HTTP 200 / business code 200，
+  专辑收藏升级为 `MUTATION_ROLLED_BACK`。
+- 独立专用账号会话中，`like:add`、`like:remove`、`comment:add`、评论可见性轮询、
+  `comment:delete`、`playlist_create`、`playlist_tracks:add`、`playlist_tracks:remove` 和
+  `playlist_delete` 均为 HTTP 200 / business code 200，并在同一进程内完成回滚。
+- 独立专用账号会话中，`playlist_subscribe:add` 仍为 HTTP 405 / business code 405。Probe 在失败
+  点停止，不发送取消收藏请求，随后正常登出；该路径保持 `MUTATION_WRITE_FAILED` / `BLOCKED`。
+- 本轮 QR 页面、Cookie、评论正文、歌单名、用户/曲目/专辑/歌单 ID 和原始 Response 均未保存或输出。
+
+这些结果只升级固定 Legacy Provider 的契约等级，不代表 ECHOFORM 的 BFF、Provider 写方法或页面
+已经接入。应用写入功能继续由 T021-T023 独立实现和验收。
 
 ## 12. 契约验收门槛
 

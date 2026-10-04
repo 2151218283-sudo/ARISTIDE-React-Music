@@ -449,6 +449,17 @@ Demo Mode 是答辩容灾，不是 Real Provider 的自动降级：
 - Testing Library：登录、搜索、播放器和错误状态组件测试。
 - Contract fixtures：固定、脱敏的上游 Response 夹具，验证归一化模型。
 - Live contract probe：显式手动命令，只做匿名读取；登录态和写操作使用专用测试账号。
+- T020 登录态 Contract Probe：`scripts/netease-auth-contract-probe.mjs` 仅在显式
+  `--live` 下运行，使用内存态 QR 与 Cookie，并通过临时 loopback 页面供测试账号扫码。
+  结果只在终端以端点、状态码、字段存在性和数量形式显示，不写入 fixture、日志、浏览器
+  存储或仓库。2026-10-04 已重新通过专用账号实测 QR 801/802/803、登录态、账号元数据、个人
+  日推、用户歌单和上游登出；`like`、评论、临时歌单、歌单曲目和专辑收藏均已在独立会话成功
+  回滚。收藏歌单添加在新的独立会话中仍返回 HTTP 405 / business code 405，Probe 按无自动重试
+  规则停止；固定包失败时的原始标准输出已在 Probe 边界抑制。详情记录见 API 契约。写入 scope
+  始终要求脚本开关与当轮用户授权，且必须在同一进程完成回滚和登出。
+
+  架构路由表中的写接口是 T021-T023 的目标接口，不表示当前源码已经提供这些 Route Handler；
+  T020 只升级固定 Provider 的契约等级，不接入页面、BFF 或产品写入行为。
 - Playwright：QR 状态模拟、持久播放、路由切换、滚轮退出、搜索和响应式关键路径。
 
 性能任务额外使用可替换时钟/帧调度与计数器证明可见 `ambient` 只做轻量 GPU 时间更新、hidden/Reduced Motion 不续帧、Pointer 静止不 raycast、完整缩略纹理受并发上限加载并完整释放；浏览器在固定本地生产构建和固定夹具下记录帧数与 React 更新时间边界。开发服务器的 HMR 和机器瞬时负载只作诊断，不作为绝对性能门槛。
