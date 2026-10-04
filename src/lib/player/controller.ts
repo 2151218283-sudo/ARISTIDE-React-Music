@@ -120,7 +120,7 @@ export function createPlayerController(
   let playIntentRevision = 0;
   const automaticSkipVisited = new Set<string>();
   const listeners = new Set<(next: PlayerSnapshot) => void>();
-  const now = options.now ?? Date.now;
+  const now = options.now ?? (() => Date.now());
 
   const publish = (next: PlayerSnapshot): void => {
     if (next === snapshot) {
@@ -305,6 +305,16 @@ export function createPlayerController(
       return;
     }
 
+    if (event.type === "SLEEP_TIMER_FIRED") {
+      if (snapshot.sleepTimer?.kind !== "after-duration"
+        || snapshot.sleepTimer.firesAt > now()) {
+        return;
+      }
+      playIntentRevision += 1;
+      playRequestRevision = null;
+      options.requestPause?.();
+    }
+
     if (event.type === "MEDIA_ERROR") {
       if ((event.mediaCode === 4 || event.mediaCode === null)
         && snapshot.sourceRefreshCount < 1) {
@@ -353,11 +363,6 @@ export function createPlayerController(
       }
     }
 
-    if (event.type === "SLEEP_TIMER_FIRED") {
-      playIntentRevision += 1;
-      playRequestRevision = null;
-      options.requestPause?.();
-    }
   };
 
   const dispatchCommand = (command: PlayerCommand): void => {

@@ -168,11 +168,21 @@ function loadQueueIndex(
     return enterEnded(snapshot);
   }
 
-  return beginTrackLoad(
+  const next = beginTrackLoad(
     { ...snapshot, ...overrides },
     item.track,
     { currentIndex: index, autoplay, origin },
   );
+  return clearReplacedTrackTimer(snapshot, next);
+}
+
+function clearReplacedTrackTimer(before: PlayerSnapshot, after: PlayerSnapshot): PlayerSnapshot {
+  const previousItem = currentQueueItemId(before.queue, before.currentIndex);
+  const nextItem = currentQueueItemId(after.queue, after.currentIndex);
+  return before.sleepTimer?.kind === "end-of-track"
+    && (previousItem !== nextItem || before.currentTrack?.id !== after.currentTrack?.id)
+    ? { ...after, sleepTimer: null, sleepFadeGain: 1 }
+    : after;
 }
 
 function moveNext(
@@ -302,13 +312,13 @@ function setQueue(
     origin: "user",
   });
 
-  return {
+  return clearReplacedTrackTimer(snapshot, {
     ...next,
     shuffleBag: snapshot.mode === "shuffle"
       ? createShuffleBag(queue, queue[index].queueItemId, random)
       : [],
     playbackHistory: [],
-  };
+  });
 }
 
 function removeFromQueue(snapshot: PlayerSnapshot, queueItemId: string): PlayerSnapshot {
@@ -345,11 +355,13 @@ function removeFromQueue(snapshot: PlayerSnapshot, queueItemId: string): PlayerS
       ...enterEnded(snapshot),
       queue,
       currentIndex: -1,
+      sleepTimer: snapshot.sleepTimer?.kind === "end-of-track" ? null : snapshot.sleepTimer,
+      sleepFadeGain: 1,
       ...references,
     };
   }
 
-  return beginTrackLoad(
+  return clearReplacedTrackTimer(snapshot, beginTrackLoad(
     { ...snapshot, queue, ...references },
     queue[removedIndex].track,
     {
@@ -358,7 +370,7 @@ function removeFromQueue(snapshot: PlayerSnapshot, queueItemId: string): PlayerS
       autoplay: snapshot.desiredPlayback === "playing",
       origin: "automatic",
     },
-  );
+  ));
 }
 
 function handleEnded(snapshot: PlayerSnapshot): PlayerSnapshot {
@@ -427,6 +439,8 @@ function reduceCommand(
           ? createShuffleBag(queue, currentQueueItemId(queue, currentIndex), random)
           : [],
         playbackHistory: [],
+        sleepTimer: snapshot.sleepTimer?.kind === "end-of-track" ? null : next.sleepTimer,
+        sleepFadeGain: snapshot.sleepTimer?.kind === "end-of-track" ? 1 : next.sleepFadeGain,
       };
     }
     case "PLAY":
@@ -621,9 +635,14 @@ function reduceEvent(snapshot: PlayerSnapshot, event: PlayerEvent): PlayerSnapsh
         snapshot,
         playerError("UNKNOWN_MEDIA_ERROR", "音频未能开始播放。", { retryable: true }),
       );
-    case "SLEEP_TIMER_TICK":
-      return { ...snapshot, sleepFadeGain: sleepFadeGain(snapshot, event.now) };
+    case "SLEEP_TIMER_TICK": {
+      const gain = sleepFadeGain(snapshot, event.now);
+      return gain === snapshot.sleepFadeGain ? snapshot : { ...snapshot, sleepFadeGain: gain };
+    }
     case "SLEEP_TIMER_FIRED":
+      if (!snapshot.sleepTimer || snapshot.sleepTimer.kind !== "after-duration") {
+        return snapshot;
+      }
       return {
         ...snapshot,
         playbackStatus: snapshot.currentTrack ? "paused" : "idle",

@@ -11,6 +11,7 @@ import {
 
 import { IconButton } from "@/components/IconButton";
 import { TextButton } from "@/components/TextButton";
+import { useReducedMotion } from "@/features/settings/useReducedMotion";
 import type { UserProfile } from "@/lib/music/models";
 
 import styles from "./QrLoginDialog.module.css";
@@ -112,6 +113,7 @@ export function QrLoginDialog({
   open,
   triggerRef,
 }: QrLoginDialogProps) {
+  const reducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<QrPhase>("starting");
   const [challenge, setChallenge] = useState<ActiveChallenge | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -208,8 +210,6 @@ export function QrLoginDialog({
         setChallenge(null);
         setPhase("authorized");
         onAuthorized(status.user);
-        const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")
-          .matches ?? false;
         successTimeoutRef.current = setTimeout(
           closeDialog,
           reducedMotion ? 180 : 320,
@@ -234,7 +234,7 @@ export function QrLoginDialog({
         abortRef.current = null;
       }
     }
-  }, [abortPendingRequest, closeDialog, expireChallenge, onAuthorized]);
+  }, [abortPendingRequest, closeDialog, expireChallenge, onAuthorized, reducedMotion]);
 
   useEffect(() => {
     if (!open) {

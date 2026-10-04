@@ -15,6 +15,7 @@ import { AlbumArtwork } from "@/components/AlbumArtwork";
 import { IconButton } from "@/components/IconButton";
 import { Skeleton } from "@/components/Skeleton";
 import type { Track } from "@/lib/music/models";
+import { useReducedMotion } from "@/features/settings/useReducedMotion";
 import { FilmstripScene } from "@/lib/webgl/filmstripScene";
 
 import styles from "./FilmstripGallery.module.css";
@@ -59,6 +60,7 @@ export const FilmstripGallery = forwardRef<
   const hudCanvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<FilmstripScene | null>(null);
   const [renderer, setRenderer] = useState<FilmstripRenderer>("canvas");
+  const reducedMotion = useReducedMotion();
   const [failedArtworkTrackIds, setFailedArtworkTrackIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -136,6 +138,10 @@ export const FilmstripGallery = forwardRef<
   useEffect(() => {
     sceneRef.current?.setInteractive(isInteractive);
   }, [isInteractive, tracks]);
+
+  useEffect(() => {
+    sceneRef.current?.setReducedMotion(reducedMotion);
+  }, [reducedMotion, tracks]);
 
   useEffect(() => {
     sceneRef.current?.setOnCurrentTrackChange(onCurrentTrackChange);

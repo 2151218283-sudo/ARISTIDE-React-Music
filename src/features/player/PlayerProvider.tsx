@@ -15,6 +15,8 @@ import {
   type PlayerSnapshot,
   type PlayerSourceResolver,
 } from "@/lib/player";
+import { defaultSettings } from "@/features/settings/settingsModel";
+import { useOptionalSettings } from "@/features/settings/SettingsProvider";
 
 import { PersistentAudioHost } from "./PersistentAudioHost";
 import { PersistentPlayerBar } from "./PersistentPlayerBar";
@@ -158,16 +160,90 @@ export function PlayerProvider({
   children,
   sourceResolver = resolvePlaybackSource,
 }: PlayerProviderProps) {
+  const settings = useOptionalSettings();
+  const hydrated = settings?.hydrated ?? true;
+  const preferences = settings?.preferences ?? defaultSettings;
+  const setPreference = settings?.setPreference;
+  const getPreferences = settings?.getPreferences;
   const audioRef = useRef<HTMLAudioElement>(null);
   const cleanupGenerationRef = useRef(0);
   const [audioOutput] = useState(() => new AudioOutputBridge());
 
   const [controller] = useState(() => createPlayerController({
-    resolveSource: sourceResolver,
+    resolveSource: (track, context) => sourceResolver === resolvePlaybackSource
+      ? resolvePlaybackSource(track, context, getPreferences?.().quality ?? "standard")
+      : sourceResolver(track, context),
     requestPause: () => audioOutput.pause(),
     requestPlay: () => audioOutput.play(),
   }));
   const [subscriptionStore] = useState(() => new PlayerSubscriptionStore(controller));
+
+  useEffect(() => {
+    if (!hydrated) return;
+    if (controller.getSnapshot().mode !== preferences.mode) {
+      controller.dispatch({ type: "SET_MODE", mode: preferences.mode });
+    }
+    if (controller.getSnapshot().volume !== preferences.volume) {
+      controller.dispatch({ type: "SET_VOLUME", volume: preferences.volume });
+    }
+  }, [controller, hydrated, preferences.mode, preferences.volume]);
+
+  useEffect(() => {
+    let scheduledTimer: PlayerSnapshot["sleepTimer"] = null;
+    let deadlineTimeout: number | null = null;
+    let fadeTimeout: number | null = null;
+    let fadeInterval: number | null = null;
+
+    const clearSchedule = (): void => {
+      if (deadlineTimeout !== null) window.clearTimeout(deadlineTimeout);
+      if (fadeTimeout !== null) window.clearTimeout(fadeTimeout);
+      if (fadeInterval !== null) window.clearInterval(fadeInterval);
+      deadlineTimeout = null;
+      fadeTimeout = null;
+      fadeInterval = null;
+    };
+    const pulse = (): void => {
+      const timer = scheduledTimer;
+      if (!timer || timer.kind !== "after-duration"
+        || controller.getSnapshot().sleepTimer !== timer) return;
+      const now = Date.now();
+      if (now >= timer.firesAt) {
+        controller.dispatch({ type: "SLEEP_TIMER_FIRED" });
+      } else if (timer.firesAt - now <= 3_000) {
+        controller.dispatch({ type: "SLEEP_TIMER_TICK", now });
+      }
+    };
+    const syncSchedule = (): void => {
+      const next = controller.getSnapshot().sleepTimer;
+      if (next === scheduledTimer) return;
+      clearSchedule();
+      scheduledTimer = next;
+      if (next?.kind !== "after-duration") return;
+      const remaining = next.firesAt - Date.now();
+      if (remaining <= 0) {
+        pulse();
+        return;
+      }
+      deadlineTimeout = window.setTimeout(pulse, remaining);
+      const beginFade = (): void => {
+        pulse();
+        fadeInterval = window.setInterval(pulse, 100);
+      };
+      if (remaining <= 3_000) beginFade();
+      else fadeTimeout = window.setTimeout(beginFade, remaining - 3_000);
+    };
+    const onWake = (): void => pulse();
+    const unsubscribe = controller.subscribe(syncSchedule);
+    document.addEventListener("visibilitychange", onWake);
+    window.addEventListener("focus", onWake);
+    syncSchedule();
+    return () => {
+      unsubscribe();
+      clearSchedule();
+      document.removeEventListener("visibilitychange", onWake);
+      window.removeEventListener("focus", onWake);
+    };
+  }, [controller]);
 
   const connectAudio = useCallback((node: HTMLAudioElement | null) => {
     audioRef.current = node;
@@ -192,6 +268,12 @@ export function PlayerProvider({
     const before = controller.getSnapshot();
     controller.dispatch(command);
     const after = controller.getSnapshot();
+    if (hydrated && command.type === "SET_MODE" && after.mode !== before.mode) {
+      setPreference?.("mode", after.mode);
+    }
+    if (hydrated && command.type === "SET_VOLUME" && after.volume !== before.volume) {
+      setPreference?.("volume", after.volume);
+    }
     const audio = audioRef.current;
 
     if (!audio) {
@@ -207,7 +289,7 @@ export function PlayerProvider({
       && before.currentTimeMs !== after.currentTimeMs) {
       audio.currentTime = after.currentTimeMs / 1_000;
     }
-  }, [controller]);
+  }, [controller, hydrated, setPreference]);
 
   const getPublicSnapshot = useCallback(() => {
     return subscriptionStore.getPublicSnapshot();

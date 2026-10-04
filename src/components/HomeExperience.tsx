@@ -14,6 +14,7 @@ import {
 } from "@/features/discovery/TrackPreviewStage";
 import type { Track } from "@/lib/music/models";
 import { useArtworkThemeTarget } from "@/components/ThemeProvider";
+import { useReducedMotion } from "@/features/settings/useReducedMotion";
 
 import { AboutPanel } from "./AboutPanel";
 import {
@@ -48,7 +49,7 @@ function HomeExperienceContent({ initialAbout }: HomeExperienceProps) {
   const [currentTrackId, setCurrentTrackId] = useState<string | null>(null);
   const [galleryRenderer, setGalleryRenderer] = useState<FilmstripRenderer>("canvas");
   const [restoreTrackId, setRestoreTrackId] = useState<string | null>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const reducedMotion = useReducedMotion();
   const [preview, setPreview] = useState<PreviewState>({
     phase: "hidden",
     revision: 0,
@@ -160,14 +161,6 @@ function HomeExperienceContent({ initialAbout }: HomeExperienceProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [closeAbout, closePreview, isAbout, preview.phase]);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updatePreference = () => setReducedMotion(mediaQuery.matches);
-    updatePreference();
-    mediaQuery.addEventListener("change", updatePreference);
-    return () => mediaQuery.removeEventListener("change", updatePreference);
-  }, []);
 
   useEffect(() => {
     if (preview.phase !== "entering" && preview.phase !== "exiting") {

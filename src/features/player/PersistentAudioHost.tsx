@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import type { PlayerEvent, PlayerSnapshot } from "@/lib/player";
+import { useReducedMotion } from "@/features/settings/useReducedMotion";
 
 import { usePlayerRuntime } from "./playerContext";
 import styles from "./PersistentAudioHost.module.css";
@@ -26,6 +27,13 @@ function bufferedUntilMs(audio: HTMLAudioElement): number {
 }
 
 export function PersistentAudioHost() {
+  const reducedMotion = useReducedMotion();
+  const reducedMotionRef = useRef(reducedMotion);
+  const syncMotionRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    reducedMotionRef.current = reducedMotion;
+    syncMotionRef.current?.();
+  }, [reducedMotion]);
   const {
     audioRef,
     connectAudio,
@@ -47,7 +55,6 @@ export function PersistentAudioHost() {
     let lastProgressAt = performance.now();
     let lastObservedTime = audio.currentTime;
     let latestSnapshot = controller.getSnapshot();
-    const reducedMotionQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)") ?? null;
 
     const dispatchMedia = (
       event: PlayerMediaEvent,
@@ -66,6 +73,13 @@ export function PersistentAudioHost() {
     const projectTime = (): void => {
       const currentTimeMs = audio.currentTime * 1_000;
       dispatchMedia({ type: "MEDIA_TIME", currentTimeMs });
+      const timerSnapshot = controller.getSnapshot();
+      if (timerSnapshot.sleepTimer?.kind === "end-of-track"
+        && timerSnapshot.durationMs !== null
+        && (timerSnapshot.durationMs - currentTimeMs <= 3_000
+          || timerSnapshot.sleepFadeGain !== 1)) {
+        controller.dispatch({ type: "SLEEP_TIMER_TICK", now: Date.now() });
+      }
       if (audio.currentTime !== lastObservedTime) {
         lastObservedTime = audio.currentTime;
         lastProgressAt = performance.now();
@@ -81,7 +95,7 @@ export function PersistentAudioHost() {
       const shouldRun = latestSnapshot.playbackStatus === "playing"
         && latestSnapshot.seekStatus !== "seeking"
         && document.visibilityState === "visible"
-        && !reducedMotionQuery?.matches;
+        && !reducedMotionRef.current;
       if (shouldRun && animationFrame === null) {
         animationFrame = window.requestAnimationFrame(runAnimationFrame);
       } else if (!shouldRun) {
@@ -108,6 +122,7 @@ export function PersistentAudioHost() {
         }, STALL_RECOVERY_MS);
       }
     };
+    syncMotionRef.current = syncAnimationFrame;
 
     const clearAudioSource = (revision: number): void => {
       appliedRevision = revision;
@@ -215,7 +230,6 @@ export function PersistentAudioHost() {
       mediaCode: audio.error?.code ?? null,
     });
     const onVisibilityChange = (): void => syncAnimationFrame();
-    const onMotionChange = (): void => syncAnimationFrame();
 
     audio.addEventListener("loadedmetadata", onLoadedMetadata);
     audio.addEventListener("canplay", onCanPlay);
@@ -229,7 +243,6 @@ export function PersistentAudioHost() {
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("error", onError);
     document.addEventListener("visibilitychange", onVisibilityChange);
-    reducedMotionQuery?.addEventListener("change", onMotionChange);
 
     stallInterval = window.setInterval(() => {
       const snapshot = controller.getSnapshot();
@@ -256,6 +269,7 @@ export function PersistentAudioHost() {
 
     return () => {
       unsubscribe();
+      syncMotionRef.current = null;
       stopAnimationFrame();
       clearRecoveryTimeout();
       if (stallInterval !== null) {
@@ -273,7 +287,6 @@ export function PersistentAudioHost() {
       audio.removeEventListener("ended", onEnded);
       audio.removeEventListener("error", onError);
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      reducedMotionQuery?.removeEventListener("change", onMotionChange);
     };
   }, [audioRef, controller, subscribe]);
 

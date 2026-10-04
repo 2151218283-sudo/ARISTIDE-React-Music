@@ -18,6 +18,8 @@ import {
   findActiveLyricWord,
 } from "@/lib/player";
 import type { LyricDocument, LyricLine } from "@/lib/music/models";
+import { useOptionalSettings } from "@/features/settings/SettingsProvider";
+import { useReducedMotion } from "@/features/settings/useReducedMotion";
 
 import {
   usePlayerDispatch,
@@ -30,32 +32,16 @@ import styles from "./LyricsViewport.module.css";
 
 const browseLockDurationMs = 5_000;
 
-function useReducedMotion(): boolean {
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const query = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    if (!query) {
-      return undefined;
-    }
-
-    const update = () => setReducedMotion(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-
-  return reducedMotion;
-}
-
 function LyricText({
   activeWord,
   line,
+  preferWordTiming,
 }: {
   activeWord: number | null;
   line: LyricLine;
+  preferWordTiming: boolean;
 }) {
-  if (!line.words) {
+  if (!preferWordTiming || !line.words) {
     return <span>{line.text}</span>;
   }
 
@@ -88,6 +74,9 @@ interface LyricsViewportProps {
 }
 
 export function LyricsViewport({ lyrics }: LyricsViewportProps) {
+  const settings = useOptionalSettings();
+  const showTranslation = settings?.preferences.showTranslation ?? true;
+  const preferWordTiming = settings?.preferences.preferWordTiming ?? true;
   const currentTimeMs = usePlayerTimelineSelector((snapshot) => snapshot.currentTimeMs);
   const currentTrack = usePlayerSelector((snapshot) => snapshot.currentTrack);
   const durationMs = usePlayerSelector((snapshot) => snapshot.durationMs);
@@ -107,8 +96,8 @@ export function LyricsViewport({ lyrics }: LyricsViewportProps) {
     [canSynchronize, currentTimeMs, lines],
   );
   const activeWords = useMemo(() => lines.map((line) => (
-    findActiveLyricWord(line.words, currentTimeMs)
-  )), [currentTimeMs, lines]);
+    preferWordTiming ? findActiveLyricWord(line.words, currentTimeMs) : null
+  )), [currentTimeMs, lines, preferWordTiming]);
   const clearBrowseTimer = useCallback(() => {
     if (browseTimerRef.current !== null) {
       window.clearTimeout(browseTimerRef.current);
@@ -275,9 +264,9 @@ export function LyricsViewport({ lyrics }: LyricsViewportProps) {
                   type="button"
                 >
                   <span className={styles.lineText}>
-                    <LyricText activeWord={active ? activeWords[index] : null} line={line} />
+                    <LyricText activeWord={active ? activeWords[index] : null} line={line} preferWordTiming={preferWordTiming} />
                   </span>
-                  {line.translation ? <span className={styles.translation}>{line.translation}</span> : null}
+                  {showTranslation && line.translation ? <span className={styles.translation}>{line.translation}</span> : null}
                   {line.romanization ? <span className={styles.romanization}>{line.romanization}</span> : null}
                 </button>
               </li>

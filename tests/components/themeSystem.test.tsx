@@ -53,6 +53,23 @@ afterEach(() => {
 });
 
 describe("ThemeProvider and ThemeSwitcher", () => {
+  it("keeps a theme change active while reporting a blocked storage write", async () => {
+    auth.state.user = { id: "701" };
+    const write = vi.spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => { throw new Error("quota"); });
+    try {
+      renderTheme();
+      await waitFor(() => expect(document.documentElement.dataset.theme).toBe("artwork"));
+      fireEvent.click(screen.getByRole("button", { name: "显示主题" }));
+      fireEvent.click(screen.getByRole("button", { name: "浅色" }));
+      await waitFor(() => expect(document.documentElement.dataset.theme).toBe("paper"));
+      fireEvent.click(screen.getByRole("button", { name: "显示主题" }));
+      expect(screen.getByRole("alert")).toHaveTextContent("无法保存主题设置");
+    } finally {
+      write.mockRestore();
+    }
+  });
+
   it("holds guests and Demo sessions in INK while preserving the saved preference", async () => {
     window.localStorage.setItem("echoform:theme-preference", "paper");
     const { rerender } = renderTheme();

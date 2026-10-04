@@ -61,7 +61,7 @@ test("keeps every product route local and explicit", async ({ page }) => {
     expect(response?.ok()).toBe(true);
     await expect(page).toHaveURL(new RegExp(`${path.replaceAll("/", "\\/")}$`));
     await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
-    await expect(page.getByRole("status")).toContainText("模块正在搭建");
+    await expect(page.getByRole("radio", { name: "标准" })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "ECHOFORM 主导航" })).toBeVisible();
     await expect(page.locator("[data-route-context]")).toHaveText(context);
   }

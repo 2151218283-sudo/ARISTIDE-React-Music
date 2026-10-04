@@ -33,6 +33,8 @@ interface ThemeContextValue {
   available: boolean;
   effective: ThemePreference;
   preference: ThemePreference;
+  hydrated: boolean;
+  storageError: string | null;
   setPreference(preference: ThemePreference): void;
   setArtworkTarget(target: ArtworkTarget | null): void;
 }
@@ -40,12 +42,15 @@ interface ThemeContextValue {
 const storageKey = "echoform:theme-preference";
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-function savedPreference(): ThemePreference | null {
+function savedPreference(): { preference: ThemePreference | null; error: string | null } {
   try {
     const value = window.localStorage.getItem(storageKey);
-    return value === "ink" || value === "paper" || value === "artwork" ? value : null;
+    if (value === null || value === "ink" || value === "paper" || value === "artwork") {
+      return { preference: value, error: null };
+    }
+    return { preference: null, error: "主题设置已损坏，当前使用默认主题。" };
   } catch {
-    return null;
+    return { preference: null, error: "无法读取主题设置；本次选择仅在当前页面有效。" };
   }
 }
 
@@ -72,6 +77,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const { mode, status, user } = useAuth();
   const available = status === "ready" && mode === "real" && user !== null;
   const [preference, setPreferenceState] = useState<ThemePreference>("artwork");
+  const [hydrated, setHydrated] = useState(false);
+  const [storageError, setStorageError] = useState<string | null>(null);
   const [target, setTarget] = useState<ArtworkTarget | null>(null);
   const [applied, setApplied] = useState<AppliedTheme>({ kind: "ink", palette: null });
   const visible = useMemo<AppliedTheme>(() => (
@@ -82,8 +89,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setPreferenceState(next);
     try {
       window.localStorage.setItem(storageKey, next);
+      setStorageError(null);
     } catch {
-      // A blocked storage API does not prevent an in-memory theme change.
+      setStorageError("无法保存主题设置；本次选择仅在当前页面有效。");
     }
   }, []);
 
@@ -91,10 +99,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTarget(next);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const saved = savedPreference();
     let cancelled = false;
     queueMicrotask(() => {
-      if (!cancelled) setPreferenceState(savedPreference() ?? "artwork");
+      if (cancelled) return;
+      setPreferenceState(saved.preference ?? "artwork");
+      setStorageError(saved.error);
+      setHydrated(true);
     });
     return () => { cancelled = true; };
   }, []);
@@ -132,9 +144,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     available,
     effective: visible.kind,
     preference,
+    hydrated,
+    storageError,
     setPreference,
     setArtworkTarget,
-  }), [available, preference, setArtworkTarget, setPreference, visible.kind]);
+  }), [available, preference, hydrated, storageError, setArtworkTarget, setPreference, visible.kind]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

@@ -92,6 +92,21 @@ async function readBody<T>(response: Response): Promise<T> {
 }
 
 describe("public BFF read routes", () => {
+  it("forwards each allowed quality and returns the actual normalized quality", async () => {
+    const getPlaybackSource = vi.fn<PublicReadProvider["getPlaybackSource"]>(async () => source);
+    const handlers = createHandlers(createProvider({ getPlaybackSource }));
+    for (const quality of ["standard", "exhigh", "lossless", "hires"] as const) {
+      const response = await handlers.source(
+        new Request(`http://localhost/api/tracks/101/source?quality=${quality}`),
+        "101",
+      );
+      const body = await readBody<{ data: PlaybackSource }>(response);
+      expect(response.status).toBe(200);
+      expect(body.data.quality).toBe("standard");
+      expect(getPlaybackSource).toHaveBeenLastCalledWith("101", quality);
+    }
+  });
+
   it("returns the normalized success envelope, empty data, and public metadata cache", async () => {
     const search = vi.fn<PublicReadProvider["search"]>(async () => searchResponse);
     const handlers = createHandlers(createProvider({ search }));

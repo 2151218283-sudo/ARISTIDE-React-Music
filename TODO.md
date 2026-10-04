@@ -1,8 +1,8 @@
 # ECHOFORM 开发 TODO
 
 > 状态：执行基线 v1
-> 更新日期：2026-10-04
-> 当前任务：T025 设置、音质偏好与 Sleep Timer，待启动
+> 更新日期：2026-10-05
+> 当前任务：T026 播放历史规则推荐、热搜与品味画像，待启动
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,11 +123,16 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：T025 设置、音质偏好与 Sleep Timer，待启动；开始前先按本卡更新 Settings 规格。
-- 目标：按 T025 条目实现可持久化设置与不改变系统音量的 Sleep Timer；开始前先更新 Settings 规格。
-- 允许修改：T025 条目列出的 Settings 规格、`src/app/settings/**`、settings feature/localStorage adapter、player timer 和对应测试。
+- 当前任务：T026 播放历史规则推荐、热搜与品味画像，待启动；执行卡在下一轮开始前填写。
+
+### T025 归档执行卡
+
+- 状态：T025 设置、音质偏好与 Sleep Timer 已通过验收；T026 尚未开始。
+- 文档与计划变更前置：先对齐 PRD 中旧的 Timer 持久化验收句，并建立 `SettingsExperience.spec.md`；本卡明确批准计划中的跨模块接线范围，文档完成前不改实现。
+- 目标：实现持久化设置与不改变系统音量的 Sleep Timer，沿用 T024 主题所有权和唯一播放器；减少动态偏好覆盖现有 CSS、画廊、播放页及相关 JS 转场。
+- 允许修改：本卡及 PRD 的 T025 冲突句、Settings 规格；`src/app/layout.tsx`、`src/app/globals.css`、`src/app/settings/**`、`src/features/settings/**`；`src/components/ThemeProvider.tsx`、`ThemeSwitcher.tsx`、`HomeExperience.tsx`、`FilmstripGallery.tsx`；`src/lib/webgl/filmstripScene.ts`、`src/lib/player/reducer.ts`、`controller.ts`；`src/features/player/PlayerProvider.tsx`、`sourceClient.ts`、`PersistentAudioHost.tsx`、`LyricsViewport.tsx`、`VolumeControl.tsx`、`PlayerTransport.tsx`；`src/features/auth/AuthProvider.tsx`、`QrLoginDialog.tsx`；`src/features/profile/ProfileAvatarTransitionLayer.tsx`；上述行为对应的 unit、component、contract、E2E 测试。
 - 保护项：设置不含上游 Cookie；Timer 最后 3 秒只降低应用 Audio 音量，暂停后恢复用户音量；刷新清除 Timer；即时设置不增加多余保存按钮。
-- 验收标准：T025 条目的存储与 hydration、控制类型、倒计时和当前曲结束状态及专项测试与 `npm.cmd run check` 通过。
+- 验收标准：T025 条目的存储与 hydration、控制类型、倒计时、后台校正、当前曲结束、取消和刷新清除；专项测试、完整本地测试、三视口与 `npm.cmd run check` 通过。
 
 ### T017A 归档执行卡
 - 状态：T017A 已完成验收；下一任务为 T017，尚未开始。
@@ -589,7 +594,7 @@
 
   完成记录（2026-10-04）：根 ThemeProvider 区分偏好与有效主题，游客、Demo 和沉浸页读取失败使用 INK；手动 INK/PAPER/ARTWORK 偏好保存在本地。32x32 封面采样生成受限画布、强调色和可读前景；超时、取消、跨域污染与失败回 INK，快速切歌期间保留旧配色。WebGL 画廊清屏色与 HUD 跟随主题，Reduced Motion 即时切换；移动端预览计数已避开导航。合成封面与本地 BFF 拦截下，unit 92、component 115、contract 119、应用 E2E 60、Foundation visual E2E 2 通过；三视口截图、Canvas 背景像素和 INK/PAPER/ARTWORK 对比度检查通过。`npm.cmd run check` 通过，仅有既存 QR 原生 `<img>` lint 警告；`git diff --check` 通过。未运行真实上游 Probe 或真实账号 E2E。
 
-- [ ] **T025 设置、音质偏好与 Sleep Timer**
+- [x] **T025 设置、音质偏好与 Sleep Timer**
 
   目标：实现外观、减少动态、默认音质、播放模式、音量记忆、歌词翻译、逐字优先，以及 15/30/45/60 分钟和当前歌曲结束定时停止。
 
@@ -600,6 +605,8 @@
   页面测试：设置 loading 不适用但需验证初始 hydration；空/损坏存储回默认；存储写失败；各主题/音质/模式；倒计时、后台触发、当前曲结束、取消、刷新清除。
 
   验收：控制类型符合 Design；刷新无 hydration 抖动；Sleep Timer 不清队列、不改系统音量；专项 tests 与 `npm run check` 通过。
+
+  完成记录（2026-10-05）：`/settings` 已接入主题、减少动态、默认音质、播放模式、音量记忆和歌词偏好；版本化本地设置支持字段恢复、不可用及写失败提示。Sleep Timer 复用唯一 Player/Audio，提供 15/30/45/60 分钟与当前曲结束、最后 3 秒临时增益渐弱、取消/退出登录恢复与刷新清除。三视口及 200% 等效缩放、后台补触发、曲终不跳队列和本地 Audio 输出均通过浏览器验证。`npm.cmd run test` 通过 unit 100、component 121、contract 121、应用 E2E 67、Foundation visual E2E 2；`npm.cmd run check` 通过，lint 仅有既存 QR `<img>` warning；`git diff --check` 通过。WebGL 的 500ms 帧率短窗曾两次低于门槛，随后专项与两轮完整 E2E 均通过；未调整门槛。未运行真实账号 Probe。推送仍需单独授权。
 
 - [ ] **T026 播放历史规则推荐、热搜与品味画像**
 

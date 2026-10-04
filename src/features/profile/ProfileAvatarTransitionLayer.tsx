@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useReducedMotion } from "@/features/settings/useReducedMotion";
 import {
   useCallback,
   useEffect,
@@ -58,6 +59,7 @@ function getInitial(nickname: string): string {
 }
 
 export function ProfileAvatarTransitionLayer() {
+  const reducedMotion = useReducedMotion();
   const snapshot = useProfileAvatarTransitionSnapshot();
   const [activeTransition, setActiveTransition] = useState<ActiveProfileAvatarTransition | null>(null);
   const activeIdRef = useRef<number | null>(null);
@@ -84,7 +86,7 @@ export function ProfileAvatarTransitionLayer() {
       return;
     }
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (reducedMotion) {
       completeProfileAvatarTransition(request.id);
       return;
     }
@@ -106,7 +108,7 @@ export function ProfileAvatarTransitionLayer() {
         pendingStartIdRef.current = null;
       }
     };
-  }, [snapshot.request, snapshot.target]);
+  }, [snapshot.request, snapshot.target, reducedMotion]);
 
   const activeTransitionId = activeTransition?.request.id ?? null;
 

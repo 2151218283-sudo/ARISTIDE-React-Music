@@ -23,6 +23,31 @@ afterEach(() => {
 });
 
 describe("playback source client", () => {
+  it("requests the selected quality through the same-origin BFF", async () => {
+    const payload = {
+      url: "/api/tracks/101/audio",
+      expiresAt: Date.now() + 60_000,
+      quality: "standard",
+      codec: "mp3",
+      bitrate: 128_000,
+      sampleRate: 44_100,
+      sizeBytes: null,
+      corsMode: "unavailable",
+    };
+    const fetchMock = vi.fn(async (input: string) => {
+      void input;
+      return Response.json({ ok: true, data: payload });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const source = await resolvePlaybackSource(track("101"), {
+      revision: 1,
+      cancelled: () => false,
+      signal: new AbortController().signal,
+    }, "hires");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/tracks/101/source?quality=hires");
+    expect(source.quality).toBe("standard");
+  });
+
   it("forwards controller cancellation to the same-origin source request", async () => {
     let receivedSignal: AbortSignal | undefined;
     const abortError = new Error("request aborted");

@@ -18,7 +18,7 @@ export function ThemeSwitcher() {
 }
 
 function ThemeSwitcherContent({ theme }: { theme: NonNullable<ReturnType<typeof useOptionalTheme>> }) {
-  const { available, effective, preference, setPreference } = theme;
+  const { available, effective, preference, setPreference, storageError } = theme;
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -82,6 +82,7 @@ function ThemeSwitcherContent({ theme }: { theme: NonNullable<ReturnType<typeof 
           {!available ? <p className={styles.hint}>登录后可选择浅色或封面主题</p> : null}
           {available && preference === "artwork" && effective === "ink"
             ? <p className={styles.hint}>当前封面暂不可用于取色</p> : null}
+          {storageError ? <p className={styles.hint} role="alert">{storageError}</p> : null}
         </div>
       ) : null}
     </div>

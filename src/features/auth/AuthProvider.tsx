@@ -131,6 +131,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLogoutLoading(true);
     try {
       await requestApi<SessionResponse>("/api/auth/logout", { method: "POST" });
+      playerRuntime?.dispatch({ type: "SET_SLEEP_TIMER", timer: null });
       setUser(null);
       setModeState("real");
       return true;
@@ -139,7 +140,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } finally {
       setLogoutLoading(false);
     }
-  }, [logoutLoading]);
+  }, [logoutLoading, playerRuntime]);
 
   const setMode = useCallback(async (nextMode: "real" | "demo"): Promise<boolean> => {
     if (modeChanging) {

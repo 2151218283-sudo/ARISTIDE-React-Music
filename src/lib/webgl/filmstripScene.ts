@@ -335,6 +335,17 @@ export class FilmstripScene {
     this.requestRender("settling");
   }
 
+  setReducedMotion(reducedMotion: boolean): void {
+    if (this.reducedMotion === reducedMotion) return;
+    this.reducedMotion = reducedMotion;
+    if (reducedMotion) {
+      this.background.copy(this.backgroundTarget);
+      this.backgroundTransitioning = false;
+      this.pointerTarget.set(0, 0);
+    }
+    this.requestRender("settling");
+  }
+
   setInteractive(interactive: boolean): void {
     this.interactive = interactive;
 

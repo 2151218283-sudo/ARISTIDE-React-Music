@@ -66,12 +66,13 @@ function normalizeFailure(value: unknown, status: number): AppError {
   );
 }
 
-export const resolvePlaybackSource: PlayerSourceResolver = async (
+export const resolvePlaybackSource = async (
   track: Track,
-  context,
-) => {
+  context: Parameters<PlayerSourceResolver>[1],
+  quality: AudioQuality = "standard",
+): Promise<PlaybackSource> => {
   const response = await fetch(
-    `/api/tracks/${encodeURIComponent(track.id)}/source`,
+    `/api/tracks/${encodeURIComponent(track.id)}/source${quality === "standard" ? "" : `?quality=${quality}`}`,
     {
       cache: "no-store",
       credentials: "same-origin",

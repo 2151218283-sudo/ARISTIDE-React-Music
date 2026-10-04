@@ -53,6 +53,19 @@ function getSessionCookie(response: Response): string {
 }
 
 describe("audio relay BFF routes", () => {
+  it("passes the quality query through to the public source handler", async () => {
+    const readSource = vi.fn(sourceHandler().source);
+    const handlers = createAudioRelayRouteHandlers({
+      publicReadRouteHandlers: { source: readSource },
+      store: new InMemorySessionStore({ now: () => 1_700_000_000_000 }),
+      createRequestId: () => "relay-quality",
+    });
+    const request = new Request("http://localhost/api/tracks/101/source?quality=hires");
+    const response = await handlers.source(request, "101");
+    expect(response.status).toBe(200);
+    expect(readSource).toHaveBeenCalledWith(request, "101");
+  });
+
   it("replaces the provider source with a session-bound local path without leakage", async () => {
     const store = new InMemorySessionStore({ now: () => 1_700_000_000_000 });
     const handlers = createAudioRelayRouteHandlers({

@@ -256,6 +256,21 @@ describe("player reducer seek and queue policy", () => {
 });
 
 describe("player reducer timers and invariants", () => {
+  it("cancels a current-track timer when the selected queue item changes", () => {
+    const queue = [item("a"), item("b")];
+    let snapshot = readySnapshot(queue);
+    snapshot = reducePlayerSnapshot(snapshot, { type: "SET_SLEEP_TIMER", timer: { kind: "end-of-track" } });
+    snapshot = reducePlayerSnapshot(snapshot, { type: "NEXT", origin: "user" });
+    expect(snapshot).toMatchObject({ currentIndex: 1, sleepTimer: null, sleepFadeGain: 1 });
+  });
+
+  it("ignores a fired event after cancellation", () => {
+    let snapshot = readySnapshot();
+    snapshot = reducePlayerSnapshot(snapshot, { type: "SET_SLEEP_TIMER", timer: { kind: "after-duration", firesAt: 10_000 } });
+    snapshot = reducePlayerSnapshot(snapshot, { type: "SET_SLEEP_TIMER", timer: null });
+    expect(reducePlayerSnapshot(snapshot, { type: "SLEEP_TIMER_FIRED" })).toBe(snapshot);
+  });
+
   it("fades only the temporary gain and restores it after cancellation", () => {
     let snapshot = readySnapshot();
     snapshot = reducePlayerSnapshot(snapshot, { type: "SET_VOLUME", volume: 0.7 });

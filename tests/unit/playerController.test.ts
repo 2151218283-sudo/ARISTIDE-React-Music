@@ -83,6 +83,27 @@ async function loadReady(
 }
 
 describe("player controller revision and intent guards", () => {
+  it("pauses audio before restoring fade gain and ignores stale timer events", async () => {
+    let now = 10_000;
+    const gainsAtPause: number[] = [];
+    const controller = createPlayerController({
+      resolveSource: async (value) => source(value.id),
+      now: () => now,
+      requestPause: () => gainsAtPause.push(controller.getSnapshot().sleepFadeGain),
+    });
+    await loadReady(controller, [item("a")]);
+    controller.dispatch({ type: "SET_SLEEP_TIMER", timer: { kind: "after-duration", firesAt: 12_000 } });
+    controller.dispatch({ type: "SLEEP_TIMER_TICK", now: 11_000 });
+    expect(controller.getSnapshot().sleepFadeGain).toBeCloseTo(1 / 3);
+    now = 12_000;
+    controller.dispatch({ type: "SLEEP_TIMER_FIRED" });
+    expect(gainsAtPause).toEqual([expect.closeTo(1 / 3)]);
+    expect(controller.getSnapshot()).toMatchObject({ sleepTimer: null, sleepFadeGain: 1 });
+    controller.dispatch({ type: "SLEEP_TIMER_FIRED" });
+    expect(gainsAtPause).toHaveLength(1);
+    controller.destroy();
+  });
+
   it("allows only C to resolve after rapid A/B/C loads", async () => {
     const requests = new Map<string, Deferred<PlaybackSource>>();
     const abortedTracks: string[] = [];

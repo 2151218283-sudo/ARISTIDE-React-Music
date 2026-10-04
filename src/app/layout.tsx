@@ -7,6 +7,7 @@ import { AuthProvider } from "@/features/auth/AuthProvider";
 import { ListeningHistoryRecorder } from "@/features/library/ListeningHistoryRecorder";
 import { LibraryMutationProvider } from "@/features/library/LibraryMutationProvider";
 import { PlayerProvider } from "@/features/player/PlayerProvider";
+import { SettingsProvider } from "@/features/settings/SettingsProvider";
 
 import "./globals.css";
 
@@ -32,16 +33,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="zh-CN">
       <body>
-        <PlayerProvider>
-          <ListeningHistoryRecorder />
-          <AuthProvider>
-            <ThemeProvider>
-              <LibraryMutationProvider>
-                <AppShell>{children}</AppShell>
-              </LibraryMutationProvider>
-            </ThemeProvider>
-          </AuthProvider>
-        </PlayerProvider>
+        <SettingsProvider>
+          <PlayerProvider>
+            <ListeningHistoryRecorder />
+            <AuthProvider>
+              <ThemeProvider>
+                <LibraryMutationProvider>
+                  <AppShell>{children}</AppShell>
+                </LibraryMutationProvider>
+              </ThemeProvider>
+            </AuthProvider>
+          </PlayerProvider>
+        </SettingsProvider>
       </body>
     </html>
   );
