@@ -5,6 +5,8 @@
   background: var(--ef-surface-canvas);
   color: var(--ef-text-primary);
   isolation: isolate;
+  transition: background-color var(--ef-duration-theme) var(--ef-ease-standard),
+    color var(--ef-duration-theme) var(--ef-ease-standard);
 }
 
 .skipLink {
@@ -42,6 +44,8 @@
   user-select: none;
   background: var(--canvas);
   color: var(--foreground);
+  transition: background-color var(--ef-duration-theme) var(--ef-ease-standard),
+    color var(--ef-duration-theme) var(--ef-ease-standard);
 }
 
 .root[data-shell="player-immersive"] .immersiveMain {
@@ -49,6 +53,10 @@
   background: var(--ef-surface-canvas);
   color: var(--ef-text-primary);
   user-select: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root, .immersiveMain { transition-duration: 0.01ms; }
 }
 
 .contentMain {

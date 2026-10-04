@@ -9,10 +9,15 @@ export class GalleryHud {
   private readonly context: CanvasRenderingContext2D | null;
   private width = 1;
   private height = 1;
+  private color = "rgb(186, 200, 183)";
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.context = canvas.getContext("2d");
+  }
+
+  setColor(color: string): void {
+    this.color = color;
   }
 
   resize(width: number, height: number, pixelRatio: number): void {
@@ -51,7 +56,7 @@ export class GalleryHud {
     const startX = centerX - span * 0.5;
 
     for (let index = 0; index < tickCount; index += 1) {
-      this.context.fillStyle = "rgb(186, 200, 183)";
+      this.context.fillStyle = this.color;
       this.context.globalAlpha = index === activeIndex ? 0.42 : 0.18;
       this.context.fillRect(
         Math.round(startX + index * gap),

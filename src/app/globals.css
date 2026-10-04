@@ -185,9 +185,9 @@
 :root[data-theme="artwork"] {
   color-scheme: dark;
   --ef-surface-canvas: var(--ef-artwork-surface);
-  --ef-surface-raised: color-mix(in srgb, var(--ef-artwork-surface) 82%, var(--ef-artwork-on-surface));
-  --ef-surface-overlay: color-mix(in srgb, var(--ef-artwork-surface) 70%, var(--ef-artwork-on-surface));
-  --ef-surface-placeholder: color-mix(in srgb, var(--ef-artwork-surface) 86%, var(--ef-artwork-on-surface));
+  --ef-surface-raised: var(--ef-artwork-raised);
+  --ef-surface-overlay: var(--ef-artwork-overlay);
+  --ef-surface-placeholder: var(--ef-artwork-raised);
   --ef-text-primary: var(--ef-artwork-on-surface);
   --ef-text-secondary: var(--ef-artwork-on-surface-muted);
   --ef-text-disabled: color-mix(in srgb, var(--ef-text-primary) 42%, transparent);
@@ -203,6 +203,11 @@
   --ef-status-warning: var(--ef-color-warning-dark);
   --ef-status-error: var(--ef-color-error-dark);
   --ef-status-info: var(--ef-color-info-dark);
+}
+
+:root[data-theme="artwork"] {
+  --ef-artwork-raised: var(--ef-color-ink-900);
+  --ef-artwork-overlay: var(--ef-color-ink-800);
 }
 
 :root {
@@ -224,6 +229,12 @@ body {
   margin: 0;
   overflow-x: hidden;
   background: var(--ef-surface-canvas);
+}
+
+html,
+body {
+  transition: background-color var(--ef-duration-theme) var(--ef-ease-standard),
+    color var(--ef-duration-theme) var(--ef-ease-standard);
 }
 
 body {
@@ -254,6 +265,10 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    transition-duration: 0.01ms;
+  }
   *,
   *::before,
   *::after {

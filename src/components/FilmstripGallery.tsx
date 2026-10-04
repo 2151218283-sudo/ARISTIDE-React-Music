@@ -115,8 +115,19 @@ export const FilmstripGallery = forwardRef<
     }
 
     sceneRef.current = scene;
+    const syncTheme = () => {
+      const style = window.getComputedStyle(canvas);
+      scene.setTheme(style.backgroundColor, style.color);
+    };
+    const themeObserver = new MutationObserver(syncTheme);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "style"],
+    });
+    syncTheme();
 
     return () => {
+      themeObserver.disconnect();
       scene.destroy();
       sceneRef.current = null;
     };

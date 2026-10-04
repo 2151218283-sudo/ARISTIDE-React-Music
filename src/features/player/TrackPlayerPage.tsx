@@ -13,6 +13,7 @@ import { IconButton } from "@/components/IconButton";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusView } from "@/components/StatusView";
 import { TextButton } from "@/components/TextButton";
+import { useArtworkThemeTarget } from "@/components/ThemeProvider";
 import { LibraryActionButton } from "@/features/library/LibraryActionButton";
 import { AddToPlaylistButton } from "@/features/library/AddToPlaylistButton";
 import type { Track, TrackAvailability } from "@/lib/music/models";
@@ -195,6 +196,12 @@ interface TrackPlayerPageProps {
 export function TrackPlayerPage({ trackId }: TrackPlayerPageProps) {
   const details = useTrackPageDetails(trackId);
   const track = details.track.data;
+  useArtworkThemeTarget({
+    key: `track:${trackId}`,
+    status: details.track.status === "ready" ? "ready"
+      : details.track.status === "error" ? "error" : "loading",
+    url: track?.artworkUrl ?? null,
+  });
   const artistNames = useMemo(
     () => track?.artists.map((artist) => artist.name).join(" / ") ?? "",
     [track],

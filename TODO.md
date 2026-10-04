@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-10-04
-> 当前任务：T024 ARTWORK 取色与三主题完整实现，待启动
+> 当前任务：T025 设置、音质偏好与 Sleep Timer，待启动
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,11 +123,11 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：T024 ARTWORK 取色与三主题完整实现，待启动；本轮只收口 T023，不执行 T024。
-- 目标：按 T024 条目完成取色、对比、原子主题切换和失败回退；开始前先更新 Theme 规格。
-- 允许修改：T024 条目列出的 Theme 规格、`src/lib/theme/**`、主题 token 映射、必要页面接线和对应测试。
-- 保护项：不强制 PAPER、不以 Demo 或 API 故障掩盖 Real；旧主题保留至新主题可用，播放链路不受取色影响。
-- 验收标准：T024 条目所列三主题、异常封面、快速切歌、Reduced Motion、三视口和对比度检查，以及专项测试与 `npm.cmd run check` 通过。
+- 当前任务：T025 设置、音质偏好与 Sleep Timer，待启动；开始前先按本卡更新 Settings 规格。
+- 目标：按 T025 条目实现可持久化设置与不改变系统音量的 Sleep Timer；开始前先更新 Settings 规格。
+- 允许修改：T025 条目列出的 Settings 规格、`src/app/settings/**`、settings feature/localStorage adapter、player timer 和对应测试。
+- 保护项：设置不含上游 Cookie；Timer 最后 3 秒只降低应用 Audio 音量，暂停后恢复用户音量；刷新清除 Timer；即时设置不增加多余保存按钮。
+- 验收标准：T025 条目的存储与 hydration、控制类型、倒计时和当前曲结束状态及专项测试与 `npm.cmd run check` 通过。
 
 ### T017A 归档执行卡
 - 状态：T017A 已完成验收；下一任务为 T017，尚未开始。
@@ -575,7 +575,7 @@
 
 ### Phase 7：主题、设置与推荐
 
-- [ ] **T024 ARTWORK 取色与三主题完整实现**
+- [x] **T024 ARTWORK 取色与三主题完整实现**
 
   目标：实现缩小图取色、饱和度/亮度限制、对比计算、主题原子切换、失败回 INK；支持用户手动 INK/PAPER/ARTWORK。
 
@@ -586,6 +586,8 @@
   页面测试：三主题、鲜艳/极暗/极亮封面、跨域/加载失败、快速切歌、主题切换、Reduced Motion；首页/预览/播放页 1440/768/390。
 
   验收：正文 >=4.5:1、图标/焦点 >=3:1；无闪白；取色不阻塞播放；`VIS-AC-02..04` 与专项 tests、`npm run check` 通过。
+
+  完成记录（2026-10-04）：根 ThemeProvider 区分偏好与有效主题，游客、Demo 和沉浸页读取失败使用 INK；手动 INK/PAPER/ARTWORK 偏好保存在本地。32x32 封面采样生成受限画布、强调色和可读前景；超时、取消、跨域污染与失败回 INK，快速切歌期间保留旧配色。WebGL 画廊清屏色与 HUD 跟随主题，Reduced Motion 即时切换；移动端预览计数已避开导航。合成封面与本地 BFF 拦截下，unit 92、component 115、contract 119、应用 E2E 60、Foundation visual E2E 2 通过；三视口截图、Canvas 背景像素和 INK/PAPER/ARTWORK 对比度检查通过。`npm.cmd run check` 通过，仅有既存 QR 原生 `<img>` lint 警告；`git diff --check` 通过。未运行真实上游 Probe 或真实账号 E2E。
 
 - [ ] **T025 设置、音质偏好与 Sleep Timer**
 

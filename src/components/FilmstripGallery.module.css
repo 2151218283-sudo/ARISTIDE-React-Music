@@ -6,6 +6,7 @@
   height: 100dvh;
   overflow: hidden;
   background: var(--ef-surface-canvas);
+  transition: background-color var(--ef-duration-theme) var(--ef-ease-standard);
   touch-action: manipulation;
 }
 
@@ -20,7 +21,13 @@
 
 .webglCanvas {
   z-index: var(--ef-z-canvas);
+  background: var(--ef-surface-canvas);
+  color: var(--ef-text-secondary);
   outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery { transition-duration: 0.01ms; }
 }
 
 .hudCanvas {

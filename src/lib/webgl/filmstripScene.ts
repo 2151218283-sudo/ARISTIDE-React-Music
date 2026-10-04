@@ -9,6 +9,7 @@ import {
 } from "./filmstripShaders";
 
 const BACKGROUND_COLOR = 0x0c0d0d;
+const THEME_TRANSITION_DURATION = 600;
 const INACTIVE_BRIGHTNESS = 0.55;
 const HOVER_BRIGHTNESS = 0.9;
 const WHEEL_DAMPING = 0.08;
@@ -208,6 +209,8 @@ export class FilmstripScene {
   private readonly artworkLoadConcurrency: number;
   private readonly artworkTextureEdge: number;
   private readonly background = new THREE.Color(BACKGROUND_COLOR);
+  private readonly backgroundFrom = new THREE.Color(BACKGROUND_COLOR);
+  private readonly backgroundTarget = new THREE.Color(BACKGROUND_COLOR);
   private readonly camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 2000);
   private readonly canvas: HTMLCanvasElement;
   private readonly filmGroup = new THREE.Group();
@@ -224,6 +227,8 @@ export class FilmstripScene {
   private activeArtworkLoads = 0;
   private ambientLastRenderTime = 0;
   private artworkLoadQueue: FilmItem[] = [];
+  private backgroundStartedAt = 0;
+  private backgroundTransitioning = false;
   private currentOffset = 0;
   private currentPlaneHeight = 1;
   private currentStride = 1;
@@ -232,6 +237,7 @@ export class FilmstripScene {
   private destroyed = false;
   private films: FilmItem[] = [];
   private hoveredIndex: number | null = null;
+  private hudColor = "";
   private hudActiveIndex = -1;
   private hudItemCount = -1;
   private interactive = true;
@@ -284,7 +290,13 @@ export class FilmstripScene {
       canvas,
       powerPreference: "high-performance",
     });
-    this.renderer.setClearColor(BACKGROUND_COLOR, 1);
+    const initialStyle = window.getComputedStyle(canvas);
+    this.hudColor = initialStyle.color;
+    this.hud.setColor(this.hudColor);
+    this.background.set(initialStyle.backgroundColor);
+    this.backgroundFrom.copy(this.background);
+    this.backgroundTarget.copy(this.background);
+    this.renderer.setClearColor(this.background, 1);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.scene.background = this.background;
     this.scene.add(this.filmGroup);
@@ -297,6 +309,29 @@ export class FilmstripScene {
     this.queueArtworkTextures();
     this.addEventListeners();
     this.updateDiagnostics();
+    this.requestRender("settling");
+  }
+
+  setTheme(backgroundColor: string, foregroundColor: string): void {
+    const next = new THREE.Color(backgroundColor);
+    const hudChanged = this.hudColor !== foregroundColor;
+    if (hudChanged) {
+      this.hudColor = foregroundColor;
+      this.hud.setColor(foregroundColor);
+      this.hudActiveIndex = -1;
+    }
+    if (this.backgroundTarget.equals(next)) {
+      if (hudChanged) this.requestRender("settling");
+      return;
+    }
+
+    const now = performance.now();
+    this.updateBackground(now);
+    this.backgroundFrom.copy(this.background);
+    this.backgroundTarget.copy(next);
+    this.backgroundStartedAt = now;
+    this.backgroundTransitioning = !this.reducedMotion;
+    if (this.reducedMotion) this.background.copy(next);
     this.requestRender("settling");
   }
 
@@ -405,7 +440,8 @@ export class FilmstripScene {
       return;
     }
 
-    if (this.renderState === "ambient" && !this.reducedMotion) {
+    this.updateBackground(time);
+    if (this.renderState === "ambient" && !this.reducedMotion && !this.backgroundTransitioning) {
       if (time - this.ambientLastRenderTime < AMBIENT_FRAME_INTERVAL) {
         this.requestRender("ambient");
         return;
@@ -471,6 +507,15 @@ export class FilmstripScene {
       this.updateDiagnostics();
     }
   };
+
+  private updateBackground(time: number): void {
+    if (!this.backgroundTransitioning) return;
+    const progress = THREE.MathUtils.clamp(
+      (time - this.backgroundStartedAt) / THEME_TRANSITION_DURATION, 0, 1,
+    );
+    this.background.lerpColors(this.backgroundFrom, this.backgroundTarget, progress);
+    if (progress === 1) this.backgroundTransitioning = false;
+  }
 
   private addEventListeners(): void {
     window.addEventListener("resize", this.handleResize);
@@ -857,7 +902,8 @@ export class FilmstripScene {
   }
 
   private hasPendingVisualMotion(): boolean {
-    return Math.abs(this.currentOffset - this.targetOffset) > OFFSET_EPSILON
+    return this.backgroundTransitioning
+      || Math.abs(this.currentOffset - this.targetOffset) > OFFSET_EPSILON
       || Math.abs(this.scrollVelocity) >= 0.1
       || this.pointerCurrent.distanceTo(this.pointerTarget) > POINTER_SETTLE_EPSILON
       || Math.abs(this.previewProgress - this.previewTarget) > POINTER_SETTLE_EPSILON

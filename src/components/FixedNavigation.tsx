@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { AuthAccountEntry } from "@/features/auth/AuthAccountEntry";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 import styles from "./FixedNavigation.module.css";
 
@@ -80,6 +81,7 @@ export function FixedNavigation({ onNavigate }: FixedNavigationProps) {
         >
           <Search aria-hidden="true" strokeWidth={1.7} />
         </Link>
+        <ThemeSwitcher />
         <AuthAccountEntry />
       </div>
     </nav>

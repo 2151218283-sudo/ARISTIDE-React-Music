@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/AppShell";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/features/auth/AuthProvider";
 import { ListeningHistoryRecorder } from "@/features/library/ListeningHistoryRecorder";
 import { LibraryMutationProvider } from "@/features/library/LibraryMutationProvider";
@@ -34,9 +35,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <PlayerProvider>
           <ListeningHistoryRecorder />
           <AuthProvider>
-            <LibraryMutationProvider>
-              <AppShell>{children}</AppShell>
-            </LibraryMutationProvider>
+            <ThemeProvider>
+              <LibraryMutationProvider>
+                <AppShell>{children}</AppShell>
+              </LibraryMutationProvider>
+            </ThemeProvider>
           </AuthProvider>
         </PlayerProvider>
       </body>

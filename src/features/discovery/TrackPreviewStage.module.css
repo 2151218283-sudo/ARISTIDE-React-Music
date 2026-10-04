@@ -300,7 +300,7 @@
 
 @media (max-width: 699px) {
   .counter {
-    top: max(var(--ef-space-3), env(safe-area-inset-top));
+    top: calc(68px + env(safe-area-inset-top));
   }
 
   .backButton {

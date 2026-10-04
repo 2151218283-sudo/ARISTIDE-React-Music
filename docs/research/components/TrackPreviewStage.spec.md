@@ -24,6 +24,8 @@
   only starts exit. It cannot contribute to the restored gallery offset or wave.
 - Reduced Motion keeps the same phases and controls but uses near-immediate
   spatial transitions and no stagger delay.
+- At mobile widths the closeable sequence counter sits below the fixed navigation
+  so it never overlaps navigation actions.
 
 ## Shared Artwork
 

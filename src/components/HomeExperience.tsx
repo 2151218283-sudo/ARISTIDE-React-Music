@@ -13,6 +13,7 @@ import {
   type TrackPreviewPhase,
 } from "@/features/discovery/TrackPreviewStage";
 import type { Track } from "@/lib/music/models";
+import { useArtworkThemeTarget } from "@/components/ThemeProvider";
 
 import { AboutPanel } from "./AboutPanel";
 import {
@@ -226,6 +227,12 @@ function HomeExperienceContent({ initialAbout }: HomeExperienceProps) {
     ? tracks.findIndex((track) => track.id === previewTrack.id)
     : -1;
   const previewOpen = preview.phase !== "hidden" && previewTrack !== null;
+  const themeTrack = previewOpen ? previewTrack : selectedTrack;
+  useArtworkThemeTarget({
+    key: `home:${themeTrack?.id ?? "none"}`,
+    status: recommendations.status,
+    url: themeTrack?.artworkUrl ?? null,
+  });
 
   return (
     <>
