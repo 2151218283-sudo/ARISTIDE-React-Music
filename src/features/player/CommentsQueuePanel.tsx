@@ -29,8 +29,11 @@ import { TextButton } from "@/components/TextButton";
 import type { ApiResult } from "@/lib/music/apiResult";
 import type { Comment, CommentPage, TrackAvailability } from "@/lib/music/models";
 import type { QueueItem } from "@/lib/player";
+import { useAuth } from "@/features/auth/AuthProvider";
 
 import { usePlayerDispatch, usePlayerSelector } from "./playerContext";
+import { CommentComposer } from "./CommentComposer";
+import { CommentLikeButton } from "./CommentLikeButton";
 import styles from "./CommentsQueuePanel.module.css";
 
 type PanelKind = "comments" | "queue";
@@ -143,13 +146,20 @@ function CommentsContent({
   onRetry,
   order,
   onOrderChange,
+  onReply,
+  onWriteConfirmed,
+  trackId,
 }: {
   comments: CommentsState;
   onLoadMore: () => void;
   onRetry: () => void;
   order: CommentOrder;
   onOrderChange: (order: CommentOrder) => void;
+  onReply: (comment: Comment) => void;
+  onWriteConfirmed: () => void;
+  trackId: string;
 }) {
+  const { mode, openLogin, status: authStatus, user } = useAuth();
   const orderedComments = useMemo(() => [...comments.items].sort((left, right) => {
     if (order === "popular") {
       const likesDifference = right.likedCount - left.likedCount;
@@ -185,8 +195,6 @@ function CommentsContent({
     return (
       <div className={styles.emptyState} data-comments-state="empty">
         <p>还没有可显示的评论</p>
-        <span>评论功能尚未开放</span>
-        <TextButton disabled variant="quiet">登录后发表评论</TextButton>
       </div>
     );
   }
@@ -224,7 +232,16 @@ function CommentsContent({
                 <p className={styles.replyContext}>回复 @{comment.replyTo.nickname}</p>
               ) : null}
               <p>{comment.content}</p>
-              <span className={styles.commentLikes}>赞 {comment.likedCount}</span>
+              <div className={styles.commentActions}>
+                <button
+                  className={styles.commentReplyButton}
+                  disabled={mode === "demo" || authStatus !== "ready"}
+                  onClick={() => user ? onReply(comment) : openLogin()}
+                  title={mode === "demo" ? "演示模式不支持评论回复" : "回复评论"}
+                  type="button"
+                >回复</button>
+                <CommentLikeButton comment={comment} onConfirmed={onWriteConfirmed} trackId={trackId} />
+              </div>
             </article>
           </li>
         ))}
@@ -246,10 +263,6 @@ function CommentsContent({
           加载更多
         </TextButton>
       ) : null}
-      <div className={styles.readOnlyFooter}>
-        <span>评论功能尚未开放</span>
-        <TextButton disabled variant="quiet">登录后发表评论</TextButton>
-      </div>
     </div>
   );
 }
@@ -367,6 +380,7 @@ export function CommentsQueuePanel({ trackId }: { trackId: string }) {
   const [activePanel, setActivePanel] = useState<PanelKind | null>(null);
   const [comments, setComments] = useState<CommentsState>(idleCommentsState);
   const [commentOrder, setCommentOrder] = useState<CommentOrder>("newest");
+  const [replyTo, setReplyTo] = useState<Comment | null>(null);
   const [removedItem, setRemovedItem] = useState<RemovedQueueItem | null>(null);
   const commentsAbortRef = useRef<AbortController | null>(null);
   const commentsRequestRef = useRef(0);
@@ -440,6 +454,7 @@ export function CommentsQueuePanel({ trackId }: { trackId: string }) {
     clearUndo();
     queueMicrotask(() => {
       setComments(idleCommentsState);
+      setReplyTo(null);
       setRemovedItem(null);
     });
   }, [clearUndo, trackId]);
@@ -607,13 +622,26 @@ export function CommentsQueuePanel({ trackId }: { trackId: string }) {
             </header>
             <div className={styles.panelBody}>
               {activePanel === "comments" ? (
-                <CommentsContent
-                  comments={comments}
-                  onLoadMore={() => loadComments(comments.nextOffset, true)}
-                  onOrderChange={setCommentOrder}
-                  onRetry={retryComments}
-                  order={commentOrder}
-                />
+                <>
+                  <CommentComposer
+                    key={trackId}
+                    onCancelReply={() => setReplyTo(null)}
+                    onConfirmed={() => loadComments(0, false)}
+                    onRefresh={() => loadComments(0, false)}
+                    replyTo={replyTo ? { id: replyTo.id, nickname: replyTo.author.nickname } : null}
+                    trackId={trackId}
+                  />
+                  <CommentsContent
+                    comments={comments}
+                    onLoadMore={() => loadComments(comments.nextOffset, true)}
+                    onOrderChange={setCommentOrder}
+                    onReply={setReplyTo}
+                    onRetry={retryComments}
+                    onWriteConfirmed={() => loadComments(0, false)}
+                    order={commentOrder}
+                    trackId={trackId}
+                  />
+                </>
               ) : (
                 <QueueContent
                   onRemove={removeQueueItem}

@@ -627,8 +627,21 @@ export class DemoMusicProvider implements MusicProvider {
   async createComment(
     input: CreateCommentInput,
     sessionId: string,
-  ): Promise<Comment> {
+  ): Promise<void> {
     void input;
+    void sessionId;
+    return throwDemoWriteUnavailable();
+  }
+
+  async setCommentLiked(
+    trackId: string,
+    commentId: string,
+    liked: boolean,
+    sessionId: string,
+  ): Promise<void> {
+    void trackId;
+    void commentId;
+    void liked;
     void sessionId;
     return throwDemoWriteUnavailable();
   }

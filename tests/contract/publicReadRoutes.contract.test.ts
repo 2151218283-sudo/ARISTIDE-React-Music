@@ -430,6 +430,21 @@ describe("public BFF read routes", () => {
     expect(response.headers.get("Cache-Control")).toBe(
       "public, max-age=30, s-maxage=30",
     );
-    expect(getComments).toHaveBeenCalledWith("101", { limit: 40, offset: 80 });
+    expect(getComments).toHaveBeenCalledWith("101", { limit: 40, offset: 80 }, undefined);
+  });
+
+  it("forwards only a server-resolved comment credential and forbids shared caching", async () => {
+    const getComments = vi.fn<PublicReadProvider["getComments"]>(async () => comments);
+    const handlers = createHandlers(createProvider({ getComments }), {
+      resolvePlaybackCredential: () => "server-only-credential",
+    });
+    const response = await handlers.comments(
+      new Request("http://localhost/api/tracks/101/comments?limit=10&offset=0"),
+      "101",
+    );
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(getComments).toHaveBeenCalledWith("101", { limit: 10, offset: 0 }, "server-only-credential");
+    expect(JSON.stringify(await response.json())).not.toContain("server-only-credential");
   });
 });

@@ -10,6 +10,15 @@ import { usePlayerDispatch } from "../../src/features/player/playerContext";
 import type { PlaybackSource, Track } from "../../src/lib/music/models";
 import type { QueueItem } from "../../src/lib/player";
 
+vi.mock("../../src/features/auth/AuthProvider", () => ({
+  useAuth: () => ({
+    mode: "real",
+    status: "ready",
+    user: null,
+    openLogin: vi.fn(),
+  }),
+}));
+
 const source: PlaybackSource = {
   url: "memory:comments-queue-panel",
   expiresAt: 9_999_999_999_999,
@@ -178,7 +187,7 @@ describe("CommentsQueuePanel", () => {
     expect(screen.queryByRole("button", { name: "加载更多" })).not.toBeInTheDocument();
   });
 
-  it("renders comment error, retry, and empty states without fabricating a composer", async () => {
+  it("renders comment error, retry, and an anonymous login action", async () => {
     let attempts = 0;
     renderPanel([], async () => {
       attempts += 1;
@@ -198,7 +207,7 @@ describe("CommentsQueuePanel", () => {
     expect(screen.getByText("评论服务暂时不可用")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "重试" }));
     expect(await screen.findByText("还没有可显示的评论")).toBeVisible();
-    expect(screen.getByRole("button", { name: "登录后发表评论" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "扫码登录后发表评论" })).toBeEnabled();
   });
 
   it("preserves existing comments when a later page fails and retries that page", async () => {
@@ -286,10 +295,10 @@ describe("CommentsQueuePanel", () => {
 
     const dialog = await screen.findByRole("dialog", { name: "评论" });
     const closeButton = screen.getByRole("button", { name: "关闭评论" });
-    const orderSelect = screen.getByRole("combobox", { name: "评论排序" });
+    const lastAction = screen.getByRole("button", { name: "赞 First Listener 的评论" });
     closeButton.focus();
     fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
-    expect(orderSelect).toHaveFocus();
+    expect(lastAction).toHaveFocus();
     fireEvent.keyDown(dialog, { key: "Tab" });
     expect(closeButton).toHaveFocus();
 

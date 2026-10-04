@@ -102,6 +102,70 @@
   gap: var(--ef-space-4);
 }
 
+.composer {
+  display: grid;
+  gap: var(--ef-space-2);
+  padding-bottom: var(--ef-space-4);
+  border-bottom: 1px solid var(--ef-border-subtle);
+}
+
+.composer label {
+  font: var(--ef-weight-semibold) var(--ef-type-label) var(--ef-font-body);
+}
+
+.composerHeading,
+.commentActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ef-space-2);
+}
+
+.composerHeading label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.composer textarea {
+  width: 100%;
+  min-height: 88px;
+  resize: vertical;
+  padding: var(--ef-space-3);
+  border: 1px solid var(--ef-border-strong);
+  border-radius: var(--ef-radius-sm);
+  background: var(--ef-surface-raised);
+  color: var(--ef-text-primary);
+  font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body);
+}
+
+.composer textarea:focus-visible {
+  outline: 2px solid var(--ef-action-primary);
+  outline-offset: 2px;
+}
+
+.composerActions {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ef-space-3);
+}
+
+.composerActions span,
+.composerNotice,
+.composerMessage {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.composerMessage {
+  margin: 0;
+}
+
+.composerMessage[role="alert"] {
+  color: var(--ef-status-error);
+}
+
 .commentToolbar {
   display: flex;
   min-height: 44px;
@@ -199,6 +263,59 @@
 .commentLikes {
   display: block;
   padding-top: var(--ef-space-2);
+}
+
+.commentActions {
+  justify-content: flex-start;
+  padding-top: var(--ef-space-2);
+}
+
+.commentReplyButton,
+.commentLikeButton,
+.commentRefreshButton {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--ef-text-secondary);
+  cursor: pointer;
+  font: var(--ef-weight-medium) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.commentLikeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ef-space-1);
+}
+
+.commentLikeButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.commentLikeButton[aria-pressed="true"] {
+  color: var(--ef-action-primary);
+}
+
+.commentReplyButton:disabled,
+.commentLikeButton:disabled {
+  cursor: not-allowed;
+}
+
+.commentActionError {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--ef-status-error);
+  font: var(--ef-weight-regular) var(--ef-type-caption) var(--ef-font-body);
+}
+
+.commentLikeAction {
+  min-width: 0;
+}
+
+.commentRefreshButton {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .inlineError,

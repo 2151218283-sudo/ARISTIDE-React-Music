@@ -40,7 +40,7 @@ export interface PublicReadProvider {
     upstreamCookie?: string,
   ): Promise<PlaybackSource>;
   getLyrics(trackId: string): Promise<LyricDocument>;
-  getComments(trackId: string, page: PageQuery): Promise<CommentPage>;
+  getComments(trackId: string, page: PageQuery, upstreamCookie?: string): Promise<CommentPage>;
 }
 
 export interface PublicReadRouteHandlers {
@@ -553,12 +553,13 @@ export function createPublicReadRouteHandlers(
       try {
         const id = parseTrackId(trackId);
         const page = parseCommentsPage(request);
+        const upstreamCookie = dependencies.resolvePlaybackCredential(request);
         return await respondToRead({
-          cacheControl: commentCacheControl,
+          cacheControl: upstreamCookie ? noStoreCacheControl : commentCacheControl,
           requestId,
           timeoutMs: dependencies.timeoutMs.default,
           dependencies,
-          execute: () => dependencies.createProvider().getComments(id, page),
+          execute: () => dependencies.createProvider().getComments(id, page, upstreamCookie),
         });
       } catch (error) {
         const appError = toAppError(error);

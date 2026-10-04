@@ -252,8 +252,9 @@ type ApiFailure = {
 | `GET` | `/api/tracks/:id` | 否 | 歌曲详情 |
 | `GET` | `/api/tracks/:id/source` | 可选 | 短期播放源 |
 | `GET` | `/api/tracks/:id/lyrics` | 否 | 普通、翻译和逐字歌词 |
-| `GET` | `/api/tracks/:id/comments` | 否 | 评论分页 |
+| `GET` | `/api/tracks/:id/comments` | 可选 | 评论分页；登录态用服务端凭据及 `no-store` 返回点赞状态 |
 | `POST` | `/api/tracks/:id/comments` | 是 | 发布或回复评论 |
+| `PUT` / `DELETE` | `/api/tracks/:id/comments/:commentId/like` | 是 | 评论点赞与取消，须按当前登录状态刷新 |
 | `GET` | `/api/library/likes` | 是 | 当前用户喜欢的歌曲 |
 | `PUT` | `/api/library/likes/:id` | 是 | 喜欢歌曲 |
 | `DELETE` | `/api/library/likes/:id` | 是 | 取消喜欢 |
@@ -464,8 +465,8 @@ Demo Mode 是答辩容灾，不是 Real Provider 的自动降级：
   始终要求脚本开关与当轮用户授权，且必须在同一进程完成回滚和登出。
 
   T021 已提供 `/api/library/likes` 与 `/api/library/albums` 的 Route Handler、Real/Demo
-  Provider 适配和页面共享状态；T020 的 Probe 仍不进入默认测试，T023 的其他写接口
-  继续作为后续任务，不因 T021 的完成而提前接线。
+  Provider 适配和页面共享状态；T020 的 Probe 仍不进入默认测试。T023 的顶层评论、
+  回复与评论点赞/取消已在各自专用账号 Probe 回滚后接线，应用验收仍使用本地模拟响应。
   T022 歌单 BFF 使用已完成专用账号验证的公开/私密创建、删除、曲目增删、名称/描述/标签
   独立更新与私密转公开。写入需 Session、所有者检查与 `clientMutationId`；同一 Session 内
   并发重复请求合并执行，不自动重试。歌单详情的整单曲目与私密权限已由专用账号核验。

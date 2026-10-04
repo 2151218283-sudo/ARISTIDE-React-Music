@@ -3,6 +3,9 @@
 > Status: T015 implementation specification
 > Scope: read-only comments and the shared queue surface on `/track/[id]`
 
+T023 comment publishing extends this historical T015 read-only scope; see
+`CommentWrite.spec.md` for the current write states and API boundary.
+
 ## Ownership
 
 - `CommentsQueuePanel` owns the shared Drawer/BottomSheet shell, focus
@@ -31,8 +34,8 @@ type CommentsStatus = "idle" | "loading" | "ready" | "error";
 - The first-page error shows an inline reason and `Retry`. A later-page error
   keeps existing comments and offers `Retry` for that page. No error clears
   previously valid rows.
-- Empty comments show `还没有可显示的评论` and do not fabricate a composer.
-  A disabled read-only footer states that commenting is not open yet.
+- Empty comments show `还没有可显示的评论`. T023 adds the authenticated
+  composer independently of list state; anonymous users see a QR login action.
 - Queue rows are keyed by `queueItemId`, display the current item, and keep
   unavailable tracks visible with a truthful reason. Selecting a playable row
   dispatches `LOAD_TRACK` with the current finite queue and autoplay enabled.
@@ -67,7 +70,7 @@ type CommentsStatus = "idle" | "loading" | "ready" | "error";
   row-sized Skeleton placeholders rather than a full-screen spinner.
 - `ready`: show count, chronological sections from the normalized API ordering,
   author, date, content, reply context, and a `加载更多` action while `hasMore`.
-- `empty`: reason plus no-op read-only footer.
+- `empty`: reason; the T023 composer remains available to authenticated users.
 - `error`: inline error with retry; old rows remain if a later page failed.
 
 ### Queue

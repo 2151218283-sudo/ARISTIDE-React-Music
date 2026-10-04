@@ -23,6 +23,7 @@ import type {
   AlbumSummary,
   ArtistSummary,
   ChangePlaylistTracksInput,
+  CreateCommentInput,
   CreatePlaylistInput,
   UpdatePlaylistInput,
   DeletePlaylistInput,
@@ -522,6 +523,58 @@ export class LegacyNeteaseAdapter {
       offset: page.offset,
     }, cookie));
     return mapCommentPage(unwrapLegacyBody(response), page.limit, page.offset);
+  }
+
+  async createComment(input: CreateCommentInput, upstreamCookie: string): Promise<void> {
+    const id = validateTrackId(input.trackId);
+    const content = input.content.trim();
+    if (!content || content.length > 1000) {
+      throw validationError("评论参数无效。");
+    }
+    const replyToCommentId = input.replyToCommentId === undefined
+      ? undefined
+      : validateTrackId(input.replyToCommentId);
+    if (!upstreamCookie) {
+      throw new AppError("AUTH_REQUIRED", "请先完成扫码登录。", { retryable: false });
+    }
+    const response = await this.invoke(this.api.comment, {
+      t: replyToCommentId ? 2 : 1,
+      type: 0,
+      id,
+      ...(replyToCommentId ? { commentId: replyToCommentId } : {}),
+      content,
+      cookie: upstreamCookie,
+    });
+    const body = asRecord(response.body);
+    if (response.status === 401 || body?.code === 401) {
+      throw new AppError("SESSION_EXPIRED", "登录状态已失效，请重新扫码。", { retryable: false });
+    }
+    unwrapLegacyBody(response);
+  }
+
+  async setCommentLiked(
+    trackId: string,
+    commentId: string,
+    liked: boolean,
+    upstreamCookie: string,
+  ): Promise<void> {
+    const id = validateTrackId(trackId);
+    const cid = validateTrackId(commentId);
+    if (!upstreamCookie) {
+      throw new AppError("AUTH_REQUIRED", "请先完成扫码登录。", { retryable: false });
+    }
+    const response = await this.invoke(this.api.comment_like, {
+      id,
+      cid,
+      type: 0,
+      t: liked ? 1 : 0,
+      cookie: upstreamCookie,
+    });
+    const body = asRecord(response.body);
+    if (response.status === 401 || body?.code === 401) {
+      throw new AppError("SESSION_EXPIRED", "登录状态已失效，请重新扫码。", { retryable: false });
+    }
+    unwrapLegacyBody(response);
   }
 
   async setTrackLiked(

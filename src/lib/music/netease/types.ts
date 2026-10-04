@@ -18,6 +18,8 @@ export interface LegacyNeteaseApi {
   artist_detail: LegacyApiMethod;
   artist_top_song: LegacyApiMethod;
   check_music: LegacyApiMethod;
+  comment: LegacyApiMethod;
+  comment_like: LegacyApiMethod;
   comment_music: LegacyApiMethod;
   cloudsearch: LegacyApiMethod;
   login_qr_create: LegacyApiMethod;

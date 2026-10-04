@@ -13,6 +13,8 @@ const requiredMethods = [
   "artist_detail",
   "artist_top_song",
   "check_music",
+  "comment",
+  "comment_like",
   "comment_music",
   "cloudsearch",
   "login_qr_create",

@@ -59,7 +59,10 @@ function failure(message: string): string {
 async function installTrackPageRoutes(
   page: Page,
   options: {
+    authenticated?: boolean;
     comments?: (offset: number) => unknown;
+    onCommentPost?: (body: { content: string; clientMutationId: string; replyToCommentId?: string }) => Promise<{ status: number; body: string }>;
+    onCommentLike?: (method: string, commentId: string, body: { clientMutationId: string }) => Promise<{ status: number; body: string }>;
     commentFailure?: boolean;
     lyrics?: unknown;
     lyricFailure?: boolean;
@@ -69,12 +72,25 @@ async function installTrackPageRoutes(
   await page.route("**/api/auth/session", async (route) => {
     await route.fulfill({
       contentType: "application/json",
-      body: success({ mode: "real", user: null }),
+      body: success({ mode: "real", user: options.authenticated
+        ? { id: "701", nickname: "Synthetic Listener", avatarUrl: null, signature: null }
+        : null }),
     });
   });
   await page.route("**/api/tracks/**", async (route) => {
     const pathname = new URL(route.request().url()).pathname;
+    const likeMatch = pathname.match(/\/comments\/([^/]+)\/like$/);
+    if (likeMatch && options.onCommentLike) {
+      const result = await options.onCommentLike(route.request().method(), likeMatch[1], route.request().postDataJSON());
+      await route.fulfill({ status: result.status, contentType: "application/json", body: result.body });
+      return;
+    }
     if (pathname.endsWith("/comments")) {
+      if (route.request().method() === "POST" && options.onCommentPost) {
+        const result = await options.onCommentPost(route.request().postDataJSON());
+        await route.fulfill({ status: result.status, contentType: "application/json", body: result.body });
+        return;
+      }
       if (options.commentFailure) {
         await route.fulfill({
           status: 503,
@@ -327,4 +343,114 @@ test("uses a bounded comments drawer and safe queue sheet across desktop and mob
   }).toBeLessThanOrEqual(844.1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.screenshot({ path: testInfo.outputPath("track-page-comments-mobile.png") });
+});
+
+test("publishes a comment only after confirmation and refreshes the first page", async ({ page }) => {
+  let posts = 0;
+  let reads = 0;
+  let release: (result: { status: number; body: string }) => void = () => {};
+  await installTrackPageRoutes(page, {
+    authenticated: true,
+    comments: () => {
+      reads += 1;
+      return { items: [], total: 0, hasMore: false, limit: 10, offset: 0 };
+    },
+    onCommentPost: async ({ content, clientMutationId }) => {
+      posts += 1;
+      expect(content).toBe("Synthetic listening note");
+      expect(clientMutationId).toMatch(/^[A-Za-z0-9_-]{16,128}$/);
+      return new Promise((resolve) => { release = resolve; });
+    },
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/track/track-001");
+  await page.getByRole("button", { name: "评论" }).click();
+  await expect(page.getByText("还没有可显示的评论")).toBeVisible();
+  await page.getByRole("textbox", { name: "发表评论" }).fill("Synthetic listening note");
+  await page.getByRole("button", { name: "发表" }).click();
+  await expect(page.getByRole("button", { name: "发送中" })).toBeDisabled();
+  expect(reads).toBe(1);
+  await expect.poll(() => posts).toBe(1);
+  release({ status: 200, body: success({ accepted: true }) });
+  await expect(page.getByText("评论已发送，正在刷新列表。")).toBeVisible();
+  await expect.poll(() => reads).toBe(2);
+  await expect(page.getByRole("textbox", { name: "发表评论" })).toHaveValue("");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test("replies and likes only after confirmation, then reads the account state at three widths", async ({ page }, testInfo) => {
+  const parent = {
+    id: "801",
+    author: { id: "702", nickname: "Synthetic Author", avatarUrl: null, signature: null },
+    content: "Parent listening note",
+    createdAt: 1_735_689_600_000,
+    likedCount: 4,
+    likedByCurrentUser: false,
+    replyTo: null,
+  };
+  let replyPublished = false;
+  let liked = false;
+  const writes: string[] = [];
+  await installTrackPageRoutes(page, {
+    authenticated: true,
+    comments: (offset) => ({
+      items: [
+        { ...parent, likedByCurrentUser: liked, likedCount: liked ? 5 : 4 },
+        ...(replyPublished ? [{ ...parent, id: "802", content: "Synthetic reply note", createdAt: parent.createdAt + 1,
+          replyTo: { id: parent.id, nickname: parent.author.nickname } }] : []),
+      ],
+      total: replyPublished ? 2 : 1,
+      hasMore: false,
+      limit: 10,
+      offset,
+    }),
+    onCommentPost: async ({ content, replyToCommentId, clientMutationId }) => {
+      expect({ content, replyToCommentId }).toEqual({ content: "Synthetic reply note", replyToCommentId: "801" });
+      expect(clientMutationId).toMatch(/^[A-Za-z0-9_-]{16,128}$/);
+      writes.push("reply");
+      replyPublished = true;
+      return { status: 200, body: success({ accepted: true }) };
+    },
+    onCommentLike: async (method, commentId, body) => {
+      expect(commentId).toBe("801");
+      expect(body.clientMutationId).toMatch(/^[A-Za-z0-9_-]{16,128}$/);
+      writes.push(method);
+      liked = method === "PUT";
+      return { status: 200, body: success({ accepted: true }) };
+    },
+  });
+  for (const viewport of [
+    { name: "desktop", width: 1440, height: 900 },
+    { name: "tablet", width: 768, height: 1024 },
+    { name: "mobile", width: 390, height: 844 },
+  ] as const) {
+    await page.setViewportSize(viewport);
+    await page.goto("/track/track-001");
+    await page.getByRole("button", { name: "评论" }).click();
+    const panel = page.getByRole("dialog", { name: "评论" });
+    const parentRow = panel.locator("li").filter({ hasText: "Parent listening note" });
+    await expect(parentRow).toBeVisible();
+    if (viewport.name === "desktop") {
+      await parentRow.getByRole("button", { name: "回复", exact: true }).click();
+      const replyInput = panel.getByRole("textbox", { name: "回复 @Synthetic Author" });
+      await expect(replyInput).toBeFocused();
+      await replyInput.fill("Synthetic reply note");
+      await panel.getByRole("button", { name: "发送回复" }).click();
+      await expect(panel.getByText("评论已发送，正在刷新列表。")).toBeVisible();
+      await expect(panel.getByText("Synthetic reply note")).toBeVisible();
+      await expect.poll(() => writes.filter((write) => write === "reply").length).toBe(1);
+      await parentRow.getByRole("button", { name: "赞 Synthetic Author 的评论" }).click();
+      await expect(parentRow.getByRole("button", { name: "取消赞 Synthetic Author 的评论" })).toHaveAttribute("aria-pressed", "true");
+      await parentRow.getByRole("button", { name: "取消赞 Synthetic Author 的评论" }).click();
+      await expect(parentRow.getByRole("button", { name: "赞 Synthetic Author 的评论" })).toHaveAttribute("aria-pressed", "false");
+      expect(writes).toEqual(["reply", "PUT", "DELETE"]);
+    } else {
+      await expect(panel.getByText("Synthetic reply note")).toBeVisible();
+      await expect(parentRow.getByRole("button", { name: "赞 Synthetic Author 的评论" })).toHaveAttribute("aria-pressed", "false");
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
+    await page.screenshot({ path: testInfo.outputPath(`comment-write-${viewport.name}.png`) });
+    await page.keyboard.press("Escape");
+    await expect(panel).toBeHidden();
+  }
 });

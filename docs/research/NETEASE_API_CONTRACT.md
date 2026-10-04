@@ -4,7 +4,7 @@
 > 核验日期：2026-10-04
 > 当前主 Provider：`NeteaseCloudMusicApi@4.32.0`
 > 候选替代 Provider：`@neteasecloudmusicapienhanced/api@4.38.0`
-> 登录态写操作：固定 Provider 路径已分项实测；T021 与 T022 的应用写入层已完成本地验收；T023 仍待执行
+> 登录态写操作：固定 Provider 路径已分项实测；T021 与 T022 的应用写入层已完成本地验收；T023 顶层评论、回复和点赞/取消已接线并通过本地模拟验收，尚待 Git 收口
 
 ## 1. 结论
 
@@ -194,7 +194,7 @@ Enhanced，Enhanced 的源码修复也不能反向证明 Legacy 可用。
 
 - 登录后的 `/user/detail`。
 - VIP、地区限制和不同音质账户的音源结果。
-- 登录态评论回复和评论点赞等尚未执行的外部写操作。
+- 本节旧匿名探测没有覆盖的登录态写入已在 11.2、11.4 和 T023 的独立专用账号 Probe 中分项记录；未列为成功的外部写操作仍不得开放。
 - 收藏歌单添加已在多个独立会话中返回 HTTP 405 / business code 405，作为上游阻塞保留；不能据此宣称收藏歌单可用。
 - 固定 Provider 的成功写入证据不等同于 ECHOFORM 产品写接口已经实现。
 
@@ -368,7 +368,8 @@ type AudioQuality =
 | --- | --- | --- | --- |
 | 读取歌曲评论 | `comment_music` / `/comment/music` | `id`, `limit`, `offset`, `before?` | `RUNTIME_ANON` |
 | 发布评论 | `comment` / `/comment` | `t=1`, `type=0`, `id`, `content`, `cookie` | `MUTATION_ROLLED_BACK`：创建及删除均 HTTP 200 / code 200 |
-| 回复评论 | `comment` / `/comment` | `t=2`, `type=0`, `id`, `commentId`, `content`, `cookie` | `MUTATION_NOT_RUN` |
+| 回复评论 | `comment` / `/comment` | `t=2`, `type=0`, `id`, `commentId`, `content`, `cookie` | `MUTATION_ROLLED_BACK`：回复创建/删除及临时父评论创建/删除均 HTTP 200 / code 200 |
+| 评论点赞/取消 | `comment_like` / `/comment/like` | `id`, `cid`, `type=0`, `t`, `cookie` | `MUTATION_ROLLED_BACK`：点赞/取消及临时评论创建/删除均 HTTP 200 / code 200 |
 | 喜欢/取消喜欢 | `like` / `/like` | `id`, `like`, `cookie` | `MUTATION_ROLLED_BACK`：添加与取消均 HTTP 200 / code 200 |
 | 创建歌单 | `playlist_create` / `/playlist/create` | `name`, `privacy`, `type`, `cookie` | `MUTATION_ROLLED_BACK`：`privacy=0` 与 `privacy=10` 均已独立创建和删除，HTTP 200 / code 200 |
 | 编辑歌单 | `playlist_name_update`、`playlist_desc_update`、`playlist_tags_update` | `id`, `name` / `desc` / `tags`, `cookie` | `MUTATION_ROLLED_BACK`：独立方法各 HTTP 200 / code 200，并经详情读取确认；仅操作同轮临时歌单，最终删除 |
@@ -671,6 +672,10 @@ type CreateCommentInput = {
 BFF 在单个 Session 内短期记录 `clientMutationId`，重复提交返回第一次结果，不再次调用
 上游。成功后刷新评论第一页；UI 不先伪造已发布成功。
 
+T023 的回复和点赞/取消已完成专用账号创建及回滚 Probe，并接入应用。BFF 对相同 Session、`clientMutationId`、目标评论和歌曲/正文 HMAC 合并并发并复用已确认结果。HMAC 使用仅服务端持有的会话凭据，Session 结果只记录是否确认，不保存正文。上游超时或连接中断属于结果不明，原 ID 不重新调用上游；界面保留草稿并让用户刷新列表核查，不自动重试。登录态评论读取使用服务端会话凭据并返回 `no-store`，以保证 `likedByCurrentUser` 与取消点赞后的状态来自当前账号；匿名评论仍可使用公开短缓存。
+
+本地 `npm.cmd run test` 通过 unit 82、component 106、contract 119、应用 E2E 54、基础视觉 E2E 2；`npm.cmd run check` 的 lint、typecheck、build 通过，lint 保留既有 QR `<img>` 一条警告。评论 E2E 只拦截同源接口，不代表真实账号的应用端到端写入。
+
 ## 8. Cookie 与隐私
 
 - 接收 803 时，从函数返回的 Cookie 集合中提取上游会话 Cookie，只写入服务端 Session。
@@ -777,7 +782,7 @@ Probe 的已验证评论路径，不覆盖该历史遗留不确定性。
 这些结果只升级固定 Legacy Provider 的契约等级。T021 已在此基础上接入
 `like`/`likelist` 与 `album_sub`/`album_sublist` 的 ECHOFORM Provider、同源 BFF、
 Session 内幂等记录和页面共享状态；应用层没有接入收藏歌单 405。歌单由 T022 独立实现
-和验收，评论仍由 T023 后续实现。
+和验收，评论由 T023 在补齐回复及点赞的专用账号 Probe 后接线并完成本地模拟验收。
 
 ### 11.3 T021 应用写入层（2026-10-04）
 

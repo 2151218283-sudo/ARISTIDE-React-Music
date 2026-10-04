@@ -44,6 +44,8 @@ function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
     artist_detail: method({ code: 200, data: { artist: null } }),
     artist_top_song: method({ code: 200, songs: [] }),
     check_music: method({ code: 200, success: true }),
+    comment: method({ code: 200 }),
+    comment_like: method({ code: 200 }),
     comment_music: method({ code: 200, comments: [], total: 0, more: false }),
     cloudsearch: method({ code: 200, result: { songs: [], songCount: 0 } }),
     login_qr_create: method({ code: 200, data: { qrimg: "data:image/png;base64,visual-stage-placeholder" } }),

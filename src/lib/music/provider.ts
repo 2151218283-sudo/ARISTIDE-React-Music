@@ -5,7 +5,6 @@ import type {
   ArtistDetail,
   CatalogPage,
   ChangePlaylistTracksInput,
-  Comment,
   CommentPage,
   CreateCommentInput,
   CreatePlaylistInput,
@@ -96,5 +95,11 @@ export interface MusicProvider {
   createComment(
     input: CreateCommentInput,
     sessionId: string,
-  ): Promise<Comment>;
+  ): Promise<void>;
+  setCommentLiked(
+    trackId: string,
+    commentId: string,
+    liked: boolean,
+    sessionId: string,
+  ): Promise<void>;
 }
