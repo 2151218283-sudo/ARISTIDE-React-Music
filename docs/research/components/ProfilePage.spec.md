@@ -37,8 +37,11 @@ fields.
 `UserProfile` remains limited to `id`, `nickname`, `avatarUrl`, and `signature`.
 `UserProfileOverview.recentPlays` is `{ state: "unavailable", reason:
 "upstream-not-verified" }` in T018 because no verified read contract exists for
-recent playback. The UI must state that fact and must not construct tracks,
-taste scores, dates, counts, or rankings.
+recent playback. The UI must state that fact and must not construct upstream
+tracks, scores, dates, counts, or rankings. T026 may add a separately labelled,
+current-user-only local sample profile from scoped IndexedDB history and actual
+liked Tracks. It must not call that sample an upstream monthly ranking or infer
+genre from a name.
 
 `UserPlaylistCollection` is `{ liked, created, subscribed }`. `liked` is
 derived only from the upstream special-playlist marker, never from a localized

@@ -4,12 +4,15 @@ import { useEffect, useRef } from "react";
 
 import {
   createListeningHistoryRecorder,
+  listeningHistoryScope,
   saveListeningHistoryCapture,
 } from "@/lib/listeningHistory";
+import { useAuth } from "@/features/auth/AuthProvider";
 import { usePlayerRuntime } from "@/features/player/playerContext";
 
 export function ListeningHistoryRecorder() {
   const runtime = usePlayerRuntime();
+  const { mode, status, user } = useAuth();
   const recorderRef = useRef(createListeningHistoryRecorder());
 
   useEffect(() => {
@@ -29,7 +32,8 @@ export function ListeningHistoryRecorder() {
         return;
       }
 
-      void saveListeningHistoryCapture(capture).catch(() => {
+      if (status !== "ready") return;
+      void saveListeningHistoryCapture(capture, listeningHistoryScope(mode, user?.id ?? null)).catch(() => {
         // Local persistence must never interrupt playback or queue behavior.
       });
     };
@@ -43,7 +47,7 @@ export function ListeningHistoryRecorder() {
       unsubscribeTimeline();
       recorder.reset();
     };
-  }, [runtime]);
+  }, [mode, runtime, status, user?.id]);
 
   return null;
 }

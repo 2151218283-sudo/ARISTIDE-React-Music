@@ -11,7 +11,7 @@
   stores only whitelisted normalized track metadata; it never accepts or
   persists `PlaybackSource` or an audio URL.
 - Global mount: `ListeningHistoryRecorder` is rendered once beneath
-  `PlayerProvider` in `src/app/layout.tsx`. It observes Player snapshots but
+  `PlayerProvider` and `AuthProvider` in `src/app/layout.tsx`. It observes Player snapshots but
   does not own Audio, dispatch playback commands, change the queue, or write
   React state on media-time events.
 - The feature consumes normalized `Track`, `Playlist`, and
@@ -43,18 +43,24 @@
 
 ## Local History Schema
 
-- Database: `echoform-listening-history`, version `1`.
-- Object store: `entries`, primary key `trackId`; an index named `playedAt`
-  supports most-recent-first reads.
-- Each persisted entry has exactly these product fields:
+- Database: `echoform-listening-history`, version `2`.
+- T026 adds `scopedEntries` keyed
+  by mode/identity plus track ID. The original `entries` store is retained
+  without deletion or attribution; those rows remain visibly legacy-local and
+  are excluded from recommendation and taste computations.
+- The legacy `entries` store has primary key `trackId`; the `scopedEntries`
+  store has primary key `scopeKey` (`scope:trackId`). Both retain a `playedAt`
+  index for most-recent-first reads.
+- Each entry has these product fields:
   `trackId`, `track`, `playedAt`, `playedMs`, `completed`, and `source`.
-  `source` is always the literal `local`.
+  Scoped entries additionally have `scope` and `scopeKey`. `source` is always
+  the literal `local`.
 - `track` is a whitelisted snapshot of id, name, artists (id/name only), album
   id/name/artwork, duration, artwork, aliases, explicit flag, availability,
   and privilege. Unknown object properties are discarded. In particular,
   `source`, `url`, `audioUrl`, `PlaybackSource`, cookies, QR values, and raw
   provider fields are not part of the schema.
-- `upsert` deduplicates by `trackId`: a later qualified play replaces the
+- Scoped `upsert` deduplicates by `scopeKey`: a later qualified play replaces the
   existing entry for that song and updates `playedAt`, `playedMs`, and
   `completed`. History therefore represents the latest qualified local play,
   not a fabricated count of upstream plays.
@@ -90,18 +96,18 @@
 - History loading waits 300ms before showing a same-shape skeleton. Empty
   state says `播放记录会出现在这里` and links locally to discovery. Storage
   failure names local storage, retains prior rows, and exposes retry.
-- When at least one history row exists, a `清空记录` action opens a local
-  confirmation dialog. The dialog names the exact scope: only the current
-  browser's `echoform-listening-history.entries` store is removed; the user
-  session, queue, audio source, cookies, and account data remain untouched.
+- When the current identity has at least one scoped row, a `清空当前身份记录`
+  action opens a local confirmation dialog. Only rows for that identity are
+  deleted from `scopedEntries`; legacy rows and other identities remain. The
+  user session, queue, audio source, cookies, and account data remain untouched.
   `取消`, Escape, and focus return leave every row unchanged. The destructive
   confirmation is disabled while the IndexedDB transaction is pending, so it
   cannot create duplicate clear operations.
-- A successful clear closes the dialog, replaces the displayed rows with the
-  honest empty state, restores focus to the action trigger, and announces the
-  result. A failed clear keeps the rows and dialog available, names the local
-  storage failure in place, and permits a deliberate retry. The adapter calls
-  only `entries.clear()` in a read-write transaction and emits
+- A successful clear closes the dialog, refreshes the remaining legacy rows or
+  shows the honest empty state, restores focus where available, and announces
+  the result. A failed clear keeps the rows and dialog available, names the local
+  storage failure in place, and permits a deliberate retry. The adapter deletes
+  only matching `scopeKey` rows in a read-write transaction and emits
   `echoform:history-changed` only after that transaction completes.
 
 ## Accessibility, Motion, And Tests

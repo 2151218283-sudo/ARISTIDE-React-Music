@@ -40,7 +40,8 @@ test("renders a public playlist and local share fallback at three viewports", as
   }
   await page.getByRole("button", { name: "分享" }).click();
   await expect(page.getByText("本站歌单链接已复制。")).toBeVisible();
-  expect(await page.evaluate(() => (window as Window & { copiedPlaylistUrl?: string }).copiedPlaylistUrl)).toBe("http://127.0.0.1:3100/playlist/801");
+  expect(await page.evaluate(() => (window as Window & { copiedPlaylistUrl?: string }).copiedPlaylistUrl))
+    .toBe(new URL("/playlist/801", page.url()).href);
 });
 
 test("creates a private playlist only after the BFF confirms it", async ({ page }) => {

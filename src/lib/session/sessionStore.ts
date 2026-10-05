@@ -4,6 +4,7 @@ import type {
   DailyRecommendations,
   DataMode,
   PlaybackSource,
+  RuleRecommendations,
   UserProfile,
 } from "@/lib/music/models";
 
@@ -29,6 +30,7 @@ export interface ServerSession {
   upstreamCookie: string | null;
   qr: ServerQrChallenge | null;
   dailyRecommendations: Map<string, DailyRecommendations>;
+  ruleRecommendations: Map<string, RuleRecommendations>;
   audioRelaySources: Map<string, PlaybackSource>;
   libraryMutations: Map<string, { operation: string; result: unknown }>;
 }
@@ -80,6 +82,7 @@ export class InMemorySessionStore {
       upstreamCookie: null,
       qr: null,
       dailyRecommendations: new Map(),
+      ruleRecommendations: new Map(),
       audioRelaySources: new Map(),
       libraryMutations: new Map(),
     };
@@ -188,6 +191,7 @@ export class InMemorySessionStore {
     session.upstreamCookie = upstreamCookie;
     session.qr = null;
     session.dailyRecommendations.clear();
+    session.ruleRecommendations.clear();
     session.audioRelaySources.clear();
     session.libraryMutations.clear();
     return true;
@@ -200,6 +204,7 @@ export class InMemorySessionStore {
     }
     session.user = user;
     session.dailyRecommendations.clear();
+    session.ruleRecommendations.clear();
     session.audioRelaySources.clear();
     session.libraryMutations.clear();
     return true;
@@ -213,6 +218,7 @@ export class InMemorySessionStore {
     session.user = null;
     session.upstreamCookie = null;
     session.dailyRecommendations.clear();
+    session.ruleRecommendations.clear();
     session.audioRelaySources.clear();
     return true;
   }
@@ -225,6 +231,7 @@ export class InMemorySessionStore {
     if (session.mode !== mode) {
       session.mode = mode;
       session.dailyRecommendations.clear();
+      session.ruleRecommendations.clear();
       session.audioRelaySources.clear();
       session.libraryMutations.clear();
     }
@@ -237,6 +244,17 @@ export class InMemorySessionStore {
   ): DailyRecommendations | null {
     const session = this.get(sessionId);
     return session?.dailyRecommendations.get(cacheKey) ?? null;
+  }
+
+  getRuleRecommendations(sessionId: string, key: string): RuleRecommendations | null {
+    return this.get(sessionId)?.ruleRecommendations.get(key) ?? null;
+  }
+
+  setRuleRecommendations(sessionId: string, key: string, value: RuleRecommendations): boolean {
+    const session = this.get(sessionId);
+    if (!session) return false;
+    session.ruleRecommendations.set(key, value);
+    return true;
   }
 
   setDailyRecommendations(

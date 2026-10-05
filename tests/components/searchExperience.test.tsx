@@ -9,6 +9,12 @@ const navigation = vi.hoisted(() => {
     search: "",
   };
 });
+const auth = vi.hoisted(() => ({
+  mode: "real" as "real" | "demo",
+  status: "ready" as const,
+  user: null,
+  openLogin: vi.fn(),
+}));
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(navigation.search),
@@ -18,6 +24,10 @@ vi.mock("next/link", () => ({
   default: ({ children, href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a href={typeof href === "string" ? href : ""} {...props}>{children}</a>
   ),
+}));
+
+vi.mock("../../src/features/auth/AuthProvider", () => ({
+  useAuth: () => auth,
 }));
 
 import { SearchExperience } from "../../src/features/search/SearchExperience";
@@ -83,9 +93,16 @@ function failure(message: string): Response {
   }, { status: 502 });
 }
 
+function SearchTree() {
+  return <PlayerProvider sourceResolver={async () => source}><SearchExperience /></PlayerProvider>;
+}
+
 function renderSearch(fetchMock: (input: RequestInfo | URL) => Promise<Response>) {
   vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
     const url = new URL(String(input), "http://localhost");
+    if (url.pathname === "/api/search/hot") {
+      return Response.json({ ok: true, data: { source: auth.mode, items: [] } });
+    }
     if (url.pathname === "/api/discovery/new-songs") {
       return Response.json({ ok: true, data: [track] });
     }
@@ -113,11 +130,7 @@ function renderSearch(fetchMock: (input: RequestInfo | URL) => Promise<Response>
     }
     return fetchMock(input);
   }));
-  return render(
-    <PlayerProvider sourceResolver={async () => source}>
-      <SearchExperience />
-    </PlayerProvider>,
-  );
+  return render(<SearchTree />);
 }
 
 async function searchFor(user: ReturnType<typeof userEvent.setup>, query: string): Promise<void> {
@@ -127,6 +140,7 @@ async function searchFor(user: ReturnType<typeof userEvent.setup>, query: string
 }
 
 beforeEach(() => {
+  auth.mode = "real";
   vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => undefined);
   vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
   vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
@@ -144,6 +158,16 @@ afterEach(async () => {
 });
 
 describe("SearchExperience", () => {
+  it("hides the previous mode's result as soon as identity changes", async () => {
+    const { rerender } = renderSearch(async () => success(allResult()));
+    await searchFor(userEvent.setup(), "signal");
+    expect(await screen.findByText("First Signal")).toBeVisible();
+
+    auth.mode = "demo";
+    rerender(<SearchTree />);
+    expect(screen.queryByText("First Signal")).not.toBeInTheDocument();
+  });
+
   it("renders independent discovery sections for an empty query and focuses the visible input with slash", async () => {
     const user = userEvent.setup();
     const fetchMock = vi.fn(async () => success(allResult()));

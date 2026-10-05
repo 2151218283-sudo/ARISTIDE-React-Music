@@ -8,6 +8,10 @@
 
 ## 1. 结论
 
+T026 追加的 `simi_song` 与 `search_hot_detail` 在固定 Legacy 4.32.0 发布包中已有模块源码，但原冻结白名单尚未包含二者。其参数源码可核对，响应字段和匿名运行结果须分别做有限只读核验；核验前均仅为 `SOURCE_VERIFIED`，不得继承其他搜索接口的 `RUNTIME_ANON` 等级。不得输出原始响应、真实搜索词、用户资料、Cookie 或音源 URL。
+
+2026-10-05 T026 匿名只读核验：固定包 `search_hot_detail({})` 返回 HTTP 200 / code 200、`data` 数组 20 项，成员包含 `searchWord` 和 `score`；`simi_song({id, limit})` 在两个公开歌曲 ID 上返回 HTTP 200 / code 200、`songs` 数组各 5 项，歌曲具备旧式 `artists`、`album`、`duration` 字段。第三个公开 ID 返回合法空数组，证明空态必须处理。终端仅记录状态、键名和数量；未输出词条、曲目正文、音源 URL 或原始响应。这两条 Legacy 匿名读取路径可标为 `RUNTIME_ANON`，不代表任意种子一定有相似歌曲或可播放音源。
+
 `NeteaseCloudMusicApi@4.32.0` 继续作为 ECHOFORM 本地毕设版本的已运行基线；
 `@neteasecloudmusicapienhanced/api@4.38.0` 作为原包失效时的候选替代 Provider。
 两者都不能被视为稳定、有 SLA 的正式服务。原包的二维码、搜索、歌曲详情、歌词、评论

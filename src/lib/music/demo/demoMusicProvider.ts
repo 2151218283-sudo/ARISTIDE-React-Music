@@ -20,6 +20,7 @@ import type {
   CreatePlaylistInput,
   UpdatePlaylistInput,
   DeletePlaylistInput,
+  HotSearchTerm,
   LyricDocument,
   PageQuery,
   PlaybackSource,
@@ -312,6 +313,12 @@ export class DemoMusicProvider implements MusicProvider {
     return this.createPage(tracks, page);
   }
 
+  async getLikedTrackIds(userId: string, sessionId?: string): Promise<string[]> {
+    void userId;
+    this.assertReadScenarioAvailable();
+    return [...getDemoLibraryState(sessionId ?? "anonymous").likedTrackIds].sort();
+  }
+
   async getSavedAlbums(
     page: PageQuery,
     sessionId?: string,
@@ -380,6 +387,20 @@ export class DemoMusicProvider implements MusicProvider {
       type: "album",
       ...this.createPage(albums, query),
     };
+  }
+
+  async getHotSearches(limit: number): Promise<HotSearchTerm[]> {
+    void limit;
+    this.assertReadScenarioAvailable();
+    return [];
+  }
+
+  async getSimilarTracks(trackId: string, limit: number, sessionId?: string): Promise<Track[]> {
+    void trackId;
+    void limit;
+    void sessionId;
+    this.assertReadScenarioAvailable();
+    return [];
   }
 
   async getAlbum(albumId: string, sessionId?: string): Promise<AlbumDetail> {

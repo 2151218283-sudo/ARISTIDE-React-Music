@@ -54,7 +54,7 @@ export function FixedNavigation({ onNavigate }: FixedNavigationProps) {
   const pathname = usePathname();
 
   return (
-    <nav className={styles.navigation} aria-label="ECHOFORM 主导航" data-opaque={pathname.startsWith("/playlist/") || undefined}>
+    <nav className={styles.navigation} aria-label="ECHOFORM 主导航" data-opaque={pathname === "/search" || pathname.startsWith("/playlist/") || undefined}>
       <Link
         aria-current={currentAttribute(pathname === "/" || pathname === "/about")}
         aria-label="ECHOFORM 首页"

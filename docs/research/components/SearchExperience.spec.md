@@ -40,8 +40,10 @@
    error, and exposes `重试` for the same query. An empty response replaces the
    prior result with the honest empty state and focuses no control.
 5. Clearing the input cancels pending work and shows the zero-data search
-   landing state. Search history and hot searches are explicitly marked as
-   pending discovery data in T016; no fake history or ranking is rendered.
+   landing state. T026 adds current-tab in-memory recent searches, scoped by
+   mode and user, plus a separately loaded real upstream hot-search ranking.
+   A query enters recent searches only after a successful search response.
+   Refresh clears the list; logout removes the former user's scope.
 
 ## Result Presentation
 

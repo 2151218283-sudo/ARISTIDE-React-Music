@@ -19,6 +19,7 @@ import type {
   QrLoginState,
   SearchQuery,
   SearchResponse,
+  HotSearchTerm,
   Track,
   UserProfile,
   UserPlaylistCollection,
@@ -41,6 +42,7 @@ export interface MusicProvider {
     page: PageQuery,
     sessionId?: string,
   ): Promise<CatalogPage<Track>>;
+  getLikedTrackIds(userId: string, sessionId?: string): Promise<string[]>;
   getSavedAlbums(
     page: PageQuery,
     sessionId?: string,
@@ -48,6 +50,8 @@ export interface MusicProvider {
 
   getDailyRecommendations(sessionId: string): Promise<Track[]>;
   search(query: SearchQuery, sessionId?: string): Promise<SearchResponse>;
+  getHotSearches(limit: number): Promise<HotSearchTerm[]>;
+  getSimilarTracks(trackId: string, limit: number, sessionId?: string): Promise<Track[]>;
   getAlbum(albumId: string, sessionId?: string): Promise<AlbumDetail>;
   getArtist(
     artistId: string,

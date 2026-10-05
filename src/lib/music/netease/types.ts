@@ -31,6 +31,8 @@ export interface LegacyNeteaseApi {
   lyric_new: LegacyApiMethod;
   logout: LegacyApiMethod;
   recommend_songs: LegacyApiMethod;
+  search_hot_detail: LegacyApiMethod;
+  simi_song: LegacyApiMethod;
   personalized_newsong: LegacyApiMethod;
   playlist_create: LegacyApiMethod;
   playlist_delete: LegacyApiMethod;

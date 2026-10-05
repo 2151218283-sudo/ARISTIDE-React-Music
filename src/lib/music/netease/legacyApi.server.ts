@@ -35,6 +35,8 @@ const requiredMethods = [
   "playlist_privacy",
   "playlist_tracks",
   "recommend_songs",
+  "search_hot_detail",
+  "simi_song",
   "song_detail",
   "song_url_v1",
   "top_playlist",

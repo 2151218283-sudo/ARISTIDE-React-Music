@@ -4,8 +4,9 @@ import type { PlaybackStatus } from "./player/types";
 export const historySchema = {
   databaseName: "echoform-listening-history",
   objectStoreName: "entries",
+  scopedStoreName: "scopedEntries",
   playedAtIndexName: "playedAt",
-  version: 1,
+  version: 2,
 } as const;
 
 export const listeningHistoryChangedEvent = "echoform:history-changed";
@@ -48,6 +49,12 @@ export interface ListeningHistoryEntry {
   source: "local";
   track: StoredTrack;
   trackId: string;
+  scope?: string;
+  scopeKey?: string;
+}
+
+export function listeningHistoryScope(mode: "real" | "demo", userId: string | null): string {
+  return mode === "demo" ? "demo" : userId ? `real:${userId}` : "real:guest";
 }
 
 export interface ListeningHistoryCapture {
@@ -143,7 +150,18 @@ function isListeningHistoryEntry(value: unknown): value is ListeningHistoryEntry
     && typeof value.playedMs === "number"
     && Number.isFinite(value.playedMs)
     && typeof value.completed === "boolean"
-    && value.source === "local";
+    && value.source === "local"
+    && (value.scope === undefined || typeof value.scope === "string")
+    && (value.scopeKey === undefined || typeof value.scopeKey === "string");
+}
+
+function isScopedListeningHistoryEntry(value: unknown): value is ListeningHistoryEntry & {
+  scope: string;
+  scopeKey: string;
+} {
+  return isListeningHistoryEntry(value)
+    && typeof value.scope === "string"
+    && value.scopeKey === `${value.scope}:${value.trackId}`;
 }
 
 export function toStoredTrack(track: Track): StoredTrack {
@@ -327,6 +345,12 @@ async function openListeningHistoryDatabase(): Promise<IDBDatabase> {
       });
       store.createIndex(historySchema.playedAtIndexName, "playedAt", { unique: false });
     }
+    if (!database.objectStoreNames.contains(historySchema.scopedStoreName)) {
+      const store = database.createObjectStore(historySchema.scopedStoreName, {
+        keyPath: "scopeKey",
+      });
+      store.createIndex(historySchema.playedAtIndexName, "playedAt", { unique: false });
+    }
   };
 
   try {
@@ -338,14 +362,22 @@ async function openListeningHistoryDatabase(): Promise<IDBDatabase> {
   }
 }
 
-export async function listListeningHistory(): Promise<ListeningHistoryEntry[]> {
+export async function listListeningHistory(scope?: string): Promise<ListeningHistoryEntry[]> {
   const database = await openListeningHistoryDatabase();
   try {
     const transaction = database.transaction(historySchema.objectStoreName, "readonly");
     const store = transaction.objectStore(historySchema.objectStoreName);
     const values = await requestResult(store.getAll());
     await transactionComplete(transaction);
-    return sortListeningHistoryEntries(values.filter(isListeningHistoryEntry));
+    const legacy = values.filter(isListeningHistoryEntry);
+    if (!scope) return sortListeningHistoryEntries(legacy);
+    const scopedTransaction = database.transaction(historySchema.scopedStoreName, "readonly");
+    const scoped = await requestResult(scopedTransaction.objectStore(historySchema.scopedStoreName).getAll());
+    await transactionComplete(scopedTransaction);
+    return sortListeningHistoryEntries([
+      ...legacy,
+      ...scoped.filter(isScopedListeningHistoryEntry).filter((entry) => entry.scope === scope),
+    ]);
   } catch (error) {
     throw new ListeningHistoryStorageError(error instanceof Error
       ? error.message
@@ -355,12 +387,37 @@ export async function listListeningHistory(): Promise<ListeningHistoryEntry[]> {
   }
 }
 
-export async function clearListeningHistory(): Promise<void> {
+export async function listScopedListeningHistory(scope: string): Promise<ListeningHistoryEntry[]> {
   const database = await openListeningHistoryDatabase();
   try {
-    const transaction = database.transaction(historySchema.objectStoreName, "readwrite");
-    const store = transaction.objectStore(historySchema.objectStoreName);
-    await requestResult(store.clear());
+    const transaction = database.transaction(historySchema.scopedStoreName, "readonly");
+    const values = await requestResult(transaction.objectStore(historySchema.scopedStoreName).getAll());
+    await transactionComplete(transaction);
+    return sortListeningHistoryEntries(values.filter(isScopedListeningHistoryEntry)
+      .filter((entry) => entry.scope === scope));
+  } finally {
+    database.close();
+  }
+}
+
+export async function clearListeningHistory(scope?: string): Promise<void> {
+  const database = await openListeningHistoryDatabase();
+  try {
+    const transaction = database.transaction(
+      scope ? historySchema.scopedStoreName : historySchema.objectStoreName,
+      "readwrite",
+    );
+    const store = transaction.objectStore(
+      scope ? historySchema.scopedStoreName : historySchema.objectStoreName,
+    );
+    if (scope) {
+      const entries = await requestResult(store.getAll());
+      for (const entry of entries.filter(isScopedListeningHistoryEntry)) {
+        if (entry.scope === scope) store.delete(entry.scopeKey);
+      }
+    } else {
+      await requestResult(store.clear());
+    }
     await transactionComplete(transaction);
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event(listeningHistoryChangedEvent));
@@ -376,12 +433,16 @@ export async function clearListeningHistory(): Promise<void> {
 
 export async function saveListeningHistoryCapture(
   capture: ListeningHistoryCapture,
+  scope?: string,
 ): Promise<ListeningHistoryEntry> {
-  const entry = createListeningHistoryEntry(capture);
+  const entry: ListeningHistoryEntry = scope
+    ? { ...createListeningHistoryEntry(capture), scope, scopeKey: `${scope}:${capture.trackId}` }
+    : createListeningHistoryEntry(capture);
   const database = await openListeningHistoryDatabase();
   try {
-    const transaction = database.transaction(historySchema.objectStoreName, "readwrite");
-    const store = transaction.objectStore(historySchema.objectStoreName);
+    const storeName = scope ? historySchema.scopedStoreName : historySchema.objectStoreName;
+    const transaction = database.transaction(storeName, "readwrite");
+    const store = transaction.objectStore(storeName);
     await requestResult(store.put(entry));
     await transactionComplete(transaction);
     if (typeof window !== "undefined") {

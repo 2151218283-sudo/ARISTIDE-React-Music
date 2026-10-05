@@ -102,9 +102,9 @@ export function ClearHistoryDialog({
       >
         <p className={styles.eyebrow}>ECHOFORM / LOCAL HISTORY</p>
         <div className={styles.copy}>
-          <h2 id="clear-history-title">清空播放记录？</h2>
+          <h2 id="clear-history-title">清空当前身份的播放记录？</h2>
           <p id="clear-history-description">
-            仅删除当前浏览器中的本地记录，不会影响网易云账号、播放队列或音频。
+            仅清除当前身份在此浏览器的播放记录。其他身份及归属未知的旧记录会保留；网易云账号、播放队列和音频不受影响。
           </p>
         </div>
         {error ? <p className={styles.error} role="alert">{error}</p> : null}
@@ -118,7 +118,7 @@ export function ClearHistoryDialog({
             取消
           </TextButton>
           <TextButton loading={pending} onClick={onConfirm} variant="danger">
-            清空记录
+            清空当前身份记录
           </TextButton>
         </div>
       </div>

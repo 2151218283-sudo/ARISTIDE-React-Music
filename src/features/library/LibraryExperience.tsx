@@ -22,6 +22,7 @@ import { useAuth } from "@/features/auth/AuthProvider";
 import {
   clearListeningHistory,
   listeningHistoryChangedEvent,
+  listeningHistoryScope,
   listListeningHistory,
   toTrack,
   type ListeningHistoryEntry,
@@ -191,10 +192,10 @@ function HistoryList({
           return null;
         }
         return (
-          <div className={styles.historyEntry} key={entry.trackId}>
+          <div className={styles.historyEntry} key={entry.scopeKey ?? `legacy:${entry.trackId}`}>
             <TrackRow queue={queue} track={track} />
             <p className={styles.historyMeta}>
-              本地记录 · 已听 {formatTrackDuration(entry.playedMs)} ·
+              {entry.scope ? "当前身份本地记录" : "归属未知的旧记录"} · 已听 {formatTrackDuration(entry.playedMs)} ·
               {entry.completed ? " 已播完" : " 已达记录阈值"} · {formatPlayedAt(entry.playedAt)}
             </p>
           </div>
@@ -320,7 +321,13 @@ function AccountTab({
 }
 
 export function LibraryExperience() {
+  const { mode, user } = useAuth();
+  return <ScopedLibraryExperience key={listeningHistoryScope(mode, user?.id ?? null)} />;
+}
+
+function ScopedLibraryExperience() {
   const { mode, openLogin, status, user } = useAuth();
+  const historyScope = listeningHistoryScope(mode, user?.id ?? null);
   const library = useLibraryMutations();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<LibraryTab>("likes");
@@ -348,7 +355,7 @@ export function LibraryExperience() {
     setHistoryFailure(null);
     setShowHistorySkeleton(false);
     const skeletonTimer = window.setTimeout(() => setShowHistorySkeleton(true), 300);
-    void listListeningHistory()
+    void listListeningHistory(historyScope)
       .then((nextEntries) => {
         setEntries(nextEntries);
         setHistoryState(nextEntries.length === 0 ? "empty" : "ready");
@@ -361,7 +368,7 @@ export function LibraryExperience() {
         window.clearTimeout(skeletonTimer);
         setShowHistorySkeleton(false);
       });
-  }, []);
+  }, [historyScope]);
 
   useLayoutEffect(() => {
     const requestedPath = window.sessionStorage.getItem(pageHeadingFocusStorageKey);
@@ -436,6 +443,8 @@ export function LibraryExperience() {
     () => entries.slice(0, visibleHistoryCount),
     [entries, visibleHistoryCount],
   );
+  const scopedHistoryCount = entries.filter((entry) => entry.scope === historyScope).length;
+  const legacyHistoryCount = entries.length - scopedHistoryCount;
   const activeTabSpec = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const tabPanelId = `library-panel-${activeTab}`;
   const userReady = status === "ready" && (user !== null || mode === "demo");
@@ -463,13 +472,12 @@ export function LibraryExperience() {
     }
     setClearPending(true);
     setClearFailure(null);
-    void clearListeningHistory()
+    void clearListeningHistory(historyScope)
       .then(() => {
-        setEntries([]);
-        setHistoryState("empty");
+        refreshHistory();
         setVisibleHistoryCount(historyPageSize);
         setClearDialogOpen(false);
-        setHistoryAnnouncement("播放记录已清空。");
+        setHistoryAnnouncement("当前身份的本地播放记录已清空；旧记录已保留。");
         window.requestAnimationFrame(() => {
           clearHistoryTriggerRef.current?.focus({ preventScroll: true });
         });
@@ -530,18 +538,21 @@ export function LibraryExperience() {
           {activeTab === "history" ? (
             <div className={styles.historyHeadingActions}>
               <span>{entries.length} 条本地记录</span>
-              {historyState === "ready" && entries.length > 0 ? (
+              {historyState === "ready" && scopedHistoryCount > 0 ? (
                 <TextButton
                   onClick={openClearDialog}
                   ref={clearHistoryTriggerRef}
                   variant="danger"
                 >
-                  清空记录
+                  清空当前身份记录
                 </TextButton>
               ) : null}
             </div>
           ) : null}
         </div>
+        {activeTab === "history" && legacyHistoryCount > 0 ? (
+          <p className={styles.historyNotice}>{legacyHistoryCount} 条旧记录无法确认账号或模式，仅供本地查看，不参与推荐和画像。</p>
+        ) : null}
         {activeTab === "history" ? (
           historyState === "loading" && showHistorySkeleton ? <HistorySkeleton />
             : historyState === "empty" ? (

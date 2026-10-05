@@ -107,6 +107,14 @@ Demo Provider 不访问网络、不读取浏览器存储、不伪造网易云登
 Demo 登录方法不得返回扫码成功或虚构账号；写方法在对应 P1 任务定义 Demo 写语义前不得
 假成功。
 
+## T026 只读推荐扩展
+
+- `MusicProvider` 增加完整喜欢 ID、相似歌曲与热搜的只读能力。前两者的账号与模式边界由同源 BFF/Session 控制；页面只见归一化歌曲、热搜词和推荐依据。
+- 相似曲候选的 `availability: unknown` 不等于可播；推荐 BFF 必须以当前身份取得实际短期音源后才可输出 `verified-playable` 结果，并丢弃 URL。
+- 规则推荐响应分别报告 `failedSeedCount` 与 `failedAvailabilityCount`；前者是种子元数据/相似曲读取失败数，后者是候选音源验证暂时失败数。明确不可播不计入暂时失败；有任一暂时失败时结果不进入日缓存。
+- 画像当前只按 `Track.artists[0]` 的真实 ID/名称聚合，不新增推测的风格或专辑标签字段。上游最近播放仍保持 `upstream-not-verified`，与本站本地画像分开呈现。
+- Demo 方法只能消费 Demo Provider 数据；没有可证明的演示相似关系或授权音源时返回明确空态，不能替换 Real 失败。
+
 ## 9. T003 验收
 
 - 模型、错误与 Provider 类型在 strict TypeScript 下无 `any`。

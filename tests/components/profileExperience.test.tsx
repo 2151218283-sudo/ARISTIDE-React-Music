@@ -5,6 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const navigation = vi.hoisted(() => ({ push: vi.fn() }));
 
+vi.mock("../../src/features/auth/AuthProvider", () => ({
+  useAuth: () => ({ mode: "real", status: "ready", user: profile }),
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => navigation,
 }));
@@ -92,6 +96,9 @@ function fetchFor(
 ) {
   return vi.fn(async (input: RequestInfo | URL) => {
     const path = String(input);
+    if (path.includes("/api/library/likes")) {
+      return success({ items: [], total: 0, limit: 50, offset: 0, hasMore: false });
+    }
     return path.includes("/playlists") ? playlistsResponse() : profileResponse();
   });
 }

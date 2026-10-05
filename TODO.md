@@ -2,7 +2,7 @@
 
 > 状态：执行基线 v1
 > 更新日期：2026-10-05
-> 当前任务：T026 播放历史规则推荐、热搜与品味画像，待启动
+> 当前任务：T027 旧作品集路由、内容和资产清理，待启动
 > 执行方式：严格串行；不得同时开发、验收或勾选两个任务
 
 ## 1. 依据与优先级
@@ -123,11 +123,23 @@
 
 ## 4. 当前执行卡
 
-- 当前任务：T026 播放历史规则推荐、热搜与品味画像，待启动；执行卡在下一轮开始前填写。
+- 当前任务：T027 旧作品集路由、内容和资产清理，待启动。
+
+### T026 归档执行卡
+
+- 状态：T026 播放历史规则推荐、热搜与品味画像已通过本地验收；T027 尚未开始。
+- 目标：以完整喜欢 ID 与有归属的本站有效播放历史生成可解释、可复现的相似曲推荐；完成当前标签页最近搜索、真实热搜、既有新歌/热门歌单的模式隔离；仅在样本充分时展示本人歌手画像。
+- 文档前置：对齐 PRD、视觉、架构、API、领域模型和 Search/Discovery/Profile/Library/RuleRecommendations 规格后再改实现。固定包新只读方法必须先做有限匿名运行核验，失败不得伪造 Real 成功。
+- 允许修改：本卡及上述控制文档和规格；`src/lib/music/{models,provider,bff,ruleRecommendation,ruleRecommendationBff,ruleRecommendationRouteHandlers.server,hotSearchBff}.ts`、`src/lib/music/netease/{types,legacyApi.server,normalize,adapter}.ts`、`src/lib/music/demo/demoMusicProvider.ts`、`src/lib/session/sessionStore.ts`、`src/lib/listeningHistory.ts`；`src/app/layout.tsx`、`src/app/api/search/**`、`src/app/api/discovery/{new-songs,popular-playlists}/route.ts`、`src/app/api/recommendations/rules/route.ts`；`src/features/search/**` 中当前搜索、发现页、client、CSS 和新增 recentSearches；`src/features/discovery/RuleRecommendations*`、`ruleRecommendationClient.ts`；`src/features/library/{ListeningHistoryRecorder,LibraryExperience,libraryClient}` 及页面 CSS；`src/features/profile/{ProfileExperience,TasteProfile}` 及 CSS；上述行为对应的 unit、component、contract、E2E 测试。
+- 补充授权：`src/components/FixedNavigation.tsx` 仅给搜索页启用既有不透明导航；`src/features/library/ClearHistoryDialog.tsx` 仅对齐当前身份清空文案，并更新 Library 规格及对应测试。
+- 历史存储授权：仅升级现有 `echoform-listening-history` IndexedDB，新增按模式/账号隔离的 store；旧 store 和旧记录保留、只读展示、不得作为个性化证据。不得新建数据库或删除旧数据。
+- 保护项：Real/Demo 与账号数据不串用；不把未验证的原始字段、Cookie、源 URL 或私人样本放进日志/fixture/缓存；不更改唯一 Audio、Player 状态机、WebGL 主画廊、既有写入语义；不新增依赖、不训练模型、不创建“不感兴趣”假信号。
+- 验收：T026 条目的十类页面状态、确定性算法/缓存与三视口；专项 unit/component/contract/E2E、完整 `npm run test`、`npm run check`、`git diff --check`、敏感信息和外部 URL 扫描均通过。真实新上游读取未通过则不得勾选 T026。
+- 完成记录（2026-10-05）：最近搜索限当前标签页并按身份隔离；Real 热搜、完整喜欢 ID 和相似曲由固定版 Provider 经同源 BFF 读取。规则推荐使用最多 10 个种子、确定性加权、可播性验证、近 7 天排重及同歌手上限；只缓存完整成功的当日结果。画像仅按真实主歌手和足量样本计算；原 v1 历史保留为无归属只读记录，v2 按身份隔离。搜索页不透明固定导航和音乐库身份清空文案经过单独授权修正。固定包新增匿名只读方法的运行证据记录于 API 合同；本轮未运行真实账号 Probe。`npm.cmd run test` 通过 unit 106、component 127、contract 134、应用 E2E 72、Foundation 2；`npm.cmd run check` 通过，仅有既存 QR `<img>` lint warning；`git diff --check`、敏感信息与外部 URL 扫描及 1440x900、768x1024、390x844 视口验收通过。T027 删除清单仍须单独确认。
 
 ### T025 归档执行卡
 
-- 状态：T025 设置、音质偏好与 Sleep Timer 已通过验收；T026 尚未开始。
+- 状态：T025 设置、音质偏好与 Sleep Timer 已通过验收。
 - 文档与计划变更前置：先对齐 PRD 中旧的 Timer 持久化验收句，并建立 `SettingsExperience.spec.md`；本卡明确批准计划中的跨模块接线范围，文档完成前不改实现。
 - 目标：实现持久化设置与不改变系统音量的 Sleep Timer，沿用 T024 主题所有权和唯一播放器；减少动态偏好覆盖现有 CSS、画廊、播放页及相关 JS 转场。
 - 允许修改：本卡及 PRD 的 T025 冲突句、Settings 规格；`src/app/layout.tsx`、`src/app/globals.css`、`src/app/settings/**`、`src/features/settings/**`；`src/components/ThemeProvider.tsx`、`ThemeSwitcher.tsx`、`HomeExperience.tsx`、`FilmstripGallery.tsx`；`src/lib/webgl/filmstripScene.ts`、`src/lib/player/reducer.ts`、`controller.ts`；`src/features/player/PlayerProvider.tsx`、`sourceClient.ts`、`PersistentAudioHost.tsx`、`LyricsViewport.tsx`、`VolumeControl.tsx`、`PlayerTransport.tsx`；`src/features/auth/AuthProvider.tsx`、`QrLoginDialog.tsx`；`src/features/profile/ProfileAvatarTransitionLayer.tsx`；上述行为对应的 unit、component、contract、E2E 测试。
@@ -608,11 +620,11 @@
 
   完成记录（2026-10-05）：`/settings` 已接入主题、减少动态、默认音质、播放模式、音量记忆和歌词偏好；版本化本地设置支持字段恢复、不可用及写失败提示。Sleep Timer 复用唯一 Player/Audio，提供 15/30/45/60 分钟与当前曲结束、最后 3 秒临时增益渐弱、取消/退出登录恢复与刷新清除。三视口及 200% 等效缩放、后台补触发、曲终不跳队列和本地 Audio 输出均通过浏览器验证。`npm.cmd run test` 通过 unit 100、component 121、contract 121、应用 E2E 67、Foundation visual E2E 2；`npm.cmd run check` 通过，lint 仅有既存 QR `<img>` warning；`git diff --check` 通过。WebGL 的 500ms 帧率短窗曾两次低于门槛，随后专项与两轮完整 E2E 均通过；未调整门槛。未运行真实账号 Probe。推送仍需单独授权。
 
-- [ ] **T026 播放历史规则推荐、热搜与品味画像**
+- [x] **T026 播放历史规则推荐、热搜与品味画像**
 
   目标：按可解释规则用喜欢和有效播放历史生成相似音乐；展示来源、排除不可播/短期重复并限制同歌手；用真实数据生成 3-5 类品味画像。
 
-  允许修改：Recommendation/Profile 规格；discovery/profile/library 相关 feature、Provider 读取扩展、fixtures 和测试。
+  允许修改：以第 4 节 T026 归档执行卡的精确路径为准，包含 Search/Discovery/Profile/Library、同源只读 BFF、Session 缓存和现有 IndexedDB 隔离升级。
 
   不允许破坏：不得宣称 AI 推荐；不得伪造标签或比例；个人数据不足显示空状态；推荐缓存按天；不训练模型，不新增数据库。
 

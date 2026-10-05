@@ -9,6 +9,7 @@ import type {
   SearchResponse,
   SearchType,
   Track,
+  HotSearchTerm,
 } from "@/lib/music/models";
 
 const searchTypes: readonly SearchType[] = ["all", "track", "album", "artist"];
@@ -180,4 +181,27 @@ export async function requestSearch({
   }
 
   return body.data;
+}
+
+export async function requestHotSearches(signal?: AbortSignal): Promise<{
+  source: "real" | "demo";
+  items: HotSearchTerm[];
+}> {
+  const response = await fetch("/api/search/hot", {
+    cache: "no-store", credentials: "same-origin", signal,
+  });
+  let body: unknown;
+  try { body = await response.json(); } catch { throw toClientError(null, response.status); }
+  if (!response.ok || !isRecord(body) || body.ok !== true || !isRecord(body.data)) {
+    throw toClientError(body, response.status);
+  }
+  const data = body.data;
+  if ((data.source !== "real" && data.source !== "demo")
+    || !Array.isArray(data.items)
+    || !data.items.every((item) => isRecord(item)
+      && typeof item.text === "string"
+      && Number.isSafeInteger(item.rank))) {
+    throw toClientError(body, response.status);
+  }
+  return data as { source: "real" | "demo"; items: HotSearchTerm[] };
 }

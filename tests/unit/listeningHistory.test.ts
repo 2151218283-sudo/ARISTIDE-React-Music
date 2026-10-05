@@ -7,6 +7,7 @@ import {
   historySchema,
   ListeningHistoryStorageError,
   listeningHistoryChangedEvent,
+  listeningHistoryScope,
   sortListeningHistoryEntries,
   toStoredTrack,
   upsertListeningHistoryEntries,
@@ -118,9 +119,17 @@ describe("listening history schema", () => {
     expect(historySchema).toEqual({
       databaseName: "echoform-listening-history",
       objectStoreName: "entries",
+      scopedStoreName: "scopedEntries",
       playedAtIndexName: "playedAt",
-      version: 1,
+      version: 2,
     });
+  });
+
+  it("separates new Real, guest and Demo records without attributing legacy rows", () => {
+    expect(listeningHistoryScope("real", "9001")).toBe("real:9001");
+    expect(listeningHistoryScope("real", null)).toBe("real:guest");
+    expect(listeningHistoryScope("demo", "9001")).toBe("demo");
+    expect(createEntry("track-1", 100).scope).toBeUndefined();
   });
 
   it("whitelists track metadata and excludes audio-source-shaped fields", () => {

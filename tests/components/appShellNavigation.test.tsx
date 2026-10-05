@@ -135,10 +135,19 @@ describe("FixedNavigation contract", () => {
     navigationState.pathname = "/settings";
     renderWithAuth(<FixedNavigation />);
 
+    expect(screen.getByRole("navigation", { name: "ECHOFORM 主导航" })).not.toHaveAttribute("data-opaque");
     expect(screen.getByRole("link", { name: "搜索" })).toHaveAttribute("href", "/search");
     const accountButton = screen.getByRole("button", { name: "正在恢复登录状态" });
     expect(accountButton).toBeDisabled();
     expect(accountButton).toHaveAttribute("title", "正在恢复登录状态");
+  });
+
+  it("keeps scrolled search content behind an opaque fixed navigation", () => {
+    navigationState.pathname = "/search";
+    renderWithAuth(<FixedNavigation />);
+
+    expect(screen.getByRole("navigation", { name: "ECHOFORM 主导航" }))
+      .toHaveAttribute("data-opaque", "true");
   });
 
   it("uses a normal-width brand face and disables the local dev indicator", () => {

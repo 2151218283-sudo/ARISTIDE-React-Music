@@ -1,0 +1,53 @@
+.section,
+.skeleton,
+.categories {
+  display: grid;
+  gap: var(--ef-space-4);
+}
+
+.section {
+  gap: var(--ef-space-5);
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ef-space-4);
+  border-bottom: 1px solid var(--ef-border-subtle);
+  min-height: 44px;
+}
+
+.heading h2,
+.heading span,
+.note {
+  margin: 0;
+  overflow-wrap: anywhere;
+  letter-spacing: 0;
+}
+
+.heading h2 {
+  font: var(--ef-weight-semibold) var(--ef-type-title-sm) var(--ef-font-body);
+}
+
+.heading span,
+.note {
+  color: var(--ef-text-secondary);
+  font: var(--ef-weight-regular) var(--ef-type-body) var(--ef-font-body);
+}
+
+.categories {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.categories li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ef-space-4);
+  min-height: 44px;
+  align-items: center;
+  border-bottom: 1px solid var(--ef-border-subtle);
+  overflow-wrap: anywhere;
+}

@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const navigation = vi.hoisted(() => ({ push: vi.fn() }));
 const auth = vi.hoisted(() => ({
   openLogin: vi.fn(),
+  mode: "real" as "real" | "demo",
   status: "ready" as "loading" | "ready",
   user: null as { id: string; nickname: string; avatarUrl: string | null; signature: string | null } | null,
 }));
@@ -85,6 +86,10 @@ function historyEntry(id: string, playedAt = Number(id) || 1): ListeningHistoryE
   };
 }
 
+function scopedHistoryEntry(id: string): ListeningHistoryEntry {
+  return { ...historyEntry(id), scope: "real:guest", scopeKey: `real:guest:${id}` };
+}
+
 const collection: UserPlaylistCollection = {
   created: [{
     artworkUrl: null,
@@ -126,19 +131,24 @@ function libraryPage<T>(items: T[]) {
   };
 }
 
-function renderLibrary() {
-  return render(
+function LibraryTree() {
+  return (
     <PlayerProvider sourceResolver={async () => source}>
       <LibraryMutationProvider>
         <LibraryExperience />
       </LibraryMutationProvider>
-    </PlayerProvider>,
+    </PlayerProvider>
   );
+}
+
+function renderLibrary() {
+  return render(<LibraryTree />);
 }
 
 beforeEach(() => {
   auth.openLogin.mockReset();
   auth.status = "ready";
+  auth.mode = "real";
   auth.user = null;
   history.list.mockReset();
   history.list.mockResolvedValue([]);
@@ -159,6 +169,22 @@ afterEach(() => {
 });
 
 describe("LibraryExperience", () => {
+  it("does not carry Real history into Demo after a mode switch", async () => {
+    history.list.mockImplementation(async (scope: string) => scope === "real:guest"
+      ? [scopedHistoryEntry("real")]
+      : [{ ...scopedHistoryEntry("demo"), scope: "demo", scopeKey: "demo:demo" }]);
+    const { rerender } = renderLibrary();
+    await userEvent.setup().click(screen.getByRole("tab", { name: "播放记录" }));
+    expect(await screen.findByText("Track real")).toBeVisible();
+
+    auth.mode = "demo";
+    rerender(<LibraryTree />);
+    expect(screen.queryByText("Track real")).not.toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("tab", { name: "播放记录" }));
+    expect(await screen.findByText("Track demo")).toBeVisible();
+    expect(screen.queryByText("Track real")).not.toBeInTheDocument();
+  });
+
   it("keeps anonymous account tabs local and opens the existing QR login flow", async () => {
     renderLibrary();
 
@@ -230,13 +256,14 @@ describe("LibraryExperience", () => {
   });
 
   it("keeps local history unchanged when clearing is cancelled or escaped", async () => {
-    history.list.mockResolvedValue([historyEntry("local")]);
+    history.list.mockResolvedValue([scopedHistoryEntry("local")]);
     renderLibrary();
 
     await userEvent.setup().click(screen.getByRole("tab", { name: "播放记录" }));
-    const clearTrigger = await screen.findByRole("button", { name: "清空记录" });
+    const clearTrigger = await screen.findByRole("button", { name: "清空当前身份记录" });
     await userEvent.setup().click(clearTrigger);
-    await screen.findByRole("dialog", { name: "清空播放记录？" });
+    const dialog = await screen.findByRole("dialog", { name: "清空当前身份的播放记录？" });
+    expect(dialog).toHaveTextContent("其他身份及归属未知的旧记录会保留");
     const cancel = screen.getByRole("button", { name: "取消" });
     expect(cancel).toHaveFocus();
     await userEvent.setup().click(cancel);
@@ -245,41 +272,41 @@ describe("LibraryExperience", () => {
     expect(clearTrigger).toHaveFocus();
 
     await userEvent.setup().click(clearTrigger);
-    await screen.findByRole("dialog", { name: "清空播放记录？" });
+    await screen.findByRole("dialog", { name: "清空当前身份的播放记录？" });
     await userEvent.setup().keyboard("{Escape}");
-    expect(screen.queryByRole("dialog", { name: "清空播放记录？" })).toBeNull();
+    expect(screen.queryByRole("dialog", { name: "清空当前身份的播放记录？" })).toBeNull();
     expect(history.clear).not.toHaveBeenCalled();
     expect(screen.getByText("Track local")).toBeVisible();
     expect(clearTrigger).toHaveFocus();
   });
 
   it("clears the rendered local history only after the adapter confirms success", async () => {
-    history.list.mockResolvedValue([historyEntry("confirmed")]);
+    history.list.mockResolvedValueOnce([scopedHistoryEntry("confirmed")]).mockResolvedValue([]);
     renderLibrary();
 
     await userEvent.setup().click(screen.getByRole("tab", { name: "播放记录" }));
-    await userEvent.setup().click(await screen.findByRole("button", { name: "清空记录" }));
-    const dialog = await screen.findByRole("dialog", { name: "清空播放记录？" });
-    await userEvent.setup().click(within(dialog).getByRole("button", { name: "清空记录" }));
+    await userEvent.setup().click(await screen.findByRole("button", { name: "清空当前身份记录" }));
+    const dialog = await screen.findByRole("dialog", { name: "清空当前身份的播放记录？" });
+    await userEvent.setup().click(within(dialog).getByRole("button", { name: "清空当前身份记录" }));
 
     await waitFor(() => expect(history.clear).toHaveBeenCalledOnce());
     expect(screen.queryByText("Track confirmed")).toBeNull();
     expect(screen.getByRole("heading", { name: "还没有本地播放记录" })).toBeVisible();
-    expect(screen.getByText("播放记录已清空。")).toBeVisible();
+    expect(screen.getByText("当前身份的本地播放记录已清空；旧记录已保留。")).toBeVisible();
   });
 
   it("prevents duplicate clear submits while the local transaction is pending", async () => {
     let resolveClear!: () => void;
-    history.list.mockResolvedValue([historyEntry("pending-clear")]);
+    history.list.mockResolvedValueOnce([scopedHistoryEntry("pending-clear")]).mockResolvedValue([]);
     history.clear.mockImplementationOnce(() => new Promise<void>((resolve) => {
       resolveClear = resolve;
     }));
     renderLibrary();
 
     await userEvent.setup().click(screen.getByRole("tab", { name: "播放记录" }));
-    await userEvent.setup().click(await screen.findByRole("button", { name: "清空记录" }));
-    const dialog = await screen.findByRole("dialog", { name: "清空播放记录？" });
-    const confirm = within(dialog).getByRole("button", { name: "清空记录" });
+    await userEvent.setup().click(await screen.findByRole("button", { name: "清空当前身份记录" }));
+    const dialog = await screen.findByRole("dialog", { name: "清空当前身份的播放记录？" });
+    const confirm = within(dialog).getByRole("button", { name: "清空当前身份记录" });
     await userEvent.setup().click(confirm);
     expect(confirm).toBeDisabled();
     expect(within(dialog).getByRole("button", { name: "取消" })).toBeDisabled();
@@ -288,22 +315,22 @@ describe("LibraryExperience", () => {
     expect(history.clear).toHaveBeenCalledOnce();
 
     resolveClear();
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "清空播放记录？" })).toBeNull());
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "清空当前身份的播放记录？" })).toBeNull());
     expect(screen.getByRole("heading", { name: "还没有本地播放记录" })).toBeVisible();
   });
 
   it("retains rows and exposes a deliberate retry after a clear failure", async () => {
-    history.list.mockResolvedValue([historyEntry("retry-clear")]);
+    history.list.mockResolvedValue([scopedHistoryEntry("retry-clear")]);
     history.clear.mockRejectedValueOnce(new Error("Synthetic clear failure"));
     renderLibrary();
 
     await userEvent.setup().click(screen.getByRole("tab", { name: "播放记录" }));
-    await userEvent.setup().click(await screen.findByRole("button", { name: "清空记录" }));
-    const dialog = await screen.findByRole("dialog", { name: "清空播放记录？" });
-    await userEvent.setup().click(within(dialog).getByRole("button", { name: "清空记录" }));
+    await userEvent.setup().click(await screen.findByRole("button", { name: "清空当前身份记录" }));
+    const dialog = await screen.findByRole("dialog", { name: "清空当前身份的播放记录？" });
+    await userEvent.setup().click(within(dialog).getByRole("button", { name: "清空当前身份记录" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("无法清空本地播放记录。");
     expect(screen.getByText("Track retry-clear")).toBeVisible();
-    expect(screen.getByRole("dialog", { name: "清空播放记录？" })).toBeVisible();
+    expect(screen.getByRole("dialog", { name: "清空当前身份的播放记录？" })).toBeVisible();
     expect(history.clear).toHaveBeenCalledOnce();
   });
 });

@@ -125,12 +125,16 @@ async function requestData<T>(
   return body.data;
 }
 
-export function requestLikedTracks(signal?: AbortSignal): Promise<CatalogPage<Track>> {
+export function requestLikedTracksPage(offset: number, signal?: AbortSignal): Promise<CatalogPage<Track>> {
   return requestData(
-    "/api/library/likes?limit=50&offset=0",
+    `/api/library/likes?limit=50&offset=${offset}`,
     (value): value is CatalogPage<Track> => isPage(value, isTrack),
     { signal },
   );
+}
+
+export function requestLikedTracks(signal?: AbortSignal): Promise<CatalogPage<Track>> {
+  return requestLikedTracksPage(0, signal);
 }
 
 export function requestSavedAlbums(signal?: AbortSignal): Promise<CatalogPage<AlbumSummary>> {

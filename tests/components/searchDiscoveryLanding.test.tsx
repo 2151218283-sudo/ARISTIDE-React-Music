@@ -10,6 +10,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("../../src/features/auth/AuthProvider", () => ({
+  useAuth: () => ({ mode: "real", status: "ready", user: null, openLogin: vi.fn() }),
+}));
+
 import { SearchDiscoveryLanding } from "../../src/features/search/SearchDiscoveryLanding";
 import { PlayerProvider } from "../../src/features/player/PlayerProvider";
 import type { PlaybackSource, Track } from "../../src/lib/music/models";
@@ -60,7 +64,12 @@ function playlistData() {
 
 function renderLanding(fetchMock: (input: RequestInfo | URL) => Promise<Response>) {
   const onFocusInput = vi.fn();
-  vi.stubGlobal("fetch", vi.fn(fetchMock));
+  vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+    if (new URL(String(input), "http://localhost").pathname === "/api/search/hot") {
+      return Promise.resolve(Response.json({ ok: true, data: { source: "real", items: [] } }));
+    }
+    return fetchMock(input);
+  }));
   render(
     <PlayerProvider sourceResolver={async () => source}>
       <SearchDiscoveryLanding onFocusInput={onFocusInput} />

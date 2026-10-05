@@ -33,6 +33,7 @@ import {
 } from "./profileClient";
 import { libraryChangedEventName } from "@/features/library/LibraryMutationProvider";
 import styles from "./ProfileExperience.module.css";
+import { TasteProfile } from "./TasteProfile";
 
 interface ProfileExperienceProps {
   userId: string;
@@ -419,6 +420,7 @@ export function ProfileExperience({ userId }: ProfileExperienceProps) {
         targetHidden={Boolean(transitionRequest)}
         targetRef={avatarRef}
       />
+      {overview.isCurrentUser ? <TasteProfile key={userId} userId={userId} /> : null}
       <ProfileCollections
         collection={collection}
         failure={collectionFailure}

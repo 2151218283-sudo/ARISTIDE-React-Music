@@ -91,6 +91,9 @@ async function installBaseRoutes(page: Page): Promise<void> {
   await page.route("**/api/auth/session", async (route) => {
     await fulfillJson(route, JSON.stringify({ ok: true, data: { mode: "real", user: null } }));
   });
+  await page.route("**/api/search/hot", async (route) => {
+    await fulfillJson(route, JSON.stringify({ ok: true, data: { source: "real", items: [] } }));
+  });
   await page.route("**/api/tracks/track-001/source", async (route) => {
     await fulfillJson(route, JSON.stringify({
       ok: true,

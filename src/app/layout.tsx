@@ -35,8 +35,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body>
         <SettingsProvider>
           <PlayerProvider>
-            <ListeningHistoryRecorder />
             <AuthProvider>
+              <ListeningHistoryRecorder />
               <ThemeProvider>
                 <LibraryMutationProvider>
                   <AppShell>{children}</AppShell>

@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/features/auth/AuthProvider";
+import { RuleRecommendations } from "@/features/discovery/RuleRecommendations";
 
 import { PlaylistTile } from "@/components/PlaylistTile";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusView } from "@/components/StatusView";
 import { TrackRow } from "@/components/TrackRow";
 import type { CatalogPage, Playlist, Track } from "@/lib/music/models";
+import type { HotSearchTerm } from "@/lib/music/models";
 import type { QueueItem } from "@/lib/player";
 
 import {
@@ -15,6 +18,8 @@ import {
   requestPopularPlaylists,
 } from "@/features/catalog/catalogClient";
 import styles from "./SearchDiscoveryLanding.module.css";
+import { getRecentSearches, searchScope, subscribeRecentSearches } from "./recentSearches";
+import { requestHotSearches, SearchClientError } from "./searchClient";
 
 interface DiscoveryFailure {
   message: string;
@@ -69,12 +74,45 @@ function DiscoverySkeleton({ kind }: { kind: "tracks" | "playlists" }) {
   );
 }
 
-export function SearchDiscoveryLanding({ onFocusInput }: { onFocusInput: () => void }) {
+export function SearchDiscoveryLanding({ onFocusInput, onSelectTerm }: {
+  onFocusInput: () => void;
+  onSelectTerm?: (text: string) => void;
+}) {
+  const { mode, user } = useAuth();
+  const scope = searchScope(mode, user?.id ?? null);
+  const [recent, setRecent] = useState(() => getRecentSearches(scope));
+  const [hotRevision, setHotRevision] = useState(0);
+  const [hot, setHot] = useState<DiscoverySection<{
+    source: "real" | "demo";
+    items: HotSearchTerm[];
+  }>>(loadingSection);
   const [newSongRevision, setNewSongRevision] = useState(0);
   const [playlistRevision, setPlaylistRevision] = useState(0);
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [newSongs, setNewSongs] = useState<DiscoverySection<Track[]>>(loadingSection);
   const [playlists, setPlaylists] = useState<DiscoverySection<CatalogPage<Playlist>>>(loadingSection);
+
+  useEffect(() => {
+    const update = (): void => setRecent(getRecentSearches(scope));
+    update();
+    return subscribeRecentSearches(update);
+  }, [scope]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void requestHotSearches(controller.signal).then((data) => {
+      if (!controller.signal.aborted) setHot({ data, failure: null, status: "ready" });
+    }).catch((error: unknown) => {
+      if (!controller.signal.aborted) setHot({
+        data: null,
+        failure: error instanceof SearchClientError
+          ? { message: error.message, retryable: error.retryable }
+          : { message: "热搜暂时不可用。", retryable: true },
+        status: "error",
+      });
+    });
+    return () => controller.abort();
+  }, [hotRevision, mode, user?.id]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setShowSkeleton(true), 300);
@@ -136,6 +174,30 @@ export function SearchDiscoveryLanding({ onFocusInput }: { onFocusInput: () => v
   return (
     <section className={styles.landing} data-search-discovery>
       <p className={styles.intro}>输入歌曲、歌手或专辑关键词，开始查找音乐。</p>
+      {recent.length > 0 ? (
+        <section aria-labelledby="recent-searches-heading" className={styles.section}>
+          <h2 id="recent-searches-heading">最近搜索</h2>
+          <p className={styles.empty}>仅保留在当前标签页，刷新后清除。</p>
+          <div className={styles.termList}>
+            {recent.map((term) => <button key={term} onClick={() => onSelectTerm?.(term)} type="button">{term}</button>)}
+          </div>
+        </section>
+      ) : null}
+      <section aria-labelledby="hot-searches-heading" className={styles.section}>
+        <div className={styles.sectionHeader}><h2 id="hot-searches-heading">热搜</h2><span>网易云实时榜单</span></div>
+        {hot.status === "loading" && showSkeleton ? <DiscoverySkeleton kind="tracks" /> : null}
+        {hot.status === "ready" && hot.data?.source === "demo" ? <p className={styles.empty}>演示模式不提供真实热搜榜单。</p> : null}
+        {hot.status === "ready" && hot.data?.source === "real" && hot.data.items.length === 0 ? <p className={styles.empty}>当前没有可显示的热搜词。</p> : null}
+        {hot.status === "ready" && hot.data?.source === "real" && hot.data.items.length > 0 ? (
+          <ol className={styles.termList}>
+            {hot.data.items.map((item) => <li key={item.text}><button onClick={() => onSelectTerm?.(item.text)} type="button"><span>{item.rank}.</span> {item.text}</button></li>)}
+          </ol>
+        ) : null}
+        {hot.status === "error" ? <StatusView action={{ label: "重试热搜", onClick: () => {
+          setHot(loadingSection());
+          setHotRevision((current) => current + 1);
+        } }} description={hot.failure?.message} title="热搜暂时不可用" tone="error" variant="inline" /> : null}
+      </section>
       {bothEmpty ? (
         <StatusView
           action={{ label: "开始搜索", onClick: onFocusInput }}
@@ -211,6 +273,7 @@ export function SearchDiscoveryLanding({ onFocusInput }: { onFocusInput: () => v
           </section>
         </div>
       ) : null}
+      <RuleRecommendations />
     </section>
   );
 }

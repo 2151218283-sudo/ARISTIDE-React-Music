@@ -248,6 +248,8 @@ type ApiFailure = {
 | `GET` | `/api/auth/qr/status` | 否 | 查询当前 Challenge 状态 |
 | `POST` | `/api/auth/logout` | 是 | 清理上游与本地 Session |
 | `GET` | `/api/recommendations/daily` | 是 | 当前用户每日推荐 |
+| `POST` | `/api/recommendations/rules` | 是 | 当前 Real 用户的本站历史规则推荐；仅接收有归属本地历史的有限 ID/时间，不执行上游写入 |
+| `GET` | `/api/search/hot` | 否 | 真实匿名热搜词，归一化并标注真实来源 |
 | `GET` | `/api/search` | 否 | 按歌曲、专辑、歌手搜索 |
 | `GET` | `/api/tracks/:id` | 否 | 歌曲详情 |
 | `GET` | `/api/tracks/:id/source` | 可选 | 短期播放源 |
@@ -348,12 +350,13 @@ sequenceDiagram
 | ECHOFORM `sid` | HttpOnly Cookie | Session 生命周期 | 是 |
 | Real / Demo 数据模式 | 服务端 Session | Session 生命周期 | 否 |
 | 主题、音量、音质、动效偏好 | localStorage | 用户清理前 | 否 |
-| 播放历史 | IndexedDB | 用户清理前 | 可能敏感 |
+| 播放历史 | 现有 IndexedDB 的隔离 store；旧 store 保留为无归属记录 | 用户清理前 | 可能敏感 |
 | 当前队列和播放位置 | React 内存 | 当前标签页 | 否 |
 | 音源 URL | 仅内存 | `expi` 到期前 | 是 |
-| 搜索词 | React 内存 | 当前搜索会话 | 可能敏感 |
+| 最近搜索词 | 按模式和当前账号分区的浏览器内存 | 当前标签页；刷新清除 | 可能敏感 |
 
-播放历史至少记录 `trackId`、`playedAt`、`playedMs` 和 `completed`，不保存音频 URL。
+播放历史至少记录 `trackId`、`playedAt`、`playedMs` 和 `completed`，不保存音频 URL。T026 在同一个 IndexedDB 中新增有归属的 store，键含 `real:<userId>`、`real:guest` 或 `demo` 与歌曲 ID；原 v1 store 和数据不迁移、不删除，标为归属未知，只能在本地历史中单独查看，不能作为规则推荐和画像的样本。录制器须位于 AuthProvider 内以取得当前模式和用户。
+T026 的相似歌曲结果仅在服务端 Session 内按用户、日期和输入指纹缓存，HTTP 一律 `no-store`；Cookie、源 URL 和完整本地历史不得持久化到推荐缓存。热搜为公开只读结果，但不能伪装为 Demo 数据。
 设置和历史都提供本地清除入口。跨设备同步不在当前范围。
 
 ## 9. 缓存与超时

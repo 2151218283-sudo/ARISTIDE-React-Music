@@ -19,6 +19,7 @@ import { StatusView } from "@/components/StatusView";
 import { TextButton } from "@/components/TextButton";
 import { TrackRow as SearchTrackRow } from "@/components/TrackRow";
 import { usePlayerSelector } from "@/features/player/playerContext";
+import { useAuth } from "@/features/auth/AuthProvider";
 import type {
   AlbumSummary,
   ArtistSummary,
@@ -31,6 +32,7 @@ import type { QueueItem } from "@/lib/player";
 
 import { SearchEntityTile } from "./SearchEntityTile";
 import { SearchDiscoveryLanding } from "./SearchDiscoveryLanding";
+import { clearRecentSearches, recordRecentSearch, searchScope } from "./recentSearches";
 import {
   AvailabilityClientError,
   requestTrackAvailability,
@@ -59,6 +61,7 @@ const tabs: Array<{ label: string; type: SearchType }> = [
 interface ResultContext {
   query: string;
   response: SearchResponse;
+  scope: string;
   type: SearchType;
 }
 
@@ -444,8 +447,11 @@ function SearchResults({
   );
 }
 
-function SearchLanding({ onFocusInput }: { onFocusInput: () => void }) {
-  return <SearchDiscoveryLanding onFocusInput={onFocusInput} />;
+function SearchLanding({ onFocusInput, onSelectTerm }: {
+  onFocusInput: () => void;
+  onSelectTerm: (text: string) => void;
+}) {
+  return <SearchDiscoveryLanding onFocusInput={onFocusInput} onSelectTerm={onSelectTerm} />;
 }
 
 function ResultSkeleton() {
@@ -460,6 +466,8 @@ function ResultSkeleton() {
 }
 
 export function SearchExperience() {
+  const { mode, status: authStatus, user } = useAuth();
+  const currentScope = searchScope(mode, user?.id ?? null);
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q")?.trim() ?? "";
   const urlType = readUrlType(searchParams.get("type"));
@@ -488,12 +496,29 @@ export function SearchExperience() {
   const urlStateRef = useRef(urlStateKey);
   const playableOnlyRef = useRef(playableOnly);
   const playabilitiesRef = useRef(playabilities);
+  const activeScopeRef = useRef<string | null>(null);
   const playerSnapshot = usePlayerSelector((snapshot) => snapshot);
 
   const commitResult = useCallback((nextResult: ResultContext | null) => {
     resultRef.current = nextResult;
     setResult(nextResult);
   }, []);
+
+  useEffect(() => {
+    if (authStatus !== "ready") return;
+    const previous = activeScopeRef.current;
+    activeScopeRef.current = currentScope;
+    if (previous && previous !== currentScope) {
+      if (previous.startsWith("real:") && currentScope === "real:guest") {
+        clearRecentSearches(previous);
+      }
+      requestControllerRef.current?.abort();
+      requestRevisionRef.current += 1;
+      commitResult(null);
+      setInputValue("");
+      setPlayabilities({});
+    }
+  }, [authStatus, commitResult, currentScope]);
 
   const updateTrackPlayability = useCallback((
     trackId: string,
@@ -632,7 +657,8 @@ export function SearchExperience() {
           if (requestRevisionRef.current !== revision) {
             return;
           }
-          commitResult({ query: normalizedQuery, response, type: selectedType });
+          commitResult({ query: normalizedQuery, response, scope: currentScope, type: selectedType });
+          if (authStatus === "ready") recordRecentSearch(currentScope, normalizedQuery);
           setRequestError(null);
         })
         .catch((error: unknown) => {
@@ -658,7 +684,7 @@ export function SearchExperience() {
       window.clearTimeout(resetId);
       requestControllerRef.current?.abort();
     };
-  }, [commitResult, normalizedQuery, retryRevision, selectedType, writeUrl]);
+  }, [authStatus, commitResult, currentScope, normalizedQuery, retryRevision, selectedType, writeUrl]);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setInputValue(event.target.value);
@@ -692,7 +718,8 @@ export function SearchExperience() {
 
   const handleLoadMore = async (): Promise<void> => {
     const currentResult = resultRef.current;
-    if (!currentResult || currentResult.response.type === "all" || isLoadingMore) {
+    if (!currentResult || currentResult.scope !== currentScope
+      || currentResult.response.type === "all" || isLoadingMore) {
       return;
     }
     const response = currentResult.response;
@@ -727,16 +754,17 @@ export function SearchExperience() {
     }
   };
 
-  const displayIsStale = result !== null && (
-    result.query !== normalizedQuery || result.type !== selectedType
+  const scopedResult = result?.scope === currentScope ? result : null;
+  const displayIsStale = scopedResult !== null && (
+    scopedResult.query !== normalizedQuery || scopedResult.type !== selectedType
   );
-  const visibleResult = result?.response ?? null;
+  const visibleResult = scopedResult?.response ?? null;
   const visibleTracks = useMemo(
     () => searchTracks(visibleResult),
     [visibleResult],
   );
-  const availabilityScopeKey = result
-    ? `${result.query}\u0000${result.type}\u0000${visibleTracks.map((track) => track.id).join(",")}`
+  const availabilityScopeKey = scopedResult
+    ? `${scopedResult.query}\u0000${scopedResult.type}\u0000${visibleTracks.map((track) => track.id).join(",")}`
     : "";
 
   useEffect(() => {
@@ -855,7 +883,7 @@ export function SearchExperience() {
         : isEmpty
           ? "empty"
           : "ready";
-  const activeResultLabel = result ? resultLabel(result.type) : resultLabel(selectedType);
+  const activeResultLabel = scopedResult ? resultLabel(scopedResult.type) : resultLabel(selectedType);
   const tabPanelId = `search-panel-${selectedType}`;
 
   const resultsSummary = useMemo(() => {
@@ -958,7 +986,10 @@ export function SearchExperience() {
             ) : !requestError && !showInitialSkeleton ? <p className={styles.waiting}>准备搜索“{normalizedQuery}”</p> : null}
           </div>
         </div>
-      ) : <SearchLanding onFocusInput={() => inputRef.current?.focus()} />}
+      ) : <SearchLanding key={currentScope} onFocusInput={() => inputRef.current?.focus()} onSelectTerm={(text) => {
+        setInputValue(text);
+        inputRef.current?.focus();
+      }} />}
     </div>
   );
 }

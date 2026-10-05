@@ -12,6 +12,7 @@ import type {
   AudioQuality,
   CatalogPage,
   CommentPage,
+  DataMode,
   LyricDocument,
   PageQuery,
   PlaybackAvailability,
@@ -68,6 +69,7 @@ export interface CatalogReadRouteHandlers {
 
 export interface PublicReadRouteDependencies {
   createProvider: () => PublicReadProvider;
+  mode?: DataMode;
   createRequestId?: () => string;
   now?: () => number;
   retryDelay?: (delayMs: number) => Promise<void>;
@@ -81,6 +83,7 @@ export interface PublicReadRouteDependencies {
 
 export interface CatalogReadRouteDependencies {
   createProvider: () => CatalogReadProvider;
+  mode?: DataMode;
   createRequestId?: () => string;
   now?: () => number;
   retryDelay?: (delayMs: number) => Promise<void>;
@@ -96,6 +99,7 @@ interface ReadDependencies {
 
 interface ResolvedDependencies extends ReadDependencies {
   createProvider: () => PublicReadProvider;
+  mode: DataMode;
   createRequestId: () => string;
   resolvePlaybackCredential: (request: Request) => string | undefined;
   timeoutMs: {
@@ -106,12 +110,14 @@ interface ResolvedDependencies extends ReadDependencies {
 
 interface ResolvedCatalogDependencies extends ReadDependencies {
   createProvider: () => CatalogReadProvider;
+  mode: DataMode;
   createRequestId: () => string;
   timeoutMs: number;
 }
 
 interface ReadRouteOptions<T> {
   cacheControl: string;
+  mode?: DataMode;
   requestId: string;
   timeoutMs: number;
   dependencies: ReadDependencies;
@@ -355,7 +361,7 @@ async function respondToRead<T>(options: ReadRouteOptions<T>): Promise<Response>
     const data = await executeRead(options);
     return jsonResponse(createApiSuccess(data, {
       requestId: options.requestId,
-      mode: "real",
+      mode: options.mode ?? "real",
       fetchedAt: new Date(options.dependencies.now()).toISOString(),
     }), 200, options.cacheControl);
   } catch (error) {
@@ -373,6 +379,7 @@ function resolveDependencies(
 ): ResolvedDependencies {
   return {
     createProvider: dependencies.createProvider,
+    mode: dependencies.mode ?? "real",
     createRequestId: dependencies.createRequestId ?? randomUUID,
     now: dependencies.now ?? Date.now,
     retryDelay: dependencies.retryDelay ?? defaultRetryDelay,
@@ -390,6 +397,7 @@ function resolveCatalogDependencies(
 ): ResolvedCatalogDependencies {
   return {
     createProvider: dependencies.createProvider,
+    mode: dependencies.mode ?? "real",
     createRequestId: dependencies.createRequestId ?? randomUUID,
     now: dependencies.now ?? Date.now,
     retryDelay: dependencies.retryDelay ?? defaultRetryDelay,
@@ -420,7 +428,8 @@ export function createPublicReadRouteHandlers(
       try {
         const query = parseSearchQuery(request);
         return await respondToRead({
-          cacheControl: publicMetadataCacheControl,
+          cacheControl: dependencies.mode === "demo" ? noStoreCacheControl : publicMetadataCacheControl,
+          mode: dependencies.mode,
           requestId,
           timeoutMs: dependencies.timeoutMs.default,
           dependencies,
@@ -628,7 +637,8 @@ export function createCatalogReadRouteHandlers(
       try {
         const limit = parseNewSongLimit(request);
         return await respondToRead({
-          cacheControl: publicMetadataCacheControl,
+          cacheControl: dependencies.mode === "demo" ? noStoreCacheControl : publicMetadataCacheControl,
+          mode: dependencies.mode,
           requestId,
           timeoutMs: dependencies.timeoutMs,
           dependencies,
@@ -644,7 +654,8 @@ export function createCatalogReadRouteHandlers(
       try {
         const page = parseCatalogPage(request, 8);
         return await respondToRead({
-          cacheControl: publicMetadataCacheControl,
+          cacheControl: dependencies.mode === "demo" ? noStoreCacheControl : publicMetadataCacheControl,
+          mode: dependencies.mode,
           requestId,
           timeoutMs: dependencies.timeoutMs,
           dependencies,

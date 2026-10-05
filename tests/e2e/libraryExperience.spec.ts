@@ -157,18 +157,77 @@ test("renders local history through the versioned IndexedDB adapter without an a
   await expect(page.getByText("本地离线记录")).toBeVisible();
   await page.context().setOffline(false);
 
-  const clearTrigger = page.getByRole("button", { name: "清空记录" });
-  await clearTrigger.click();
-  const clearDialog = page.getByRole("dialog", { name: "清空播放记录？" });
-  await expect(clearDialog).toBeVisible();
-  await clearDialog.getByRole("button", { name: "取消" }).click();
+  await expect(page.getByText(/51 条旧记录无法确认账号或模式/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "清空当前身份记录" })).toHaveCount(0);
+  await page.reload();
+  await page.getByRole("tab", { name: "播放记录" }).click();
   await expect(historyTrackLink(page, "1")).toBeVisible();
+});
 
-  await clearTrigger.click();
-  await clearDialog.getByRole("button", { name: "清空记录" }).click();
-  await expect(clearDialog).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "还没有本地播放记录" })).toBeVisible();
-  await expect(page.getByText("播放记录已清空。")).toBeVisible();
+test("upgrades v1 history and clears only the current identity's v2 records", async ({ page }, testInfo) => {
+  await page.goto("/library");
+  await page.getByRole("tab", { name: "播放记录" }).click();
+  await seedHistory(page, 1);
+  await expect(historyTrackLink(page, "1")).toBeVisible();
+  await page.evaluate(async () => {
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open("echoform-listening-history", 2);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const database = request.result;
+        const transaction = database.transaction("scopedEntries", "readwrite");
+        const record = {
+          completed: false,
+          playedAt: Date.now(),
+          playedMs: 30_000,
+          source: "local",
+          track: {
+            album: { artworkUrl: null, id: "album-2", name: "Album 2" },
+            aliases: [], artists: [{ id: "artist-2", name: "Artist 2" }],
+            artworkUrl: null, availability: "playable", durationMs: 120_000,
+            explicit: false, id: "2", name: "Track 2",
+            privilege: { fee: null, maxQuality: "standard" },
+          },
+          trackId: "2", scope: "real:guest", scopeKey: "real:guest:2",
+        };
+        transaction.objectStore("scopedEntries").put(record);
+        transaction.objectStore("scopedEntries").put({
+          ...record, scope: "real:other", scopeKey: "real:other:2",
+        });
+        transaction.oncomplete = () => { database.close(); resolve(); };
+        transaction.onerror = () => reject(transaction.error);
+      };
+    });
+    window.dispatchEvent(new Event("echoform:history-changed"));
+  });
+  await expect(historyTrackLink(page, "2")).toBeVisible();
+  await page.getByRole("button", { name: "清空当前身份记录" }).click();
+  const dialog = page.getByRole("dialog", { name: "清空当前身份的播放记录？" });
+  await expect(dialog).toContainText("其他身份及归属未知的旧记录会保留");
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport);
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "清空当前身份记录" })).toBeInViewport();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
+    await page.screenshot({ animations: "disabled", path: testInfo.outputPath(`clear-history-${viewport.name}.png`) });
+  }
+  await dialog.getByRole("button", { name: "清空当前身份记录" }).click();
+  await expect(historyTrackLink(page, "2")).toHaveCount(0);
+  await expect(historyTrackLink(page, "1")).toBeVisible();
+  await expect(page.getByText("当前身份的本地播放记录已清空；旧记录已保留。")).toBeVisible();
+  const otherIdentityRecord = await page.evaluate(async () => await new Promise<unknown>((resolve, reject) => {
+    const request = indexedDB.open("echoform-listening-history", 2);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const database = request.result;
+      const transaction = database.transaction("scopedEntries", "readonly");
+      const lookup = transaction.objectStore("scopedEntries").get("real:other:2");
+      lookup.onsuccess = () => resolve(lookup.result);
+      lookup.onerror = () => reject(lookup.error);
+      transaction.oncomplete = () => database.close();
+    };
+  }));
+  expect(otherIdentityRecord).toMatchObject({ scope: "real:other", trackId: "2" });
 });
 
 test("keeps the library readable and non-overflowing at three viewports", async ({ page }, testInfo) => {

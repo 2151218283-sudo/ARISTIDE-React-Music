@@ -67,6 +67,39 @@ export interface DailyRecommendations {
   tracks: Track[];
 }
 
+export interface HotSearchTerm {
+  text: string;
+  rank: number;
+}
+
+export interface LocalHistorySeed {
+  trackId: string;
+  playedAt: number;
+}
+
+export interface RuleRecommendationReason {
+  seedId: string;
+  seedName: string;
+  source: "liked" | "local-history";
+}
+
+export interface RuleRecommendationItem {
+  track: Track;
+  score: number;
+  reasons: RuleRecommendationReason[];
+}
+
+export interface RuleRecommendations {
+  date: string;
+  source: "real";
+  historyWindowDays: 30;
+  historySampleSize: number;
+  likedSampleSize: number;
+  failedSeedCount: number;
+  failedAvailabilityCount: number;
+  items: RuleRecommendationItem[];
+}
+
 export interface UserProfile {
   id: string;
   nickname: string;

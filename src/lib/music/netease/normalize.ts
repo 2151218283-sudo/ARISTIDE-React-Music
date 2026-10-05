@@ -11,6 +11,7 @@ import type {
   CatalogPage,
   Comment,
   CommentPage,
+  HotSearchTerm,
   LyricDocument,
   PlaybackSource,
   Playlist,
@@ -242,6 +243,22 @@ function mapRows<T>(
 
 export function mapTracks(value: unknown): Track[] {
   return mapRows(value, (row) => mapTrack(row));
+}
+
+export function mapHotSearches(value: unknown, limit: number): HotSearchTerm[] {
+  if (!Array.isArray(value)) {
+    throw upstreamError();
+  }
+  const seen = new Set<string>();
+  return value.flatMap((row, index) => {
+    const item = asRecord(row);
+    const word = item ? text(item.searchWord) : null;
+    if (!word || word.length > 100 || seen.has(word)) {
+      return [];
+    }
+    seen.add(word);
+    return [{ text: word, rank: index + 1 }];
+  }).slice(0, limit);
 }
 
 function unavailableCatalogEntity(): AppError {

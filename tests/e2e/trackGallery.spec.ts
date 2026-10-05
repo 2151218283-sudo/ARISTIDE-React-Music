@@ -50,14 +50,20 @@ async function measureGalleryFrames(page: Page): Promise<number> {
       throw new Error("The gallery canvas is unavailable for frame measurement.");
     }
 
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
     const before = Number(canvas.dataset.renderCount ?? "0");
     const startedAt = performance.now();
-    canvas.dispatchEvent(new WheelEvent("wheel", {
-      bubbles: true,
-      cancelable: true,
-      deltaY: 120,
-    }));
-    await new Promise<void>((resolve) => window.setTimeout(resolve, 500));
+    const scroll = (): void => {
+      canvas.dispatchEvent(new WheelEvent("wheel", {
+        bubbles: true,
+        cancelable: true,
+        deltaY: 120,
+      }));
+    };
+    scroll();
+    const wheelInterval = window.setInterval(scroll, 100);
+    await new Promise<void>((resolve) => window.setTimeout(resolve, 1_000));
+    window.clearInterval(wheelInterval);
     const elapsedSeconds = (performance.now() - startedAt) / 1_000;
     const after = Number(canvas.dataset.renderCount ?? "0");
     return (after - before) / elapsedSeconds;

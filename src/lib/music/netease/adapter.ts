@@ -9,6 +9,7 @@ import type {
   CatalogPage,
   CommentPage,
   LyricDocument,
+  HotSearchTerm,
   PageQuery,
   PlaybackSource,
   Playlist,
@@ -49,6 +50,7 @@ import {
   mapPlaylistDetail,
   mapPlaylist,
   mapSavedAlbumPage,
+  mapHotSearches,
   mapUserPlaylistCollection,
   mapUserProfile,
   unwrapLegacyBody,
@@ -285,6 +287,19 @@ export class LegacyNeteaseAdapter {
     return response;
   }
 
+  async getHotSearches(limit: number): Promise<HotSearchTerm[]> {
+    validateLimit(limit, 20);
+    const response = await this.invoke(this.api.search_hot_detail, {});
+    return mapHotSearches(unwrapLegacyBody(response).data, limit);
+  }
+
+  async getSimilarTracks(trackId: string, limit: number, cookie?: string): Promise<Track[]> {
+    const id = validateTrackId(trackId);
+    validateLimit(limit, 20);
+    const response = await this.invoke(this.api.simi_song, withCookie({ id, limit }, cookie));
+    return mapTracks(unwrapLegacyBody(response).songs).slice(0, limit);
+  }
+
   async getAlbum(albumId: string): Promise<AlbumDetail> {
     const id = validateTrackId(albumId);
     const response = await this.invoke(this.api.album, { id });
@@ -400,6 +415,20 @@ export class LegacyNeteaseAdapter {
       offset: page.offset,
       hasMore: page.offset + items.length < ids.length,
     };
+  }
+
+  async getLikedTrackIds(userId: string, cookie?: string): Promise<string[]> {
+    const id = validateUserId(userId);
+    const response = await this.invoke(this.api.likelist, withCookie({ uid: id }, cookie));
+    const body = unwrapLegacyBody(response);
+    if (!Array.isArray(body.ids)) {
+      throw new AppError("UPSTREAM_UNAVAILABLE", "喜欢歌曲列表格式无效。", { retryable: true });
+    }
+    return [...new Set(body.ids.flatMap((value) => {
+      if (typeof value === "string" && trackIdPattern.test(value)) return [value];
+      if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) return [String(value)];
+      return [];
+    }))];
   }
 
   async getSavedAlbums(

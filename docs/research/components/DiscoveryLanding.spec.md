@@ -28,9 +28,14 @@
 
 ## Presentation And Interaction
 
-- The heading explains supported keyword search without fake history or a fake
-  hot-search ranking. Below it, `新歌` renders TrackRows and `热门歌单` renders
-  unframed responsive PlaylistTiles.
+- The heading explains supported keyword search. T026 adds separately labelled
+  current-tab recent searches and verified real hot searches; failed real reads
+  remain errors, never Demo rankings. Below them, `新歌` renders TrackRows and
+  `热门歌单` renders unframed responsive PlaylistTiles. The existing new-song
+  feed is not labelled as an upstream ranked chart.
+- T026 adds an independent rule-recommendation section for authenticated Real
+  users. Demo and guests receive an honest unavailable or insufficient-data
+  state; no Real samples are mixed into Demo.
 - New-song row playback stays on `/search`, creates a finite local queue, and
   uses the existing source-resolution behavior. Unavailable tracks remain
   discoverable and truthful.

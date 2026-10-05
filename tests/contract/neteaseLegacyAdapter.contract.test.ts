@@ -61,6 +61,8 @@ function makeApi(overrides: Partial<LegacyNeteaseApi> = {}): LegacyNeteaseApi {
     logout: method({ code: 200 }),
     personalized_newsong: method({ code: 200, result: [] }),
     recommend_songs: method({ code: 200, data: { dailySongs: [] } }),
+    search_hot_detail: method({ code: 200, data: [] }),
+    simi_song: method({ code: 200, songs: [] }),
     song_detail: method({ code: 200, songs: [], privileges: [] }),
     song_url_v1: method({ code: 200, data: [] }),
     top_playlist: method({ code: 200, playlists: [], total: 0, more: false }),

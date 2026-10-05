@@ -68,6 +68,9 @@ async function installProfileRoutes(
   await page.route("**/api/auth/session", async (route) => {
     await fulfillJson(route, success({ mode: "real", user: options.sessionUser ?? null }));
   });
+  await page.route("**/api/library/likes?*", async (route) => {
+    await fulfillJson(route, success({ items: [], total: 0, limit: 50, offset: 0, hasMore: false }));
+  });
   await page.route("**/api/recommendations/daily", async (route) => {
     await fulfillJson(route, success({ date: "2026-08-05", source: "public", tracks: [] }));
   });
